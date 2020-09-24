@@ -14,10 +14,10 @@ else
 
 
 @code {
-    private DrugInfo[] information;
+    private DrugInformation[] information;
 
     protected override async Task OnInitializedAsync()
     {
-        information = await Http.GetFromJsonAsync<DrugInfo[]>("/api/DrugInfo");
+        information = await Http.GetFromJsonAsync<DrugInformation[]>("DrugInformation");
     }
 }
