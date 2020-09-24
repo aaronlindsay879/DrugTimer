@@ -1,7 +1,23 @@
-﻿@page "/"
+﻿@using DrugTimer.Shared
+@inject HttpClient Http
+@page "/"
 
-<h1>Hello, world!</h1>
+@if (information == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <p>@information[0].Name</p>
+    <p>@information[0].TimeBetweenDoses</p>
+}
 
-Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
+    private DrugInformation[] information;
+
+    protected override async Task OnInitializedAsync()
+    {
+        information = await Http.GetFromJsonAsync<DrugInformation[]>("DrugInformation");
+    }
+}
