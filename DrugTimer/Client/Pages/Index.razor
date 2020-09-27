@@ -1,4 +1,6 @@
 ﻿@using DrugTimer.Shared
+@using DrugTimer.Client.Components
+
 @inject HttpClient Http
 @page "/"
 
@@ -8,11 +10,17 @@
 }
 else
 {
-    <p>@information[0].Name</p>
-    <p>@information[0].TimeBetweenDoses</p>
-    <p>@information[0].Entries.Last()</p>
+<TabControl>
+    @foreach (DrugInfo info in information)
+    {
+        <TabPage Text="@info.Name">
+            <h1>
+                @info.TimeBetweenDoses
+            </h1>
+        </TabPage>
+    }
+</TabControl>
 }
-
 
 @code {
     private DrugInfo[] information;
