@@ -15,6 +15,11 @@ namespace DrugTimer.Server
         public static void Main(string[] args)
         {
             Database.SetConnInfo(@"DataSource=database.db");
+            /*Database.AddDrugEntry(new Shared.DrugEntry()
+            {
+                DrugName = "Co-codamol",
+                Time = new DateTime(2000, 10, 15, 10, 10, 10, 300)
+            });*/
 
             CreateHostBuilder(args).Build().Run();
         }
