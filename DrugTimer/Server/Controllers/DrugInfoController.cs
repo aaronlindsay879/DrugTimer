@@ -10,19 +10,19 @@ namespace DrugTimer.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class DrugInformationController : ControllerBase
+    public class DrugInfoController : ControllerBase
     {
-        private readonly ILogger<WeatherForecastController> logger;
+        private readonly ILogger<DrugInfoController> logger;
 
-        public DrugInformationController(ILogger<WeatherForecastController> logger)
+        public DrugInfoController(ILogger<DrugInfoController> logger)
         {
             this.logger = logger;
         }
 
         [HttpGet]
-        public IEnumerable<DrugInformation> Get()
+        public IEnumerable<DrugInfo> Get()
         {
-            yield return new DrugInformation
+            yield return new DrugInfo
             {
                 Name = "Codeine",
                 TimeBetweenDoses = 4

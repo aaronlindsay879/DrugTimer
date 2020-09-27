@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DrugTimer.Shared
 {
-    public class DrugInformation
+    public class DrugInfo
     {
         public string Name { get; set; }
         public decimal TimeBetweenDoses { get; set; }
