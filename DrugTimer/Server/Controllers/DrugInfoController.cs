@@ -25,5 +25,11 @@ namespace DrugTimer.Server.Controllers
         {
             return Database.GetDrugInfo();
         }
+
+        [HttpPost]
+        public void Post([FromBody]DrugInfo info)
+        {
+            Database.AddDrugInfo(info);
+        }
     }
 }
