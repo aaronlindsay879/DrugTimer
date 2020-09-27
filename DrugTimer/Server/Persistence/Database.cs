@@ -10,10 +10,12 @@ namespace DrugTimer.Server.Persistence
     public static class Database
     {
         private static string _connectionInfo;
+        public static bool StateHasChanged;
 
         public static void SetConnInfo(string info)
         {
             _connectionInfo = info;
+            StateHasChanged = false;
         }
 
         public static void AddDrugInfo(DrugInfo info)
@@ -90,6 +92,9 @@ namespace DrugTimer.Server.Persistence
             List<DateTime> entries = new List<DateTime>();
             while (reader.Read())
                 entries.Add(DateTime.Parse((string)reader["Time"]));
+
+            entries.Sort();
+            entries.Reverse();
 
             return entries;
         }

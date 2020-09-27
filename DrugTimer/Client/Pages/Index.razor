@@ -14,9 +14,7 @@ else
     @foreach (DrugInfo info in information)
     {
         <TabPage Text="@info.Name">
-            <h1>
-                @info.TimeBetweenDoses
-            </h1>
+            <DrugDisplay DrugInfo="@info" />
         </TabPage>
     }
 </TabControl>

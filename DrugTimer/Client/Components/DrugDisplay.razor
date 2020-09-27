@@ -1,0 +1,33 @@
+﻿@using DrugTimer.Shared 
+
+@if (DrugInfo == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    @if (FindNearestPastEntry().HasValue)
+    {
+        <p>@FindNearestPastEntry().Value</p>
+    }
+
+    @foreach (DateTime entry in DrugInfo.Entries)
+    {
+        <p>@entry</p>
+    }
+}
+
+@code {
+    [Parameter] public DrugInfo DrugInfo { get; set; }
+
+    private DateTime? FindNearestPastEntry()
+    {
+        var entries = DrugInfo.Entries.Where(x => x <= DateTime.Now);
+        var lastEntry = entries.Last();
+
+        if ((DateTime.Now - lastEntry).Seconds < DrugInfo.TimeBetweenDoses * 3600)
+            return lastEntry;
+
+        return null;
+    }
+}
