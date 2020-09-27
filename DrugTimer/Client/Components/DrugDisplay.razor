@@ -8,7 +8,7 @@ else
 {
     @if (FindNearestPastEntry().HasValue)
     {
-        <p>@FindNearestPastEntry().Value</p>
+        <p>Nearest past entry: @FindNearestPastEntry().Value</p>
     }
 
     @foreach (DateTime entry in DrugInfo.Entries)
