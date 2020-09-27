@@ -94,7 +94,6 @@ namespace DrugTimer.Server.Persistence
                 entries.Add(DateTime.Parse((string)reader["Time"]));
 
             entries.Sort();
-            entries.Reverse();
 
             return entries;
         }

@@ -38,6 +38,8 @@ namespace DrugTimer.Server.Controllers
                 DrugName = data.GetProperty("Name").ToString(),
                 Time = DateTime.Parse(data.GetProperty("Time").ToString())
             });
+
+            Database.StateHasChanged = true;
         }
     }
 }

@@ -30,6 +30,7 @@ namespace DrugTimer.Server.Controllers
         public void Post([FromBody]DrugInfo info)
         {
             Database.AddDrugInfo(info);
+            Database.StateHasChanged = true;
         }
     }
 }

@@ -1,17 +1,18 @@
 ﻿@using DrugTimer.Shared
 @using DrugTimer.Client.Components
+@using System.Threading 
 
 @inject HttpClient Http
 @page "/"
 
-@if (information == null)
+@if (_information == null)
 {
     <p>Loading...</p>
 }
 else
 {
 <TabControl>
-    @foreach (DrugInfo info in information)
+    @foreach (DrugInfo info in _information)
     {
         <TabPage Text="@info.Name">
             <DrugDisplay DrugInfo="@info" />
@@ -21,10 +22,22 @@ else
 }
 
 @code {
-    private DrugInfo[] information;
+    private DrugInfo[] _information;
+    private Timer _timer;
 
     protected override async Task OnInitializedAsync()
     {
-        information = await Http.GetFromJsonAsync<DrugInfo[]>("/api/DrugInfo");
+        _information = await Http.GetFromJsonAsync<DrugInfo[]>("/api/DrugInfo");
+
+        _timer = new Timer(async e =>
+        {
+            bool response = await Http.GetFromJsonAsync<bool>("/api/State");
+
+            if (response == true)
+            {
+                _information = await Http.GetFromJsonAsync<DrugInfo[]>("/api/DrugInfo");
+                StateHasChanged();
+            }
+        }, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
     }
 }
