@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using DrugTimer.Server.Persistence;
+using Microsoft.AspNetCore.Http;
 
 namespace DrugTimer.Server.Controllers
 {
@@ -23,9 +24,15 @@ namespace DrugTimer.Server.Controllers
         [HttpGet]
         public bool Get()
         {
-            if (Database.StateHasChanged)
+            string ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+
+            if (!Database.StateHasChanged.ContainsKey(ip))
+                Database.StateHasChanged.Add(ip, true);
+
+
+            if (Database.StateHasChanged[ip])
             {
-                Database.StateHasChanged = false;
+                Database.StateHasChanged[ip] = false;
                 return true;
             }
 

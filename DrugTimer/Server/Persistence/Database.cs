@@ -10,12 +10,11 @@ namespace DrugTimer.Server.Persistence
     public static class Database
     {
         private static string _connectionInfo;
-        public static bool StateHasChanged;
+        public static Dictionary<string, bool> StateHasChanged = new Dictionary<string, bool>();
 
         public static void SetConnInfo(string info)
         {
             _connectionInfo = info;
-            StateHasChanged = false;
         }
 
         public static void AddDrugInfo(DrugInfo info)

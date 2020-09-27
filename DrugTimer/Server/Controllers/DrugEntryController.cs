@@ -40,7 +40,8 @@ namespace DrugTimer.Server.Controllers
                 Time = DateTime.Parse(data.GetProperty("Time").ToString())
             });
 
-            Database.StateHasChanged = true;
+            string ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+            Database.StateHasChanged[ip] = true;
         }
     }
 }

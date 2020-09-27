@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.1" />
   </ItemGroup>
 
@@ -13,6 +14,5 @@
     <ProjectReference Include="..\Client\DrugTimer.Client.csproj" />
     <ProjectReference Include="..\Shared\DrugTimer.Shared.csproj" />
   </ItemGroup>
-
-
+    
 </Project>
