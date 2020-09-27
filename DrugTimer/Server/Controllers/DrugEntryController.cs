@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using DrugTimer.Server.Persistence;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace DrugTimer.Server.Controllers
 {
@@ -26,7 +27,7 @@ namespace DrugTimer.Server.Controllers
         {
             return Database.GetDrugEntries(new DrugInfo()
             {
-                Name = drugName
+                Name = Regex.Unescape(drugName)
             });
         }
 
