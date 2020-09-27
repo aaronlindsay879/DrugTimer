@@ -8,9 +8,5 @@ namespace DrugTimer.Server.Hubs
 {
     public class PostHub : Hub
     {
-        public async Task StateChange()
-        {
-            await Clients.All.SendAsync("StateChange");
-        }
     }
 }

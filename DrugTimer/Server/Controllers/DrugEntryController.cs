@@ -39,13 +39,15 @@ namespace DrugTimer.Server.Controllers
         [HttpPost]
         public async void Post([FromBody]JsonElement data)
         {
-            Database.AddDrugEntry(new DrugEntry()
+            DrugEntry entry = new DrugEntry()
             {
                 DrugName = data.GetProperty("Name").ToString(),
                 Time = DateTime.Parse(data.GetProperty("Time").ToString())
-            });
+            };
 
-            await _hubContext.Clients.All.SendAsync("StateChange");
+            Database.AddDrugEntry(entry);
+
+            await _hubContext.Clients.All.SendAsync("DrugEntry", entry);
         }
     }
 }

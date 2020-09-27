@@ -24,7 +24,7 @@ else
 }
 
 @code {
-    private DrugInfo[] _information;
+    private List<DrugInfo> _information;
     private HubConnection hubConnection;
 
     protected override async Task OnInitializedAsync()
@@ -32,10 +32,26 @@ else
         hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("posthub"))
                                                   .Build();
 
-        hubConnection.On("StateChange", async () =>
+        //on druginfo events, add drug info to local list
+        hubConnection.On<DrugInfo>("DrugInfo", async drugInfo =>
         {
-            Console.WriteLine("State change requested");
-            _information = await UpdateInfo(); 
+            Console.WriteLine("New DrugInfo added");
+            _information.Add(drugInfo);
+
+            await InvokeAsync(StateHasChanged);
+        });
+
+        //on drugentry events, find druginfo with that name and add entry to it
+        hubConnection.On<DrugEntry>("DrugEntry", async drugEntry =>
+        {
+            Console.WriteLine("New DrugEntry added");
+            if (!_information.Any(x => x.Name == drugEntry.DrugName))
+            {
+                Console.WriteLine("no drug with that name, probably a big error?");
+                return;
+            }
+
+            _information.First(x => x.Name == drugEntry.DrugName).Entries.Add(drugEntry.Time);
 
             await InvokeAsync(StateHasChanged);
         });
@@ -44,8 +60,8 @@ else
         await hubConnection.StartAsync();
     }
 
-    private async Task<DrugInfo[]> UpdateInfo()
+    private async Task<List<DrugInfo>> UpdateInfo()
     {
-        return await Http.GetFromJsonAsync<DrugInfo[]>("/api/DrugInfo");
+        return await Http.GetFromJsonAsync<List<DrugInfo>>("/api/DrugInfo");
     }
 }

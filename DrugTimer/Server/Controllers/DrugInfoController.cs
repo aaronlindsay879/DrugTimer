@@ -35,7 +35,7 @@ namespace DrugTimer.Server.Controllers
         {
             Database.AddDrugInfo(info);
 
-            await _hubContext.Clients.All.SendAsync("StateChange");
+            await _hubContext.Clients.All.SendAsync("DrugInfo", info);
         }
     }
 }
