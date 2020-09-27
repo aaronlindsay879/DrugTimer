@@ -27,8 +27,13 @@ else
     private List<DrugInfo> _information;
     private HubConnection hubConnection;
 
+    /// <summary>
+    /// Override the initialization to add a websocket
+    /// </summary>
+    /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
+        //create a new websocket
         hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("posthub"))
                                                   .Build();
 
@@ -56,10 +61,15 @@ else
             await InvokeAsync(StateHasChanged);
         });
 
+        //fetch initial data, and start socket
         _information = await UpdateInfo();
         await hubConnection.StartAsync();
     }
 
+    /// <summary>
+    /// Finds a list of DrugInfos from the server API
+    /// </summary>
+    /// <returns>A list of DrugInfos</returns>
     private async Task<List<DrugInfo>> UpdateInfo()
     {
         return await Http.GetFromJsonAsync<List<DrugInfo>>("/api/DrugInfo");
