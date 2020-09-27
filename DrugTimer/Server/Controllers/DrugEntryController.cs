@@ -8,6 +8,9 @@ using Microsoft.Extensions.Logging;
 using DrugTimer.Server.Persistence;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using DrugTimer.Server.Hubs;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.SignalR;
 
 namespace DrugTimer.Server.Controllers
 {
@@ -16,10 +19,12 @@ namespace DrugTimer.Server.Controllers
     public class DrugEntryController : ControllerBase
     {
         private readonly ILogger<DrugEntryController> logger;
+        private readonly IHubContext<PostHub> _hubContext;
 
-        public DrugEntryController(ILogger<DrugEntryController> logger)
+        public DrugEntryController(ILogger<DrugEntryController> logger, IHubContext<PostHub> hubContext)
         {
             this.logger = logger;
+            _hubContext = hubContext;
         }
 
         [HttpGet("{id}")]
@@ -32,7 +37,7 @@ namespace DrugTimer.Server.Controllers
         }
 
         [HttpPost]
-        public void Post([FromBody]JsonElement data)
+        public async void Post([FromBody]JsonElement data)
         {
             Database.AddDrugEntry(new DrugEntry()
             {
@@ -40,8 +45,7 @@ namespace DrugTimer.Server.Controllers
                 Time = DateTime.Parse(data.GetProperty("Time").ToString())
             });
 
-            string ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
-            Database.StateHasChanged[ip] = true;
+            await _hubContext.Clients.All.SendAsync("StateChange");
         }
     }
 }

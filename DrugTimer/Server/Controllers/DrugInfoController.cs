@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using DrugTimer.Server.Persistence;
+using DrugTimer.Server.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace DrugTimer.Server.Controllers
 {
@@ -14,10 +16,12 @@ namespace DrugTimer.Server.Controllers
     public class DrugInfoController : ControllerBase
     {
         private readonly ILogger<DrugInfoController> logger;
+        private readonly IHubContext<PostHub> _hubContext;
 
-        public DrugInfoController(ILogger<DrugInfoController> logger)
+        public DrugInfoController(ILogger<DrugInfoController> logger, IHubContext<PostHub> hubContext)
         {
             this.logger = logger;
+            _hubContext = hubContext;
         }
 
         [HttpGet]
@@ -27,12 +31,11 @@ namespace DrugTimer.Server.Controllers
         }
 
         [HttpPost]
-        public void Post([FromBody]DrugInfo info)
+        public async void Post([FromBody]DrugInfo info)
         {
             Database.AddDrugInfo(info);
 
-            string ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
-            Database.StateHasChanged[ip] = true;
+            await _hubContext.Clients.All.SendAsync("StateChange");
         }
     }
 }

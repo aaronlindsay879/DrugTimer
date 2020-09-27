@@ -1,7 +1,9 @@
 ﻿@using DrugTimer.Shared
 @using DrugTimer.Client.Components
-@using System.Threading 
+@using System.Threading
+@using Microsoft.AspNetCore.SignalR.Client
 
+@inject NavigationManager NavigationManager
 @inject HttpClient Http
 @page "/"
 
@@ -11,39 +13,39 @@
 }
 else
 {
-<TabControl>
-    @foreach (DrugInfo info in _information)
-    {
-        <TabPage Text="@info.Name">
-            <DrugDisplay DrugInfo="@info" />
-        </TabPage>
-    }
-</TabControl>
+    <TabControl>
+        @foreach (DrugInfo info in _information)
+        {
+            <TabPage Text="@info.Name">
+                <DrugDisplay DrugInfo="@info" />
+            </TabPage>
+        }
+    </TabControl>
 }
 
 @code {
     private DrugInfo[] _information;
-    private Timer _timer;
+    private HubConnection hubConnection;
 
     protected override async Task OnInitializedAsync()
     {
-        await UpdateInfo();
+        hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("posthub"))
+                                                  .Build();
 
-        _timer = new Timer(async e =>
+        hubConnection.On("StateChange", async () =>
         {
-            bool response = await Http.GetFromJsonAsync<bool>("/api/State");
-            Console.WriteLine(response);
+            Console.WriteLine("State change requested");
+            _information = await UpdateInfo(); 
 
-            if (response == true)
-            {
-                await UpdateInfo();
-                StateHasChanged();
-            }
-        }, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+            await InvokeAsync(StateHasChanged);
+        });
+
+        _information = await UpdateInfo();
+        await hubConnection.StartAsync();
     }
 
-    private async Task UpdateInfo()
+    private async Task<DrugInfo[]> UpdateInfo()
     {
-        _information = await Http.GetFromJsonAsync<DrugInfo[]>("/api/DrugInfo");
+        return await Http.GetFromJsonAsync<DrugInfo[]>("/api/DrugInfo");
     }
 }

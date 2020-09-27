@@ -19,7 +19,7 @@ else
 
     <div>
         <h2>Up to 10 most recent entries:</h2>
-        @foreach (DateTime entry in DrugInfo.Entries.Take(10))
+        @foreach (DateTime entry in DrugInfo.Entries.Take(20))
         {
             <p>@entry</p>
         }
