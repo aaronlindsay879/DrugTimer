@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using DrugTimer.Server.Persistence;
 
 namespace DrugTimer.Server.Controllers
 {
@@ -22,11 +23,7 @@ namespace DrugTimer.Server.Controllers
         [HttpGet]
         public IEnumerable<DrugInfo> Get()
         {
-            yield return new DrugInfo
-            {
-                Name = "Codeine",
-                TimeBetweenDoses = 4
-            };
+            return Database.GetDrugInfo();
         }
     }
 }

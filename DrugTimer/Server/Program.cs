@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DrugTimer.Server.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +14,8 @@ namespace DrugTimer.Server
     {
         public static void Main(string[] args)
         {
+            Database.SetConnInfo(@"DataSource=database.db");
+
             CreateHostBuilder(args).Build().Run();
         }
 
