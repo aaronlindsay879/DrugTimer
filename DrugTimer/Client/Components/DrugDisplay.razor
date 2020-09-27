@@ -1,6 +1,7 @@
 ﻿@using DrugTimer.Shared 
+@using System.Threading 
 
-@if (DrugInfo == null)
+@if (DrugInfo == null || DrugInfo.Entries.Count == 0)
 {
     <p>Loading...</p>
 }
@@ -8,24 +9,65 @@ else
 {
     @if (FindNearestPastEntry().HasValue)
     {
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="@_progress" aria-valuemin="0" aria-valuemax="100" style="width:{@_progress}%">
+
+            </div>
+        </div>
         <p>Nearest past entry: @FindNearestPastEntry().Value</p>
     }
 
-    @foreach (DateTime entry in DrugInfo.Entries)
-    {
-        <p>@entry</p>
-    }
+    <div>
+        <h2>Up to 10 most recent entries:</h2>
+        @foreach (DateTime entry in DrugInfo.Entries.Take(10))
+        {
+            <p>@entry</p>
+        }
+    </div>
 }
 
 @code {
+    [CascadingParameter] private TabPage Parent { get; set; }
     [Parameter] public DrugInfo DrugInfo { get; set; }
+
+    private decimal _progress = 0;
+    private Timer _timer;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _timer = new Timer(e =>
+        {
+            DateTime? pastEntry = FindNearestPastEntry();
+
+            if (!pastEntry.HasValue)
+                return;
+
+            if ((decimal)(DateTime.Now - pastEntry.Value).TotalSeconds >= DrugInfo.TimeBetweenDoses * 3600)
+            {
+                _progress = 100;
+                return;
+            }
+            else
+            {
+                DateTime futureTime = pastEntry.Value.AddSeconds((double)DrugInfo.TimeBetweenDoses * 3600);
+
+                _progress = (DrugInfo.TimeBetweenDoses * 3600) - (decimal)(futureTime - DateTime.Now).TotalSeconds;
+                _progress /= DrugInfo.TimeBetweenDoses * 3600;
+            }
+        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+    }
 
     private DateTime? FindNearestPastEntry()
     {
+        if (DrugInfo.Entries.Count == 0)
+            return null;
+
         var entries = DrugInfo.Entries.Where(x => x <= DateTime.Now);
         var lastEntry = entries.Last();
 
-        if ((DateTime.Now - lastEntry).Seconds < DrugInfo.TimeBetweenDoses * 3600)
+        if ((decimal)(DateTime.Now - lastEntry).TotalSeconds < DrugInfo.TimeBetweenDoses * 3600)
             return lastEntry;
 
         return null;
