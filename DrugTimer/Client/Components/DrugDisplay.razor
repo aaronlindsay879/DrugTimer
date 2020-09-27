@@ -1,5 +1,6 @@
 ﻿@using DrugTimer.Shared 
 @using System.Threading 
+@using DrugTimer.Client.Extensions
 
 @if (DrugInfo == null || DrugInfo.Entries.Count == 0)
 {
@@ -10,16 +11,14 @@ else
     @if (FindNearestPastEntry().HasValue)
     {
         <div class="progress">
-            <div class="progress-bar" role="progressbar" aria-valuenow="@_progress" aria-valuemin="0" aria-valuemax="100" style="width:@_progress%">
-
-            </div>
+            <div class="progress-bar" role="progressbar" aria-valuenow="@_progress" aria-valuemin="0" aria-valuemax="100" style="width:@_progress%"></div>
         </div>
         <p>Nearest past entry: @FindNearestPastEntry().Value</p>
     }
 
     <div>
         <h2>Up to 10 most recent entries:</h2>
-        @foreach (DateTime entry in DrugInfo.Entries.Take(20))
+        @foreach (DateTime entry in DrugInfo.Entries.TakeReversed(10))
         {
             <p>@entry</p>
         }
@@ -35,8 +34,6 @@ else
 
     protected override void OnInitialized()
     {
-        base.OnInitialized();
-
         _timer = new Timer(e =>
         {
             DateTime? pastEntry = FindNearestPastEntry();
@@ -47,7 +44,8 @@ else
             if ((decimal)(DateTime.Now - pastEntry.Value).TotalSeconds >= DrugInfo.TimeBetweenDoses * 3600)
             {
                 _progress = 100;
-                return;
+
+                StateHasChanged();
             }
             else
             {
@@ -56,8 +54,10 @@ else
                 _progress = (DrugInfo.TimeBetweenDoses * 3600) - (decimal)(futureTime - DateTime.Now).TotalSeconds;
                 _progress /= DrugInfo.TimeBetweenDoses * 3600;
                 _progress *= 100;
+
+                StateHasChanged();
             }
-        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
     }
 
     private DateTime? FindNearestPastEntry()
