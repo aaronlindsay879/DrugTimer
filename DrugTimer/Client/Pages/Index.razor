@@ -27,17 +27,23 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _information = await Http.GetFromJsonAsync<DrugInfo[]>("/api/DrugInfo");
+        await UpdateInfo();
 
         _timer = new Timer(async e =>
         {
             bool response = await Http.GetFromJsonAsync<bool>("/api/State");
+            Console.WriteLine(response);
 
             if (response == true)
             {
-                _information = await Http.GetFromJsonAsync<DrugInfo[]>("/api/DrugInfo");
+                await UpdateInfo();
                 StateHasChanged();
             }
         }, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+    }
+
+    private async Task UpdateInfo()
+    {
+        _information = await Http.GetFromJsonAsync<DrugInfo[]>("/api/DrugInfo");
     }
 }
