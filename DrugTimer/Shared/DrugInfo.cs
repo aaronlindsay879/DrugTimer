@@ -4,6 +4,9 @@ using System.Text;
 
 namespace DrugTimer.Shared
 {
+    /// <summary>
+    /// A class representing a drug, and all the associated entries for it
+    /// </summary>
     public class DrugInfo
     {
         public string Name { get; set; }
