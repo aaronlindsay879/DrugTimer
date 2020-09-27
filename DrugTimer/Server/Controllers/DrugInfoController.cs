@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace DrugTimer.Server.Controllers
 {
+    /// <summary>
+    /// A controller for POSTs and GETs for drug entries
+    /// </summary>
     [ApiController]
     [Route("/api/[controller]")]
     public class DrugInfoController : ControllerBase
@@ -27,14 +30,17 @@ namespace DrugTimer.Server.Controllers
         [HttpGet]
         public IEnumerable<DrugInfo> Get()
         {
+            //return all drug infos
             return Database.GetDrugInfo();
         }
 
         [HttpPost]
         public async void Post([FromBody]DrugInfo info)
         {
+            //add the druginfo from the post request to the database
             Database.AddDrugInfo(info);
 
+            //send new info to all clients
             await _hubContext.Clients.All.SendAsync("DrugInfo", info);
         }
     }

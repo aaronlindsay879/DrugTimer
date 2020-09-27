@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace DrugTimer.Server.Hubs
 {
-    public class PostHub : Hub
-    {
-    }
+    /// <summary>
+    /// Dummy class to allow communication from server to client
+    /// </summary>
+    public class PostHub : Hub { }
 }
