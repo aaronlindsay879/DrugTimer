@@ -22,12 +22,12 @@ namespace DrugTimer.Server.Controllers
             this.logger = logger;
         }
 
-        [HttpGet]
-        public IEnumerable<DateTime> Get([FromQuery]string drugName)
+        [HttpGet("{id}")]
+        public IEnumerable<DateTime> Get(string id)
         {
             return Database.GetDrugEntries(new DrugInfo()
             {
-                Name = Regex.Unescape(drugName)
+                Name = id
             });
         }
 
