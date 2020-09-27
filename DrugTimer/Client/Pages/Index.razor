@@ -19,6 +19,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        information = await Http.GetFromJsonAsync<DrugInfo[]>("DrugInfo");
+        information = await Http.GetFromJsonAsync<DrugInfo[]>("/api/DrugInfo");
     }
 }

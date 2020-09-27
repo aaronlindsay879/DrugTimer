@@ -10,7 +10,7 @@ using DrugTimer.Server.Persistence;
 namespace DrugTimer.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/api/[controller]")]
     public class DrugInfoController : ControllerBase
     {
         private readonly ILogger<DrugInfoController> logger;
