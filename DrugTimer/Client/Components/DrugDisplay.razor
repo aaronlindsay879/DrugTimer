@@ -2,6 +2,8 @@
 @using System.Threading 
 @using DrugTimer.Client.Extensions
 
+@implements IDisposable
+
 @if (DrugInfo == null || DrugInfo.Entries.Count == 0)
 {
     <p>Loading...</p>
@@ -10,26 +12,33 @@ else
 {
     @if (FindNearestPastEntry().HasValue)
     {
-        <div class="progress">
-            <div class="progress-bar" role="progressbar" aria-valuenow="@_progress" aria-valuemin="0" aria-valuemax="100" style="width:@_progress%"></div>
+        <div class="progress" style="margin-top: 10px; margin-bottom: 10px; height: 30px">
+            <div class="progress-bar" role="progressbar" aria-valuenow="@_progress" aria-valuemin="0" aria-valuemax="100" style="width:@_progress%; font-size: 20px">
+                @_progressText
+            </div>
         </div>
-        <p>Nearest past entry: @FindNearestPastEntry().Value</p>
     }
 
-    <div>
-        <h2>Up to 10 most recent entries:</h2>
-        @foreach (DateTime entry in DrugInfo.Entries.TakeReversed(10))
-        {
-            <p>@entry</p>
-        }
+    <div class="card" style="display: inline-block">
+        <div class="card-header">
+            <h4 class="text-center">Recent entries</h4>
+        </div>
+        <ul class="list-group list-group-flush">
+            @foreach (DateTime entry in DrugInfo.Entries.TakeReversed(10))
+            {
+                <li class="list-group-item text-center">@entry</li>
+            }
+        </ul>
     </div>
 }
 
 @code {
     [CascadingParameter] private TabPage Parent { get; set; }
     [Parameter] public DrugInfo DrugInfo { get; set; }
+    [Parameter] public Dictionary<string, string> Settings { get; set; }
 
-    private decimal _progress = 0;
+    private double _progress = 0;
+    private string _progressText;
     private Timer _timer;
 
     protected override void OnInitialized()
@@ -41,23 +50,39 @@ else
             if (!pastEntry.HasValue)
                 return;
 
-            if ((decimal)(DateTime.Now - pastEntry.Value).TotalSeconds >= DrugInfo.TimeBetweenDoses * 3600)
+            double seconds = (double)DrugInfo.TimeBetweenDoses * 3600;
+
+            if ((DateTime.Now - pastEntry.Value).TotalSeconds >= seconds)
             {
                 _progress = 100;
+                _progressText = "Timer complete";
 
                 StateHasChanged();
             }
             else
             {
-                DateTime futureTime = pastEntry.Value.AddSeconds((double)DrugInfo.TimeBetweenDoses * 3600);
+                DateTime futureTime = pastEntry.Value.AddSeconds(seconds);
 
-                _progress = (DrugInfo.TimeBetweenDoses * 3600) - (decimal)(futureTime - DateTime.Now).TotalSeconds;
-                _progress /= DrugInfo.TimeBetweenDoses * 3600;
+                _progress = seconds - (futureTime - DateTime.Now).TotalSeconds;
+                _progress /= seconds;
                 _progress *= 100;
+
+                _progressText = $"{(futureTime - DateTime.Now).ToString("hh':'mm")} remaining, finishes at {futureTime.ToString("HH:mm")}";
 
                 StateHasChanged();
             }
-        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+
+            var time = Convert.ToDouble(Settings.ContainsKey("RefreshRate") ? Settings["RefreshRate"] : "5");
+            Console.WriteLine($"Now: {DateTime.Now}, Timer: {TimeSpan.FromSeconds(time)}");
+
+            _timer.Change((int)TimeSpan.FromSeconds(time).TotalMilliseconds, -1);
+        }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(-1));
+    }
+
+    public void Dispose()
+    {
+        _timer.Dispose();
+        Console.WriteLine("timer disposed");
     }
 
     private DateTime? FindNearestPastEntry()
@@ -66,11 +91,6 @@ else
             return null;
 
         var entries = DrugInfo.Entries.Where(x => x <= DateTime.Now);
-        var lastEntry = entries.Last();
-
-        if ((decimal)(DateTime.Now - lastEntry).TotalSeconds < DrugInfo.TimeBetweenDoses * 3600)
-            return lastEntry;
-
-        return null;
+        return entries.Last();
     }
 }
