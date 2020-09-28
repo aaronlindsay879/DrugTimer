@@ -1,0 +1,28 @@
+﻿<input type="number" @bind="@RefreshRate"/>
+
+@code {
+    [Parameter] public Dictionary<string, string> Settings { get; set; }
+
+    private string _refreshRate;
+    public string RefreshRate
+    {
+        get => _refreshRate;
+        set
+        {
+            _refreshRate = value;
+
+            Console.WriteLine(value);
+            if (!Settings.ContainsKey("RefreshRate"))
+                Settings.Add("RefreshRate", value);
+            else
+                Settings["RefreshRate"] = value;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        RefreshRate = Settings.ContainsKey("RefreshRate") ? Settings["RefreshRate"] : "5";
+    }
+}

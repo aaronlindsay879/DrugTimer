@@ -14,10 +14,13 @@
 else
 {
     <TabControl>
+        <TabPage Text="Options">
+            <Options Settings="@Settings"/>
+        </TabPage>
         @foreach (DrugInfo info in _information)
         {
             <TabPage Text="@info.Name">
-                <DrugDisplay DrugInfo="@info" />
+                <DrugDisplay DrugInfo="@info" Settings="@Settings"/>
             </TabPage>
         }
     </TabControl>
@@ -26,6 +29,8 @@ else
 @code {
     private List<DrugInfo> _information;
     private HubConnection hubConnection;
+
+    public Dictionary<string, string> Settings { get; set; } = new Dictionary<string, string>();
 
     /// <summary>
     /// Override the initialization to add a websocket
