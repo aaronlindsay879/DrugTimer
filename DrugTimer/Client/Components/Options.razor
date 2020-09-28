@@ -1,4 +1,6 @@
-﻿<form style="margin-top: 20px">
+﻿@using System.Globalization
+
+<form style="margin-top: 20px">
     <div class="form-group" style="margin-left: 0px;">
         <label for="refreshRate">Refresh Rate</label>
         <input type="number" min="1" max="15" id="refreshRate" class="form-control" @bind="@RefreshRate" />
@@ -10,7 +12,8 @@
         <label for="dateFormat">Date Format</label>
         <input type="text" class="form-control" id="dateFormat" @bind="@DateFormat" />
         <small class="form-text text-muted">
-            Date formatting to use within application. Not yet implemented.
+            Date formatting to use within application. Not yet implemented. 
+            <span class="alert-danger" style="@RefreshVisible">Invalid string.</span>
         </small>
     </div>
 </form>
@@ -34,12 +37,53 @@
         }
     }
 
-    public string DateFormat { get; set; }
+    public string RefreshVisible;
+    private string _dateFormat;
+    public string DateFormat
+    {
+        get => _dateFormat;
+        set
+        {
+            //return if invalid format
+            if (IsValidFormatString(value))
+            {
+                RefreshVisible = "display: none";
+            }
+            else
+            {
+                RefreshVisible = "";
+            }
+
+            _dateFormat = value;
+
+            var valToWrite = IsValidFormatString(value) ? value : null;
+            Console.WriteLine(valToWrite);
+            if (!Settings.ContainsKey("DateFormat"))
+                Settings.Add("DateFormat", valToWrite);
+            else
+                Settings["DateFormat"] = valToWrite;
+        }
+    }
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
 
         RefreshRate = Settings.ContainsKey("RefreshRate") ? Settings["RefreshRate"] : "5";
+    }
+
+    private bool IsValidFormatString(string str)
+    {
+        try
+        {
+            //format string with given format, and check if valid - if invalid, error will be thrown
+            string date = DateTime.Now.ToString(str);
+            DateTime.ParseExact(date, str, CultureInfo.InvariantCulture);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
