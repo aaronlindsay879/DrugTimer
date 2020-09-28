@@ -1,12 +1,17 @@
-﻿<form>
-    <div class="form-group row">
-        <label for="refreshRate" class="col-sm-2 col-form-label">Refresh Rate</label>
-        <div class="col-sm-10">
-            <input type="number" min="1" max="15" class="form-control" id="refreshRate" @bind="@RefreshRate"/>
-            <small class="form-text text-muted">
-                How often to redraw the progress bar, in seconds.
-            </small>
-        </div>
+﻿<form style="margin-top: 20px">
+    <div class="form-group" style="margin-left: 0px;">
+        <label for="refreshRate">Refresh Rate</label>
+        <input type="number" min="1" max="15" id="refreshRate" class="form-control" @bind="@RefreshRate" />
+        <small class="form-text text-muted">
+            How often to redraw the progress bar, in seconds.
+        </small>
+    </div>
+    <div class="form-group" style="margin-left: 0px;">
+        <label for="dateFormat">Date Format</label>
+        <input type="text" class="form-control" id="dateFormat" @bind="@DateFormat" />
+        <small class="form-text text-muted">
+            Date formatting to use within application. Not yet implemented.
+        </small>
     </div>
 </form>
 
@@ -28,6 +33,8 @@
                 Settings["RefreshRate"] = value;
         }
     }
+
+    public string DateFormat { get; set; }
 
     protected override void OnInitialized()
     {
