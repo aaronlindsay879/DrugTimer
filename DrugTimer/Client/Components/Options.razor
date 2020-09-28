@@ -1,4 +1,5 @@
-﻿<input type="number" @bind="@RefreshRate"/>
+﻿<label for="refreshRate">Refresh rate: </label>
+<input type="number" @bind="@RefreshRate" id="refreshRate" min="1" />
 
 @code {
     [Parameter] public Dictionary<string, string> Settings { get; set; }
