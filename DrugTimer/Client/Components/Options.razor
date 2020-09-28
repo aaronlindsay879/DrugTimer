@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 <form style="margin-top: 20px">
     <div class="form-group" style="margin-left: 0px;">
@@ -12,14 +13,14 @@
         <label for="dateFormat">Date Format</label>
         <input type="text" class="form-control" id="dateFormat" @bind="@DateFormat" />
         <small class="form-text text-muted">
-            Date formatting to use within application.      
+            Date formatting to use within application.
             <span class="alert-danger" style="@RefreshVisible">Invalid string.</span>
         </small>
     </div>
 </form>
 
 @code {
-    [Parameter] public Dictionary<string, string> Settings { get; set; }
+    [Parameter] public Settings Settings { get; set; }
 
     private string _refreshRate;
     public string RefreshRate
@@ -30,10 +31,9 @@
             _refreshRate = value;
 
             Console.WriteLine(value);
-            if (!Settings.ContainsKey("RefreshRate"))
-                Settings.Add("RefreshRate", value);
-            else
-                Settings["RefreshRate"] = value;
+            Settings.RefreshRate = value;
+
+            WriteSettings();
         }
     }
 
@@ -56,12 +56,9 @@
 
             _dateFormat = value;
 
-            var valToWrite = IsValidFormatString(value) ? value : null;
-            Console.WriteLine(valToWrite);
-            if (!Settings.ContainsKey("DateFormat"))
-                Settings.Add("DateFormat", valToWrite);
-            else
-                Settings["DateFormat"] = valToWrite;
+            Settings.DateFormat = IsValidFormatString(value) ? value : null;
+
+            WriteSettings();
         }
     }
 
@@ -69,8 +66,8 @@
     {
         base.OnInitialized();
 
-        RefreshRate = Settings.ContainsKey("RefreshRate") ? Settings["RefreshRate"] : "5";
-        DateFormat = Settings.ContainsKey("DateFormat") ? Settings["DateFormat"] : "";
+        RefreshRate = Settings.RefreshRate ?? "5";
+        DateFormat = Settings.DateFormat ?? "";
     }
 
     private bool IsValidFormatString(string str)
@@ -86,5 +83,12 @@
         {
             return false;
         }
+    }
+
+    private async void WriteSettings()
+    {
+        Console.WriteLine("writing settings");
+        await localStorage.RemoveItemAsync("settings");
+        await localStorage.SetItemAsync("settings", Settings);
     }
 }

@@ -35,7 +35,7 @@ else
 @code {
     [CascadingParameter] private TabPage Parent { get; set; }
     [Parameter] public DrugInfo DrugInfo { get; set; }
-    [Parameter] public Dictionary<string, string> Settings { get; set; }
+    [Parameter] public Settings Settings { get; set; }
 
     private double _progress = 0;
     private string _progressText;
@@ -72,7 +72,7 @@ else
                 StateHasChanged();
             }
 
-            var time = Convert.ToDouble(Settings.ContainsKey("RefreshRate") ? Settings["RefreshRate"] : "5");
+            var time = Convert.ToDouble(Settings.RefreshRate ?? "5");
             Console.WriteLine($"Now: {DateTime.Now}, Timer: {TimeSpan.FromSeconds(time)}");
 
             _timer.Change((int)TimeSpan.FromSeconds(time).TotalMilliseconds, -1);
@@ -96,8 +96,8 @@ else
 
     private string FormatDate(DateTime date)
     {
-        if (Settings.ContainsKey("DateFormat"))
-            return date.ToString(Settings["DateFormat"]);
+        if (Settings.DateFormat != null)
+            return date.ToString(Settings.DateFormat);
 
         return date.ToString();
     }

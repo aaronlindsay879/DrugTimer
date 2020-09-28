@@ -5,6 +5,7 @@
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 @page "/"
 
 @if (_information == null)
@@ -15,12 +16,12 @@ else
 {
     <TabControl>
         <TabPage Text="Options">
-            <Options Settings="@Settings"/>
+            <Options Settings="@Settings" />
         </TabPage>
         @foreach (DrugInfo info in _information)
         {
             <TabPage Text="@info.Name">
-                <DrugDisplay DrugInfo="@info" Settings="@Settings"/>
+                <DrugDisplay DrugInfo="@info" Settings="@Settings" />
             </TabPage>
         }
     </TabControl>
@@ -30,7 +31,7 @@ else
     private List<DrugInfo> _information;
     private HubConnection hubConnection;
 
-    public Dictionary<string, string> Settings { get; set; } = new Dictionary<string, string>();
+    public Settings Settings { get; set; }
 
     /// <summary>
     /// Override the initialization to add a websocket
@@ -38,6 +39,14 @@ else
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
+        //fetch all settings from cookies
+        var settings = await localStorage.GetItemAsync<Settings>("settings");
+        Console.WriteLine(settings);
+        if (settings != null)
+            Settings = settings;
+        else
+            Settings = new Settings();
+
         //create a new websocket
         hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("posthub"))
                                                   .Build();
