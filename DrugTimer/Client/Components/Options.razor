@@ -12,7 +12,7 @@
         <label for="dateFormat">Date Format</label>
         <input type="text" class="form-control" id="dateFormat" @bind="@DateFormat" />
         <small class="form-text text-muted">
-            Date formatting to use within application. Not yet implemented. 
+            Date formatting to use within application.      
             <span class="alert-danger" style="@RefreshVisible">Invalid string.</span>
         </small>
     </div>
@@ -70,6 +70,7 @@
         base.OnInitialized();
 
         RefreshRate = Settings.ContainsKey("RefreshRate") ? Settings["RefreshRate"] : "5";
+        DateFormat = Settings.ContainsKey("DateFormat") ? Settings["DateFormat"] : "";
     }
 
     private bool IsValidFormatString(string str)

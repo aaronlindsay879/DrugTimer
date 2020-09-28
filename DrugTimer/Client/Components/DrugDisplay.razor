@@ -26,7 +26,7 @@ else
         <ul class="list-group list-group-flush">
             @foreach (DateTime entry in DrugInfo.Entries.TakeReversed(10))
             {
-                <li class="list-group-item text-center">@entry</li>
+                <li class="list-group-item text-center">@FormatDate(entry)</li>
             }
         </ul>
     </div>
@@ -92,5 +92,13 @@ else
 
         var entries = DrugInfo.Entries.Where(x => x <= DateTime.Now);
         return entries.Last();
+    }
+
+    private string FormatDate(DateTime date)
+    {
+        if (Settings.ContainsKey("DateFormat"))
+            return date.ToString(Settings["DateFormat"]);
+
+        return date.ToString();
     }
 }
