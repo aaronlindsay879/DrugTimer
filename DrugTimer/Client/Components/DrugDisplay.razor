@@ -44,6 +44,25 @@
             </li>
         </ul>
     </div>
+
+    <div class="card text-center" style="display: inline-grid">
+        <ul class="list-group list-group-flush">
+            @if (DrugInfo.Info.Length > 0)
+            {
+                <li class="list-group-item">
+                    <h4 class="card-title">Drug info</h4>
+                    <p class="card-text">@DrugInfo.Info</p>
+                </li>
+            }
+            @if (DrugInfo.TimeBetweenDoses.HasValue)
+            {
+                <li class="list-group-item">
+                    <h4 class="card-title">Time between doses</h4>
+                    <p class="card-text">@DrugInfo.TimeBetweenDoses hours</p>
+                </li>
+            }
+        </ul>
+    </div>
 </div>
 
 @code {
