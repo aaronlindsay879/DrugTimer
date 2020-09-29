@@ -112,6 +112,21 @@ else
             await InvokeAsync(StateHasChanged);
         });
 
+        //on remove events, remove given data and redraw
+        hubConnection.On<DrugEntry>("RemoveDrugEntry", async drugEntry =>
+        {
+            //Console.WriteLine("New DrugEntry added");
+            if (!_information.Any(x => x.Name == drugEntry.DrugName))
+            {
+                Console.WriteLine("no drug with that name, probably a big error?");
+                return;
+            }
+
+            _information.First(x => x.Name == drugEntry.DrugName).Entries.Remove(drugEntry.Time);
+
+            await InvokeAsync(StateHasChanged);
+        });
+
         //fetch initial data, and start socket
         _information = await UpdateInfo();
         await hubConnection.StartAsync();

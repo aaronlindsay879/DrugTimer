@@ -146,8 +146,7 @@ namespace DrugTimer.Server.Persistence
 
             //create a command, set the text and set all parameters to given DrugEntry
             var command = connection.CreateCommand();
-            command.CommandText = @"DELETE FROM tblDrugEntries
-                                    WHERE DrugName = $drugName AND Time = $time";
+            command.CommandText = @"DELETE FROM tblDrugEntries WHERE DrugName LIKE $drugName AND Time LIKE $time";
 
             command.Parameters.AddWithValue("$drugName", drugEntry.DrugName);
             command.Parameters.AddWithValue("$time", drugEntry.Time.ToString("yyyy-MM-dd HH:mm:ss.fff"));
