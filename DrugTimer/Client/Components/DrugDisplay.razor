@@ -63,6 +63,7 @@
         _timer = new Timer(e =>
         {
             DateTime? pastEntry = FindNearestPastEntry();
+            Console.WriteLine(pastEntry);
 
             if (!pastEntry.HasValue)
                 return;
@@ -96,8 +97,8 @@
             var time = Convert.ToDouble(Settings.RefreshRate ?? "5");
             //Console.WriteLine($"Now: {DateTime.Now}, Timer: {TimeSpan.FromSeconds(time)}");
 
-            _timer.Change((int)TimeSpan.FromSeconds(time).TotalMilliseconds, -1);
-        }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(-1));
+            _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));
+        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
     }
 
     /// <summary>
