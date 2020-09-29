@@ -66,9 +66,16 @@ namespace DrugTimer.Server.Persistence
                 var drug = new DrugInfo()
                 {
                     Name = (string)reader["DrugName"],
-                    TimeBetweenDoses = Convert.ToDecimal(reader["TimeBetweenDoses"]),
                     Info = reader["Info"] == DBNull.Value ? null : (string)reader["Info"]
                 };
+
+                decimal? value;
+                if (reader["TimeBetweenDoses"] == DBNull.Value)
+                    value = null;
+                else
+                    value = Convert.ToDecimal(reader["TimeBetweenDoses"]);
+
+                drug.TimeBetweenDoses = value;
 
                 //find all DrugEntries associated with the DrugInfo
                 drug.Entries = GetDrugEntries(drug);
@@ -129,6 +136,24 @@ namespace DrugTimer.Server.Persistence
             entries.Sort();
 
             return entries;
+        }
+
+        public static void RemoveDrugEntry(DrugEntry drugEntry)
+        {
+            //creates and opens the connection
+            using var connection = new SQLiteConnection(_connectionInfo);
+            connection.Open();
+
+            //create a command, set the text and set all parameters to given DrugEntry
+            var command = connection.CreateCommand();
+            command.CommandText = @"DELETE FROM tblDrugEntries
+                                    WHERE DrugName = $drugName AND Time = $time";
+
+            command.Parameters.AddWithValue("$drugName", drugEntry.DrugName);
+            command.Parameters.AddWithValue("$time", drugEntry.Time.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+
+            //write to database
+            command.ExecuteNonQuery();
         }
     }
 }
