@@ -73,7 +73,7 @@ else
             }
 
             var time = Convert.ToDouble(Settings.RefreshRate ?? "5");
-            Console.WriteLine($"Now: {DateTime.Now}, Timer: {TimeSpan.FromSeconds(time)}");
+            //Console.WriteLine($"Now: {DateTime.Now}, Timer: {TimeSpan.FromSeconds(time)}");
 
             _timer.Change((int)TimeSpan.FromSeconds(time).TotalMilliseconds, -1);
         }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(-1));
@@ -82,7 +82,7 @@ else
     public void Dispose()
     {
         _timer.Dispose();
-        Console.WriteLine("timer disposed");
+        //Console.WriteLine("timer disposed");
     }
 
     private DateTime? FindNearestPastEntry()

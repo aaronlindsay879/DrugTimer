@@ -30,7 +30,6 @@
         {
             _refreshRate = value;
 
-            Console.WriteLine(value);
             Settings.RefreshRate = value;
 
             WriteSettings();
@@ -87,7 +86,7 @@
 
     private async void WriteSettings()
     {
-        Console.WriteLine("writing settings");
+        //Console.WriteLine("writing settings");
         await localStorage.RemoveItemAsync("settings");
         await localStorage.SetItemAsync("settings", Settings);
     }

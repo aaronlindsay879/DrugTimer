@@ -41,7 +41,7 @@ else
     {
         //fetch all settings from cookies
         var settings = await localStorage.GetItemAsync<Settings>("settings");
-        Console.WriteLine(settings);
+
         if (settings != null)
             Settings = settings;
         else
@@ -54,7 +54,7 @@ else
         //on druginfo events, add drug info to local list
         hubConnection.On<DrugInfo>("DrugInfo", async drugInfo =>
         {
-            Console.WriteLine("New DrugInfo added");
+            //Console.WriteLine("New DrugInfo added");
             _information.Add(drugInfo);
 
             await InvokeAsync(StateHasChanged);
@@ -63,7 +63,7 @@ else
         //on drugentry events, find druginfo with that name and add entry to it
         hubConnection.On<DrugEntry>("DrugEntry", async drugEntry =>
         {
-            Console.WriteLine("New DrugEntry added");
+            //Console.WriteLine("New DrugEntry added");
             if (!_information.Any(x => x.Name == drugEntry.DrugName))
             {
                 Console.WriteLine("no drug with that name, probably a big error?");
