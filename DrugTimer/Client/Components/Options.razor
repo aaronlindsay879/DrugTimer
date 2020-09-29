@@ -43,7 +43,7 @@
         get => _dateFormat;
         set
         {
-            //return if invalid format
+            //if invalid format, let user know
             if (IsValidFormatString(value))
             {
                 RefreshVisible = "display: none";
@@ -53,22 +53,35 @@
                 RefreshVisible = "";
             }
 
+            //save user value to _dateFormat so it is displayed properly
+            //if null was set here too, it'd remove any text the user entered
             _dateFormat = value;
 
+            //if invalid format, save null instead of value
             Settings.DateFormat = IsValidFormatString(value) ? value : null;
 
             WriteSettings();
         }
     }
 
+    /// <summary>
+    /// Ensure options are set correctly on initialisation
+    /// </summary>
     protected override void OnInitialized()
     {
         base.OnInitialized();
 
         _refreshRate = Settings.RefreshRate;
         _dateFormat = Settings.DateFormat;
+
+        RefreshVisible = "display: none";
     }
 
+    /// <summary>
+    /// Checks if a given DateTime formatting string is valid
+    /// </summary>
+    /// <param name="str">String to check</param>
+    /// <returns>Bool indicating if valid</returns>
     private bool IsValidFormatString(string str)
     {
         try
@@ -84,10 +97,13 @@
         }
     }
 
+    /// <summary>
+    /// Writes the users settings to local storage
+    /// </summary>
     private async void WriteSettings()
     {
         //Console.WriteLine("writing settings");
-        await localStorage.RemoveItemAsync("settings");
+
         await localStorage.SetItemAsync("settings", Settings);
     }
 }

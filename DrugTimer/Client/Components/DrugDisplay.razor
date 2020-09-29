@@ -41,6 +41,9 @@ else
     private string _progressText;
     private Timer _timer;
 
+    /// <summary>
+    /// Initialise timer on component initialise
+    /// </summary>
     protected override void OnInitialized()
     {
         _timer = new Timer(e =>
@@ -54,6 +57,7 @@ else
 
             if ((DateTime.Now - pastEntry.Value).TotalSeconds >= seconds)
             {
+                //if dose has finished, display properly
                 _progress = 100;
                 _progressText = "Timer complete";
 
@@ -61,17 +65,20 @@ else
             }
             else
             {
+                //otherwise find percentage done, and display that
                 DateTime futureTime = pastEntry.Value.AddSeconds(seconds);
 
                 _progress = seconds - (futureTime - DateTime.Now).TotalSeconds;
                 _progress /= seconds;
                 _progress *= 100;
 
+                //format text correctly
                 _progressText = $"{(futureTime - DateTime.Now).ToString("hh':'mm")} remaining, finishes at {futureTime.ToString("HH:mm")}";
 
                 StateHasChanged();
             }
 
+            //ensure timer runs next based on refresh rate setting
             var time = Convert.ToDouble(Settings.RefreshRate ?? "5");
             //Console.WriteLine($"Now: {DateTime.Now}, Timer: {TimeSpan.FromSeconds(time)}");
 
@@ -79,23 +86,42 @@ else
         }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(-1));
     }
 
+    /// <summary>
+    /// Disposes the component, ensuring timer is stopped
+    /// </summary>
     public void Dispose()
     {
         _timer.Dispose();
         //Console.WriteLine("timer disposed");
     }
 
+    /// <summary>
+    /// Finds the nearest past drug entry
+    /// </summary>
+    /// <returns>Most recent drug entry in past</returns>
     private DateTime? FindNearestPastEntry()
     {
+        //if there are no entries, there will be no nearest past entry
         if (DrugInfo.Entries.Count == 0)
             return null;
 
+        //if there are no entries in the past, return null again
         var entries = DrugInfo.Entries.Where(x => x <= DateTime.Now);
+        if (entries == null)
+            return null;
+
+        //otherwise just return last element
         return entries.Last();
     }
 
+    /// <summary>
+    /// Formats a date with the saved setting
+    /// </summary>
+    /// <param name="date">Date to format</param>
+    /// <returns>Formatted string</returns>
     private string FormatDate(DateTime date)
     {
+        //if there is a setting for date format, use it, otherwise use default formatting
         if (Settings.DateFormat != null)
             return date.ToString(Settings.DateFormat);
 

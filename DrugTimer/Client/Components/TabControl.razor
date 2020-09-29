@@ -19,21 +19,35 @@
     public TabPage ActivePage { get; set; }
     private List<TabPage> _pages = new List<TabPage>();
 
+    /// <summary>
+    /// Adds a page to the tab system
+    /// </summary>
+    /// <param name="tabPage">Page to add</param>
     internal void AddPage(TabPage tabPage)
     {
         _pages.Add(tabPage);
 
+        //set default page to page number 2 (as options is number 1)
         if (_pages.Count == 2)
             ActivePage = tabPage;
 
         StateHasChanged();
     }
 
+    /// <summary>
+    /// Gets the class of the button for a given page (dependng on if it's selected or not)
+    /// </summary>
+    /// <param name="page">Page to check</param>
+    /// <returns>A css class</returns>
     private string GetButtonClass(TabPage page)
     {
         return page == ActivePage ? "btn-primary" : "btn-secondary";
     }
 
+    /// <summary>
+    /// Sets the active page to the given page
+    /// </summary>
+    /// <param name="page">Page to activate</param>
     private void ActivatePage(TabPage page)
     {
         ActivePage = page;
