@@ -33,10 +33,11 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDrugInfo
-                                    VALUES($drugName, $timeBetweenDose)";
+                                    VALUES($drugName, $timeBetweenDose, $info)";
 
             command.Parameters.AddWithValue("$drugName", info.Name);
             command.Parameters.AddWithValue("$timeBetweenDose", info.TimeBetweenDoses);
+            command.Parameters.AddWithValue("$info", info.Info);
 
             //write to database
             command.ExecuteNonQuery();
@@ -65,7 +66,8 @@ namespace DrugTimer.Server.Persistence
                 var drug = new DrugInfo()
                 {
                     Name = (string)reader["DrugName"],
-                    TimeBetweenDoses = Convert.ToDecimal(reader["TimeBetweenDoses"])
+                    TimeBetweenDoses = Convert.ToDecimal(reader["TimeBetweenDoses"]),
+                    Info = reader["Info"] == DBNull.Value ? null : (string)reader["Info"]
                 };
 
                 //find all DrugEntries associated with the DrugInfo
