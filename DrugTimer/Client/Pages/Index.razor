@@ -21,7 +21,7 @@ else
         @foreach (DrugInfo info in _information)
         {
             <TabPage Text="@info.Name">
-                <DrugDisplay DrugInfo="@info" Settings="@Settings" />
+                <DrugDisplay DrugInfo="@info" Settings="@Settings" Connection="@hubConnection" />
             </TabPage>
         }
         <TabPage Text="+">

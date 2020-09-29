@@ -23,5 +23,16 @@ namespace DrugTimer.Server.Hubs
             Database.AddDrugInfo(info);
             await Clients.All.SendAsync("DrugInfo", info);
         }
+
+        /// <summary>
+        /// Adds a given DrugEntry to database, and updates all clients
+        /// </summary>
+        /// <param name="info">DrugEntry to add</param>
+        /// <returns></returns>
+        public async Task AddDrugEntry(DrugEntry entry)
+        {
+            Database.AddDrugEntry(entry);
+            await Clients.All.SendAsync("DrugEntry", entry);
+        }
     }
 }

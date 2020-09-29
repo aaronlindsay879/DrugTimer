@@ -1,47 +1,59 @@
-﻿@using DrugTimer.Shared 
-@using System.Threading 
+﻿@using DrugTimer.Shared
+@using System.Threading
 @using DrugTimer.Client.Extensions
+@using Microsoft.AspNetCore.SignalR.Client
 
 @implements IDisposable
 
-@if (DrugInfo == null || DrugInfo.Entries.Count == 0)
+@if (FindNearestPastEntry().HasValue && DrugInfo.TimeBetweenDoses.HasValue)
 {
-    <p>Loading...</p>
-}
-else
-{
-    @if (FindNearestPastEntry().HasValue)
-    {
-        <div class="progress" style="margin-top: 10px; margin-bottom: 10px; height: 30px">
-            <div class="progress-bar" role="progressbar" aria-valuenow="@_progress" aria-valuemin="0" aria-valuemax="100" style="width:@_progress%; font-size: 20px">
-                @_progressText
-            </div>
+    <div class="progress" style="margin-top: 10px; height: 30px">
+        <div class="progress-bar" role="progressbar" aria-valuenow="@_progress" aria-valuemin="0" aria-valuemax="100" style="width:@_progress%; font-size: 20px">
+            @_progressText
         </div>
-    }
+    </div>
+}
 
-    @DrugInfo.Info
-
-    <div class="card" style="display: inline-block">
+<div style="margin-top: 10px">
+    <div class="card text-center" style="display: inline-grid">
         <div class="card-header">
-            <h4 class="text-center">Recent entries</h4>
+            <h4>Recent entries</h4>
         </div>
         <ul class="list-group list-group-flush">
             @foreach (DateTime entry in DrugInfo.Entries.TakeReversed(10))
             {
-                <li class="list-group-item text-center">@FormatDate(entry)</li>
+                <li class="list-group-item">@FormatDate(entry)</li>
             }
         </ul>
     </div>
-}
+
+    <div class="card text-center" style="display: inline-grid">
+        <div class="card-header">
+            <h4>Add Entry</h4>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <label for="time">Time</label>
+                <input type="datetime" id="time" @bind="@_entryTime" />
+            </li>
+            <li class="list-group-item list-group-flush">
+                <button class="btn btn-primary" @onclick="@AddEntry">Add entry</button>
+            </li>
+        </ul>
+    </div>
+</div>
 
 @code {
     [CascadingParameter] private TabPage Parent { get; set; }
     [Parameter] public DrugInfo DrugInfo { get; set; }
     [Parameter] public Settings Settings { get; set; }
+    [Parameter] public HubConnection Connection { get; set; }
 
     private double _progress = 0;
     private string _progressText;
     private Timer _timer;
+
+    private string _entryTime;
 
     /// <summary>
     /// Initialise timer on component initialise
@@ -128,5 +140,16 @@ else
             return date.ToString(Settings.DateFormat);
 
         return date.ToString();
+    }
+
+    private void AddEntry()
+    {
+        DrugEntry entry = new DrugEntry()
+        {
+            DrugName = DrugInfo.Name,
+            Time = DateTime.Parse(_entryTime)
+        };
+
+        Connection.SendAsync("AddDrugEntry", entry);
     }
 }
