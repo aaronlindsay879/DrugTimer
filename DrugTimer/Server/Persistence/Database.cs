@@ -146,12 +146,41 @@ namespace DrugTimer.Server.Persistence
 
             //create a command, set the text and set all parameters to given DrugEntry
             var command = connection.CreateCommand();
-            command.CommandText = @"DELETE FROM tblDrugEntries WHERE DrugName LIKE $drugName AND Time LIKE $time";
+            command.CommandText = @"DELETE FROM tblDrugEntries
+                                    WHERE DrugName LIKE $drugName
+                                      AND Time LIKE $time";
 
             command.Parameters.AddWithValue("$drugName", drugEntry.DrugName);
             command.Parameters.AddWithValue("$time", drugEntry.Time.ToString("yyyy-MM-dd HH:mm:ss.fff"));
 
             //write to database
+            command.ExecuteNonQuery();
+        }
+
+        public static void RemoveDrugInfo(DrugInfo drugInfo)
+        {
+            //creates and opens the connection
+            using var connection = new SQLiteConnection(_connectionInfo);
+            connection.Open();
+
+            //create a command, set the text and set all parameters to given DrugEntry
+            var command = connection.CreateCommand();
+            command.CommandText = @"DELETE FROM tblDrugInfo
+                                    WHERE DrugName LIKE $drugName";
+
+            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
+            command.Parameters.AddWithValue("$timeBetweenDoses", drugInfo.TimeBetweenDoses);
+            command.Parameters.AddWithValue("$info", drugInfo.Info);
+
+            //write to database
+            command.ExecuteNonQuery();
+
+            //then remove all drug entries with same name
+            var entryCommand = connection.CreateCommand();
+            command.CommandText = @"DELETE FROM tblDrugEntries
+                                    WHERE DrugName LIKE $drugName";
+
+            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
             command.ExecuteNonQuery();
         }
     }

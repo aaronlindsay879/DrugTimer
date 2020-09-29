@@ -14,7 +14,7 @@
 }
 else
 {
-    <TabControl>
+    <TabControl Pages="@Pages">
         <TabPage Text="Options">
             <Options Settings="@Settings" />
         </TabPage>
@@ -58,6 +58,7 @@ else
     private HubConnection hubConnection;
 
     public Settings Settings { get; set; }
+    public List<TabPage> Pages;
 
     private Dictionary<string, string> _newDrug;
 
@@ -67,6 +68,8 @@ else
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
+        Pages = new List<TabPage>();
+
         //set up new drug options
         _newDrug = new Dictionary<string, string>()
         {
@@ -115,7 +118,6 @@ else
         //on remove events, remove given data and redraw
         hubConnection.On<DrugEntry>("RemoveDrugEntry", async drugEntry =>
         {
-            //Console.WriteLine("New DrugEntry added");
             if (!_information.Any(x => x.Name == drugEntry.DrugName))
             {
                 Console.WriteLine("no drug with that name, probably a big error?");
@@ -123,6 +125,14 @@ else
             }
 
             _information.First(x => x.Name == drugEntry.DrugName).Entries.Remove(drugEntry.Time);
+
+            await InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<DrugInfo>("RemoveDrugInfo", async drugInfo =>
+        {
+            _information.RemoveAll(x => x.Name == drugInfo.Name);
+            Pages.RemoveAll(x => x.Text == drugInfo.Name);
 
             await InvokeAsync(StateHasChanged);
         });

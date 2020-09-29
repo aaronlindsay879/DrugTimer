@@ -61,6 +61,9 @@
                     <p class="card-text">@DrugInfo.TimeBetweenDoses hours</p>
                 </li>
             }
+            <li class="list-group-item">
+                <button class="btn btn-danger" @onclick="@RemoveDrug">Remove drug</button>
+            </li>
         </ul>
     </div>
 </div>
@@ -190,5 +193,10 @@
         Console.WriteLine("removing entry with time " + entryTime);
 
         Connection.SendAsync("RemoveDrugEntry", entry);
+    }
+
+    private void RemoveDrug()
+    {
+        Connection.SendAsync("RemoveDrugInfo", DrugInfo);
     }
 }

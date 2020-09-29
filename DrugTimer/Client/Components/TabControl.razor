@@ -1,5 +1,5 @@
 ﻿<div class="btn-group" role="group">
-    @foreach (TabPage tabPage in _pages)
+    @foreach (TabPage tabPage in Pages)
     {
         <button type="button"
                 class="btn @GetButtonClass(tabPage)"
@@ -15,9 +15,9 @@
 
 @code {
     [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public List<TabPage> Pages { get; set; }
 
     public TabPage ActivePage { get; set; }
-    private List<TabPage> _pages = new List<TabPage>();
 
     /// <summary>
     /// Adds a page to the tab system
@@ -25,18 +25,18 @@
     /// <param name="tabPage">Page to add</param>
     internal void AddPage(TabPage tabPage)
     {
-        _pages.Add(tabPage);
+        Pages.Add(tabPage);
 
         //set default page to page number 2 (as options is number 1)
-        if (_pages.Count == 2)
+        if (Pages.Count == 2)
             ActivePage = tabPage;
 
         //ensure "+" tab is at end
-        if (_pages.Any(x => x.Text == "+"))
+        if (Pages.Any(x => x.Text == "+"))
         {
-            var page = _pages.First(x => x.Text == "+");
-            _pages.Remove(page);
-            _pages.Add(page);
+            var page = Pages.First(x => x.Text == "+");
+            Pages.Remove(page);
+            Pages.Add(page);
         }
 
         StateHasChanged();

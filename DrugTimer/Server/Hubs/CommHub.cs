@@ -45,5 +45,16 @@ namespace DrugTimer.Server.Hubs
             Database.RemoveDrugEntry(entry);
             await Clients.All.SendAsync("RemoveDrugEntry", entry);
         }
+
+        /// <summary>
+        /// Removes a given DrugInfo from daatabase, and updates all clients
+        /// </summary>
+        /// <param name="info">DrugInfo to remove<param>
+        /// <returns></returns>
+        public async Task RemoveDrugInfo(DrugInfo info)
+        {
+            Database.RemoveDrugInfo(info);
+            await Clients.All.SendAsync("RemoveDrugInfo", info);
+        }
     }
 }
