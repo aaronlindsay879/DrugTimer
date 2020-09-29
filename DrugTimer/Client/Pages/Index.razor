@@ -45,7 +45,7 @@ else
         if (settings != null)
             Settings = settings;
         else
-            Settings = new Settings();
+            Settings = Settings.Default;
 
         //create a new websocket
         hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("posthub"))
