@@ -22,9 +22,9 @@ namespace DrugTimer.Server.Controllers
     public class DrugEntryController : ControllerBase
     {
         private readonly ILogger<DrugEntryController> logger;
-        private readonly IHubContext<PostHub> _hubContext;
+        private readonly IHubContext<Hubs.CommHub> _hubContext;
 
-        public DrugEntryController(ILogger<DrugEntryController> logger, IHubContext<PostHub> hubContext)
+        public DrugEntryController(ILogger<DrugEntryController> logger, IHubContext<Hubs.CommHub> hubContext)
         {
             this.logger = logger;
             _hubContext = hubContext;

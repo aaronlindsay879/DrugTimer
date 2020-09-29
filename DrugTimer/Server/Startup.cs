@@ -61,7 +61,7 @@ namespace DrugTimer.Server
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapHub<PostHub>("posthub");
+                endpoints.MapHub<CommHub>("/api/hub");
                 endpoints.MapFallbackToFile("index.html");
             });
         }

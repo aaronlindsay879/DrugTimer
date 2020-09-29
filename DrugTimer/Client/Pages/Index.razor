@@ -24,6 +24,32 @@ else
                 <DrugDisplay DrugInfo="@info" Settings="@Settings" />
             </TabPage>
         }
+        <TabPage Text="+">
+            <form style="margin-top: 20px">
+                <div class="form-group" style="margin-left: 0px;">
+                    <label for="drugName">Drug name</label>
+                    <input type="text" id="drugName" class="form-control" @bind="@_newDrug["name"]" />
+                    <small class="form-text text-muted">
+                        The name of the drug.
+                    </small>
+                </div>
+                <div class="form-group" style="margin-left: 0px;">
+                    <label for="drugTime">Time between doses</label>
+                    <input type="number" class="form-control" id="drugTime" @bind="@_newDrug["doseTime"]" />
+                    <small class="form-text text-muted">
+                        How many hours between doses. Leave empty (or 0) if drug doesn't fit that schedule.
+                    </small>
+                </div>
+                <div class="form-group" style="margin-left: 0px;">
+                    <label for="drugInfo">Drug information</label>
+                    <input type="text" class="form-control" id="drugInfo" @bind="@_newDrug["info"]" />
+                    <small class="form-text text-muted">
+                        Any other drug information, such as dosage.
+                    </small>
+                </div>
+            </form>
+            <button class="btn btn-primary" @onclick="@AddDrug">Add drug</button>
+        </TabPage>
     </TabControl>
 }
 
@@ -33,12 +59,22 @@ else
 
     public Settings Settings { get; set; }
 
+    private Dictionary<string, string> _newDrug;
+
     /// <summary>
     /// Override the initialization to add a websocket
     /// </summary>
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
+        //set up new drug options
+        _newDrug = new Dictionary<string, string>()
+        {
+            { "name", "" },
+            { "doseTime", "" },
+            { "info", "" }
+        };
+
         //fetch all settings from local storage
         var settings = await localStorage.GetItemAsync<Settings>("settings");
 
@@ -49,13 +85,13 @@ else
             Settings = settings;
 
         //create a new websocket
-        hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("posthub"))
+        hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/api/hub"))
                                                   .Build();
 
         //on druginfo events, add drug info to local list
         hubConnection.On<DrugInfo>("DrugInfo", async drugInfo =>
         {
-            //Console.WriteLine("New DrugInfo added");
+            Console.WriteLine("New DrugInfo added");
             _information.Add(drugInfo);
 
             await InvokeAsync(StateHasChanged);
@@ -88,5 +124,23 @@ else
     private async Task<List<DrugInfo>> UpdateInfo()
     {
         return await Http.GetFromJsonAsync<List<DrugInfo>>("/api/DrugInfo");
+    }
+
+    private void AddDrug()
+    {
+        decimal? value;
+        if (_newDrug["doseTime"] == "" || _newDrug["doseTime"] == "0")
+            value = null;
+        else
+            value = Convert.ToDecimal(_newDrug["doseTime"]);
+
+        DrugInfo info = new DrugInfo()
+        {
+            Name = _newDrug["name"],
+            TimeBetweenDoses = value,
+            Info = _newDrug["info"]
+        };
+
+        hubConnection.SendAsync("AddDrugInfo", info);
     }
 }

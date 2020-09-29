@@ -31,6 +31,14 @@
         if (_pages.Count == 2)
             ActivePage = tabPage;
 
+        //ensure "+" tab is at end
+        if (_pages.Any(x => x.Text == "+"))
+        {
+            var page = _pages.First(x => x.Text == "+");
+            _pages.Remove(page);
+            _pages.Add(page);
+        }
+
         StateHasChanged();
     }
 

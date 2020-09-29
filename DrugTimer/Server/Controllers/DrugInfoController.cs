@@ -19,9 +19,9 @@ namespace DrugTimer.Server.Controllers
     public class DrugInfoController : ControllerBase
     {
         private readonly ILogger<DrugInfoController> logger;
-        private readonly IHubContext<PostHub> _hubContext;
+        private readonly IHubContext<Hubs.CommHub> _hubContext;
 
-        public DrugInfoController(ILogger<DrugInfoController> logger, IHubContext<PostHub> hubContext)
+        public DrugInfoController(ILogger<DrugInfoController> logger, IHubContext<Hubs.CommHub> hubContext)
         {
             this.logger = logger;
             _hubContext = hubContext;
