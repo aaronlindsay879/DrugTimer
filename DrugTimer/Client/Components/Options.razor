@@ -66,8 +66,8 @@
     {
         base.OnInitialized();
 
-        RefreshRate = Settings.RefreshRate;
-        DateFormat = Settings.DateFormat;
+        _refreshRate = Settings.RefreshRate;
+        _dateFormat = Settings.DateFormat;
     }
 
     private bool IsValidFormatString(string str)
