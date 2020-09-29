@@ -155,6 +155,9 @@ else
 
     private void AddDrug()
     {
+        if (String.IsNullOrEmpty(_newDrug["name"]))
+            return;
+
         decimal? value;
         if (_newDrug["doseTime"] == "" || _newDrug["doseTime"] == "0")
             value = null;
