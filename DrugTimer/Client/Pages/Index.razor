@@ -1,5 +1,6 @@
 ﻿@using DrugTimer.Shared
 @using DrugTimer.Client.Components
+@using DrugTimer.Client.Data
 @using System.Threading
 @using Microsoft.AspNetCore.SignalR.Client
 
@@ -7,7 +8,7 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @page "/"
 
-@if (_information ==  null)
+@if (_information == null)
 {
     <p>Fetching info from server...</p>
 }
@@ -24,7 +25,7 @@ else
             </TabPage>
         }
         <TabPage Text="+">
-            <NewDrug Connection="@hubConnection"/>
+            <NewDrug Connection="@hubConnection" />
         </TabPage>
     </TabControl>
 }
@@ -62,8 +63,8 @@ else
         {
             Console.WriteLine("received");
 
-            //add the received information, and calculate stats for all of it
-            _information = new List<DrugInfo>(infos);
+        //add the received information, and calculate stats for all of it
+        _information = new List<DrugInfo>(infos);
             foreach (var info in _information)
                 info.ReCalculateStats();
 
@@ -84,15 +85,15 @@ else
         //on drugentry events, find druginfo with that name and add entry to it
         hubConnection.On<DrugEntry>("DrugEntry", async drugEntry =>
         {
-            //Console.WriteLine("New DrugEntry added");
-            if (!_information.Any(x => x.Name == drugEntry.DrugName))
+        //Console.WriteLine("New DrugEntry added");
+        if (!_information.Any(x => x.Name == drugEntry.DrugName))
             {
                 Console.WriteLine("no drug with that name, probably a big error?");
                 return;
             }
 
-            //add the new entry, resort all the entries and recalculate stats
-            _information.First(x => x.Name == drugEntry.DrugName).Entries.Add(drugEntry.Time);
+        //add the new entry, resort all the entries and recalculate stats
+        _information.First(x => x.Name == drugEntry.DrugName).Entries.Add(drugEntry.Time);
             _information.First(x => x.Name == drugEntry.DrugName).Entries.Sort();
             _information.First(x => x.Name == drugEntry.DrugName).ReCalculateStats();
 
@@ -108,8 +109,8 @@ else
                 return;
             }
 
-            //remove the given entry and recalculate stats
-            _information.First(x => x.Name == drugEntry.DrugName).Entries.Remove(drugEntry.Time);
+        //remove the given entry and recalculate stats
+        _information.First(x => x.Name == drugEntry.DrugName).Entries.Remove(drugEntry.Time);
             _information.First(x => x.Name == drugEntry.DrugName).ReCalculateStats();
 
             await InvokeAsync(StateHasChanged);
@@ -117,8 +118,8 @@ else
 
         hubConnection.On<DrugInfo>("RemoveDrugInfo", async drugInfo =>
         {
-            //Remove the given drug from both the stored data and the pages
-            _information.RemoveAll(x => x.Name == drugInfo.Name);
+        //Remove the given drug from both the stored data and the pages
+        _information.RemoveAll(x => x.Name == drugInfo.Name);
             Pages.RemoveAll(x => x.Text == drugInfo.Name);
 
             await InvokeAsync(StateHasChanged);
