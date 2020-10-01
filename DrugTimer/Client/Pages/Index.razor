@@ -140,6 +140,7 @@ else
             }
 
             _information.First(x => x.Name == drugEntry.DrugName).Entries.Remove(drugEntry.Time);
+            _information.First(x => x.Name == drugEntry.DrugName).ReCalculateStats();
 
             await InvokeAsync(StateHasChanged);
         });
