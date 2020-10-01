@@ -150,7 +150,7 @@
 
         //if there are no entries in the past, return null again
         var entries = DrugInfo.Entries.Where(x => x <= DateTime.Now);
-        if (entries == null)
+        if (entries.Count() == 0)
             return null;
 
         //otherwise just return last element
