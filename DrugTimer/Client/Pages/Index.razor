@@ -96,6 +96,9 @@ else
             Console.WriteLine("received");
 
             _information = new List<DrugInfo>(infos);
+            foreach (var info in _information)
+                info.ReCalculateStats();
+
             Console.WriteLine($"{_information.Count} drugs added");
 
             await InvokeAsync(StateHasChanged);
@@ -121,8 +124,8 @@ else
             }
 
             _information.First(x => x.Name == drugEntry.DrugName).Entries.Add(drugEntry.Time);
-
             _information.First(x => x.Name == drugEntry.DrugName).Entries.Sort();
+            _information.First(x => x.Name == drugEntry.DrugName).ReCalculateStats();
 
             await InvokeAsync(StateHasChanged);
         });
