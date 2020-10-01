@@ -85,48 +85,47 @@
     /// </summary>
     protected override void OnInitialized()
     {
-        _timer = new Timer(e =>
+        _timer = new Timer(e => TimerTick(true), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+    }
+
+    private void TimerTick(bool changeNextRun = false)
+    {
+        DateTime? pastEntry = FindNearestPastEntry();
+
+        if (!(pastEntry.HasValue && DrugInfo.TimeBetweenDoses.HasValue))
+            return;
+
+        double seconds = (double)DrugInfo.TimeBetweenDoses * 3600;
+
+        if ((DateTime.Now - pastEntry.Value).TotalSeconds >= seconds)
         {
-            if (!(FindNearestPastEntry().HasValue && DrugInfo.TimeBetweenDoses.HasValue))
-                return;
-
-            DateTime? pastEntry = FindNearestPastEntry();
-            Console.WriteLine(pastEntry);
-
-            if (!pastEntry.HasValue)
-                return;
-
-            double seconds = (double)DrugInfo.TimeBetweenDoses * 3600;
-
-            if ((DateTime.Now - pastEntry.Value).TotalSeconds >= seconds)
-            {
             //if dose has finished, display properly
             _progress = 100;
-                _progressText = "Timer complete";
+            _progressText = "Timer complete";
 
-                StateHasChanged();
-            }
-            else
-            {
+            StateHasChanged();
+        }
+        else
+        {
             //otherwise find percentage done, and display that
             DateTime futureTime = pastEntry.Value.AddSeconds(seconds);
 
-                _progress = seconds - (futureTime - DateTime.Now).TotalSeconds;
-                _progress /= seconds;
-                _progress *= 100;
+            _progress = seconds - (futureTime - DateTime.Now).TotalSeconds;
+            _progress /= seconds;
+            _progress *= 100;
 
             //format text correctly
             _progressText = $"{(futureTime - DateTime.Now).ToString("hh':'mm")} remaining, finishes at {futureTime.ToString("HH:mm")}";
 
-                StateHasChanged();
-            }
+            StateHasChanged();
+        }
 
         //ensure timer runs next based on refresh rate setting
         var time = Convert.ToDouble(Settings.RefreshRate ?? "5");
         //Console.WriteLine($"Now: {DateTime.Now}, Timer: {TimeSpan.FromSeconds(time)}");
 
-        _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));
-        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+        if (changeNextRun)
+            _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));
     }
 
     /// <summary>
@@ -171,7 +170,7 @@
         return date.ToString();
     }
 
-    private void AddEntry()
+    private async void AddEntry()
     {
         DrugEntry entry = new DrugEntry()
         {
@@ -179,10 +178,13 @@
             Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB"))
         };
 
-        Connection.SendAsync("AddDrugEntry", entry);
+        await Connection.SendAsync("AddDrugEntry", entry);
+
+        await Task.Delay(500);
+        TimerTick();
     }
 
-    private void RemoveEntry(DateTime entryTime)
+    private async void RemoveEntry(DateTime entryTime)
     {
         DrugEntry entry = new DrugEntry()
         {
@@ -192,7 +194,10 @@
 
         Console.WriteLine("removing entry with time " + entryTime);
 
-        Connection.SendAsync("RemoveDrugEntry", entry);
+        await Connection.SendAsync("RemoveDrugEntry", entry);
+
+        await Task.Delay(500);
+        TimerTick();
     }
 
     private void RemoveDrug()
