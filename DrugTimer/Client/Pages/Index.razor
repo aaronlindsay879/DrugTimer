@@ -95,6 +95,7 @@ else
         {
             Console.WriteLine("received");
 
+            //add the received information, and calculate stats for all of it
             _information = new List<DrugInfo>(infos);
             foreach (var info in _information)
                 info.ReCalculateStats();
@@ -123,6 +124,7 @@ else
                 return;
             }
 
+            //add the new entry, resort all the entries and recalculate stats
             _information.First(x => x.Name == drugEntry.DrugName).Entries.Add(drugEntry.Time);
             _information.First(x => x.Name == drugEntry.DrugName).Entries.Sort();
             _information.First(x => x.Name == drugEntry.DrugName).ReCalculateStats();
@@ -139,6 +141,7 @@ else
                 return;
             }
 
+            //remove the given entry and recalculate stats
             _information.First(x => x.Name == drugEntry.DrugName).Entries.Remove(drugEntry.Time);
             _information.First(x => x.Name == drugEntry.DrugName).ReCalculateStats();
 
@@ -147,6 +150,7 @@ else
 
         hubConnection.On<DrugInfo>("RemoveDrugInfo", async drugInfo =>
         {
+            //Remove the given drug from both the stored data and the pages
             _information.RemoveAll(x => x.Name == drugInfo.Name);
             Pages.RemoveAll(x => x.Text == drugInfo.Name);
 
