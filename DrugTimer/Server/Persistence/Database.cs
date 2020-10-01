@@ -79,11 +79,45 @@ namespace DrugTimer.Server.Persistence
 
                 //find all DrugEntries associated with the DrugInfo
                 drug.Entries = GetDrugEntries(drug);
+                drug.Dosages = GetDosageInfos(drug);
 
                 info.Add(drug);
             }
 
             return info;
+        }
+
+        public static void RemoveDrugInfo(DrugInfo drugInfo)
+        {
+            //creates and opens the connection
+            using var connection = new SQLiteConnection(_connectionInfo);
+            connection.Open();
+
+            //create a command, set the text and set all parameters to given DrugEntry
+            var command = connection.CreateCommand();
+            command.CommandText = @"DELETE FROM tblDrugInfo
+                                    WHERE DrugName LIKE $drugName";
+
+            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
+            command.Parameters.AddWithValue("$timeBetweenDoses", drugInfo.TimeBetweenDoses);
+            command.Parameters.AddWithValue("$info", drugInfo.Info);
+
+            //write to database
+            command.ExecuteNonQuery();
+
+            //then remove all drug entries with same name
+            command.CommandText = @"DELETE FROM tblDrugEntries
+                                    WHERE DrugName LIKE $drugName";
+
+            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
+            command.ExecuteNonQuery();
+
+            //then remove all dosage info with same name
+            command.CommandText = @"DELETE FROM tblDosageInfo
+                                    WHERE DrugName LIKE $drugName";
+
+            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
+            command.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -157,7 +191,7 @@ namespace DrugTimer.Server.Persistence
             command.ExecuteNonQuery();
         }
 
-        public static void RemoveDrugInfo(DrugInfo drugInfo)
+        public static void AddDosageInfo(DosageInfo info)
         {
             //creates and opens the connection
             using var connection = new SQLiteConnection(_connectionInfo);
@@ -165,23 +199,46 @@ namespace DrugTimer.Server.Persistence
 
             //create a command, set the text and set all parameters to given DrugEntry
             var command = connection.CreateCommand();
-            command.CommandText = @"DELETE FROM tblDrugInfo
-                                    WHERE DrugName LIKE $drugName";
+            command.CommandText = @"INSERT INTO tblDosageInfo
+                                    VALUES($drugName, $drug, $dosage)";
 
-            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
-            command.Parameters.AddWithValue("$timeBetweenDoses", drugInfo.TimeBetweenDoses);
-            command.Parameters.AddWithValue("$info", drugInfo.Info);
+            command.Parameters.AddWithValue("$drugName", info.DrugName);
+            command.Parameters.AddWithValue("$drug", info.Drug);
+            command.Parameters.AddWithValue("$dosage", 0);
 
             //write to database
             command.ExecuteNonQuery();
+        }
 
-            //then remove all drug entries with same name
-            var entryCommand = connection.CreateCommand();
-            command.CommandText = @"DELETE FROM tblDrugEntries
-                                    WHERE DrugName LIKE $drugName";
+        public static List<DosageInfo> GetDosageInfos(DrugInfo drugInfo)
+        {
+            //creates and opens the connection
+            using var connection = new SQLiteConnection(_connectionInfo);
+            connection.Open();
+
+            //create a command, set the text and set all parameters to given DrugInfo
+            var command = connection.CreateCommand();
+            command.CommandText = @"SELECT * FROM tblDosageInfo
+                                    WHERE DrugName = $drugName";
 
             command.Parameters.AddWithValue("$drugName", drugInfo.Name);
-            command.ExecuteNonQuery();
+
+            var reader = command.ExecuteReader();
+
+            //read a list of DateTimes from the table
+            List<DosageInfo> dosages = new List<DosageInfo>();
+            while (reader.Read())
+            {
+                dosages.Add(new DosageInfo()
+                {
+                    DrugName = drugInfo.Name,
+                    Drug = (string)reader["Drug"],
+                    Dosage = new Dosage(Convert.ToInt32(reader["Dosage"])).Micrograms
+                });
+            }
+
+
+            return dosages;
         }
     }
 }

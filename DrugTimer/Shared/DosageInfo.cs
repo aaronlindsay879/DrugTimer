@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace DrugTimer.Shared
 {
@@ -16,11 +17,10 @@ namespace DrugTimer.Shared
 
     public class Dosage
     {
-        //dosage will always be stored in micrograms - makes more sense to store in one unit, and micrograms are easiest
-        private int _dosage;
+        public int Micrograms { get; set; }
 
-        public Dosage(int micrograms) => _dosage = micrograms;
-        public Dosage(string str) => _dosage = FromString(str);
+        public Dosage(int micrograms) => Micrograms = micrograms;
+        public Dosage(string str) => Micrograms = FromString(str);
 
         private int FromString(string str)
         {
@@ -51,13 +51,14 @@ namespace DrugTimer.Shared
 
         public override string ToString()
         {
-            return $"{_dosage}μg";
+            return $"{Micrograms}μg";
         }
     }
 
     public class DosageInfo
     {
-        public string Drug;
-        public Dosage Dosage;
+        public string DrugName { get; set; }
+        public string Drug { get; set; }
+        public int Dosage { get; set; }
     }
 }
