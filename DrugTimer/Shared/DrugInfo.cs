@@ -15,6 +15,7 @@ namespace DrugTimer.Shared
         public string Info { get; set; }
 
         public List<DateTime> Entries { get; set; } = new List<DateTime>();
+        public List<DosageInfo> Dosages { get; set; } = new List<DosageInfo>();
 
         public decimal Average;
         public decimal AveragePerDay()
