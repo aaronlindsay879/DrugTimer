@@ -51,7 +51,12 @@ namespace DrugTimer.Shared
 
         public override string ToString()
         {
-            return $"{Micrograms}μg";
+            var ooms = Math.Log10(Micrograms) / 3;
+            if (ooms < 1)
+                return $"{Micrograms}μg";
+            if (ooms < 2)
+                return $"{Micrograms / 1000}mg";
+            return $"{Micrograms / 1000000}g";
         }
     }
 
