@@ -192,6 +192,10 @@
     /// </summary>
     private async void AddEntry()
     {
+        //checks if string is null, whitespace or is not a valid date
+        if (string.IsNullOrWhiteSpace(_entryTime) || !DateTime.TryParse(_entryTime, CultureInfo.GetCultureInfo("en-GB"), DateTimeStyles.None, out _))
+            return;
+
         DrugEntry entry = new DrugEntry()
         {
             DrugName = DrugInfo.Name,
