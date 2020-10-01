@@ -39,6 +39,10 @@ namespace DrugTimer.Server.Persistence
             command.Parameters.AddWithValue("$timeBetweenDose", info.TimeBetweenDoses);
             command.Parameters.AddWithValue("$info", info.Info);
 
+            //add all assosciated dosages
+            foreach (DosageInfo dosageInfo in info.Dosages)
+                AddDosageInfo(dosageInfo);
+
             //write to database
             command.ExecuteNonQuery();
         }
@@ -204,7 +208,7 @@ namespace DrugTimer.Server.Persistence
 
             command.Parameters.AddWithValue("$drugName", info.DrugName);
             command.Parameters.AddWithValue("$drug", info.Drug);
-            command.Parameters.AddWithValue("$dosage", 0);
+            command.Parameters.AddWithValue("$dosage", info.Dosage);
 
             //write to database
             command.ExecuteNonQuery();
