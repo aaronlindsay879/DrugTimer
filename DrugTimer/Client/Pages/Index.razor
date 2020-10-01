@@ -153,6 +153,9 @@ else
         return await Http.GetFromJsonAsync<List<DrugInfo>>("/api/DrugInfo");
     }
 
+    /// <summary>
+    /// Adds a drug to the database, fetching data from the add drug page
+    /// </summary>
     private void AddDrug()
     {
         if (String.IsNullOrEmpty(_newDrug["name"]))

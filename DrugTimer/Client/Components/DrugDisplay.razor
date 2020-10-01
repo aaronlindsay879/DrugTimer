@@ -88,8 +88,13 @@
         _timer = new Timer(e => TimerTick(true), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
     }
 
+    /// <summary>
+    /// Function to perform a timer tick for updating progress bar
+    /// </summary>
+    /// <param name="changeNextRun">Whether to update time for next run</param>
     private void TimerTick(bool changeNextRun = false)
     {
+        //find nearest past entry, and ensure it both has a value and the drug time between doses has a value
         DateTime? pastEntry = FindNearestPastEntry();
 
         if (!(pastEntry.HasValue && DrugInfo.TimeBetweenDoses.HasValue))
@@ -122,7 +127,6 @@
 
         //ensure timer runs next based on refresh rate setting
         var time = Convert.ToDouble(Settings.RefreshRate ?? "5");
-        //Console.WriteLine($"Now: {DateTime.Now}, Timer: {TimeSpan.FromSeconds(time)}");
 
         if (changeNextRun)
             _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));
@@ -170,6 +174,9 @@
         return date.ToString();
     }
 
+    /// <summary>
+    /// Adds an entry to the database
+    /// </summary>
     private async void AddEntry()
     {
         DrugEntry entry = new DrugEntry()
@@ -184,6 +191,10 @@
         TimerTick();
     }
 
+    /// <summary>
+    /// Removes an entry from the database
+    /// </summary>
+    /// <param name="entryTime">Time of the entry to remove</param>
     private async void RemoveEntry(DateTime entryTime)
     {
         DrugEntry entry = new DrugEntry()
@@ -192,14 +203,15 @@
             Time = entryTime
         };
 
-        Console.WriteLine("removing entry with time " + entryTime);
-
         await Connection.SendAsync("RemoveDrugEntry", entry);
 
         await Task.Delay(500);
         TimerTick();
     }
 
+    /// <summary>
+    /// Removes a drug from the database
+    /// </summary>
     private void RemoveDrug()
     {
         Connection.SendAsync("RemoveDrugInfo", DrugInfo);
