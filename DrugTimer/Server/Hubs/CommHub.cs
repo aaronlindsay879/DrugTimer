@@ -56,5 +56,16 @@ namespace DrugTimer.Server.Hubs
             Database.RemoveDrugInfo(info);
             await Clients.All.SendAsync("RemoveDrugInfo", info);
         }
+
+        /// <summary>
+        /// Sends all data to a client - used on initial connection
+        /// </summary>
+        /// <param name="connectionId">Connection to send data to</param>
+        /// <returns></returns>
+        public async Task SendAll(string connectionId)
+        {
+            var drugInfos = Database.GetDrugInfo();
+            await Clients.Client(connectionId).SendAsync("SendAll", drugInfos);
+        }
     }
 }
