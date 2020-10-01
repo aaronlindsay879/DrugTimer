@@ -21,15 +21,45 @@ namespace DrugTimer.Shared
         {
             var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Ticks).TotalDays);
 
-            if (groupedEntries.Count() > 0)
-                return groupedEntries.Sum(x => x.Count()) / (decimal)groupedEntries.Count();
+            if (groupedEntries.Count() == 0)
+                return 0;
 
-            return 0;
+            return groupedEntries.Sum(x => x.Count()) / (decimal)groupedEntries.Count();
+        }
+
+        public TimeSpan AverageHours;
+        public TimeSpan AverageHoursBetweenDoses()
+        {
+            var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Ticks).TotalDays);
+            Console.WriteLine(groupedEntries.Count());
+
+            if (groupedEntries.Count() == 0)
+                return TimeSpan.Zero;
+
+            double sum = 0;
+            int count = groupedEntries.Count();
+
+            foreach (var group in groupedEntries)
+            {
+                if (group.Count() <= 1 && count > 1)
+                    count--;
+                else if (group.Count() > 1)
+                {
+                    //find (max-min)/count
+                    var diff = group.Max().Subtract(group.Min());
+                    sum += TimeSpan.FromTicks(diff.Ticks / (group.Count() - 1)).Ticks;
+                }
+            }
+
+            return TimeSpan.FromTicks((long)(sum / count));
         }
 
         public void ReCalculateStats()
         {
             Average = AveragePerDay();
+            AverageHours = AverageHoursBetweenDoses();
+
+            Console.WriteLine($"Drug: {Name}\nAverage: {Average}\nAverageHours: {AverageHours}\n\n");
         }
     }
 }
