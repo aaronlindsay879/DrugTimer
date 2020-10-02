@@ -59,76 +59,100 @@ else
                                                   .Build();
 
         //listen for initial data being sent in
-        hubConnection.On<List<DrugInfo>>("SendAll", async infos =>
-        {
-            Console.WriteLine("received");
+        hubConnection.On<List<DrugInfo>>("SendAll", infos => SendAll(infos));
 
-        //add the received information, and calculate stats for all of it
-        _information = new List<DrugInfo>(infos);
-            foreach (var info in _information)
-                info.ReCalculateStats();
+        //add handlers for DrugInfo requests
+        hubConnection.On<DrugInfo>("DrugInfo", drugInfo => AddDrugInfo(drugInfo));
+        hubConnection.On<DrugInfo>("RemoveDrugInfo", drugInfo => RemoveDrugInfo(drugInfo));
 
-            Console.WriteLine($"{_information.Count} drugs added");
-
-            await InvokeAsync(StateHasChanged);
-        });
-
-        //on druginfo events, add drug info to local list
-        hubConnection.On<DrugInfo>("DrugInfo", async drugInfo =>
-        {
-            Console.WriteLine("New DrugInfo added");
-            _information.Add(drugInfo);
-
-            await InvokeAsync(StateHasChanged);
-        });
-
-        //on drugentry events, find druginfo with that name and add entry to it
-        hubConnection.On<DrugEntry>("DrugEntry", async drugEntry =>
-        {
-        //Console.WriteLine("New DrugEntry added");
-        if (!_information.Any(x => x.Name == drugEntry.DrugName))
-            {
-                Console.WriteLine("no drug with that name, probably a big error?");
-                return;
-            }
-
-        //add the new entry, resort all the entries and recalculate stats
-        _information.First(x => x.Name == drugEntry.DrugName).Entries.Add(drugEntry.Time);
-            _information.First(x => x.Name == drugEntry.DrugName).Entries.Sort();
-            _information.First(x => x.Name == drugEntry.DrugName).ReCalculateStats();
-
-            await InvokeAsync(StateHasChanged);
-        });
-
-        //on remove events, remove given data and redraw
-        hubConnection.On<DrugEntry>("RemoveDrugEntry", async drugEntry =>
-        {
-            if (!_information.Any(x => x.Name == drugEntry.DrugName))
-            {
-                Console.WriteLine("no drug with that name, probably a big error?");
-                return;
-            }
-
-        //remove the given entry and recalculate stats
-        _information.First(x => x.Name == drugEntry.DrugName).Entries.Remove(drugEntry.Time);
-            _information.First(x => x.Name == drugEntry.DrugName).ReCalculateStats();
-
-            await InvokeAsync(StateHasChanged);
-        });
-
-        hubConnection.On<DrugInfo>("RemoveDrugInfo", async drugInfo =>
-        {
-        //Remove the given drug from both the stored data and the pages
-        _information.RemoveAll(x => x.Name == drugInfo.Name);
-            Pages.RemoveAll(x => x.Text == drugInfo.Name);
-
-            await InvokeAsync(StateHasChanged);
-        });
+        //add handlers for DrugEntry requests
+        hubConnection.On<DrugEntry>("DrugEntry", drugEntry => AddDrugEntry(drugEntry));
+        hubConnection.On<DrugEntry>("RemoveDrugEntry", drugEntry => RemoveDrugEntry(drugEntry));
 
         //start socket
         await hubConnection.StartAsync();
 
         //tell server to send all data
         await hubConnection.SendAsync("SendAll", hubConnection.ConnectionId);
+    }
+
+    /// <summary>
+    /// Handler for SendAll events - used on client start to receive all data from server
+    /// </summary>
+    /// <param name="infos">List of all DrugInfos</param>
+    private async void SendAll(List<DrugInfo> infos)
+    {
+        //add the received information, and calculate stats for all of it
+        _information = new List<DrugInfo>(infos);
+
+        foreach (var info in _information)
+            info.ReCalculateStats();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handler for DrugInfo events - adds the given DrugInfo to local copy
+    /// </summary>
+    /// <param name="info">DrugInfo to add</param>
+    private async void AddDrugInfo(DrugInfo info)
+    {
+        _information.Add(info);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handler for RemoveDrugInfo events - removes the given DrugInfo from local copy and tab system
+    /// </summary>
+    /// <param name="info">DrugInfo to remove</param>
+    private async void RemoveDrugInfo(DrugInfo info)
+    {
+        //Remove the given drug from both the stored data and the pages
+        _information.RemoveAll(x => x.Name == info.Name);
+        Pages.RemoveAll(x => x.Text == info.Name);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handler for DrugEntry events - adds the given DrugEntry to local copy, ensuring it's added to correct DrugInfo
+    /// </summary>
+    /// <param name="info">DrugEntry to add</param>
+    private async void AddDrugEntry(DrugEntry entry)
+    {
+        //check if DrugInfo exists with that name
+        if (!_information.Any(x => x.Name == entry.DrugName))
+        {
+            Console.WriteLine("no drug with that name, probably a big error?");
+            return;
+        }
+
+        //add the new entry, resort all the entries and recalculate stats
+        _information.First(x => x.Name == entry.DrugName).Entries.Add(entry.Time);
+        _information.First(x => x.Name == entry.DrugName).Entries.Sort();
+        _information.First(x => x.Name == entry.DrugName).ReCalculateStats();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handler for RemoveDrugEntry events - removes  the given DrugEntry to local copy, ensuring it's added to correct DrugInfo
+    /// </summary>
+    /// <param name="info">DrugEntry to remove</param>
+    private async void RemoveDrugEntry(DrugEntry entry)
+    {
+        //check if DrugInfo exists with that name
+        if (!_information.Any(x => x.Name == entry.DrugName))
+        {
+            Console.WriteLine("no drug with that name, probably a big error?");
+            return;
+        }
+
+        //remove the given entry and recalculate stats
+        _information.First(x => x.Name == entry.DrugName).Entries.Remove(entry.Time);
+        _information.First(x => x.Name == entry.DrugName).ReCalculateStats();
+
+        await InvokeAsync(StateHasChanged);
     }
 }
