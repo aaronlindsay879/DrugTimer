@@ -1,6 +1,6 @@
 ﻿@using DrugTimer.Shared
 @using DrugTimer.Client.Components
-@using DrugTimer.Client.Data
+@using DrugTimer.Client.Extensions
 @using System.Threading
 @using Microsoft.AspNetCore.SignalR.Client
 
@@ -127,7 +127,8 @@ else
 
         //add the new entry, resort all the entries and recalculate stats
         _information.First(x => x.Name == entry.DrugName).Entries.Add(entry);
-        _information.First(x => x.Name == entry.DrugName).Entries.OrderBy(x => x.Time);
+        var sortedEntries = _information.First(x => x.Name == entry.DrugName).Entries.OrderBy(x => x.Time);
+        _information.First(x => x.Name == entry.DrugName).Entries = sortedEntries.ToList();
         _information.First(x => x.Name == entry.DrugName).ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);

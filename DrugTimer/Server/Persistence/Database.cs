@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
 using System.Threading.Tasks;
+using DrugTimer.Client.Extensions;
 
 namespace DrugTimer.Server.Persistence
 {
@@ -180,7 +181,7 @@ namespace DrugTimer.Server.Persistence
                 });
 
             //sort the list
-            entries.OrderBy(x => x.Time);
+            entries = entries.OrderBy(x => x.Time).ToList();
 
             return entries;
         }
