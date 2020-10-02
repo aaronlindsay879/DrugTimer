@@ -25,7 +25,7 @@ namespace DrugTimer.Shared
             if (groupedEntries.Count() == 0)
                 return 0;
 
-            return groupedEntries.Sum(x => x.Count()) / (decimal)groupedEntries.Count();
+            return groupedEntries.Sum(x => x.Sum(y => y.Count)) / (decimal)groupedEntries.Count();
         }
 
         public TimeSpan AverageHours;
