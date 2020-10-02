@@ -47,7 +47,8 @@ namespace DrugTimer.Server.Controllers
             DrugEntry entry = new DrugEntry()
             {
                 DrugName = data.GetProperty("Name").ToString(),
-                Time = DateTime.Parse(data.GetProperty("Time").ToString())
+                Time = DateTime.Parse(data.GetProperty("Time").ToString()),
+                Count = data.GetProperty("Count").GetInt32()
             };
 
             //add the entry to the database
