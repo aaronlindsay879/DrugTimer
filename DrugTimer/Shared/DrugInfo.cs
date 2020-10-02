@@ -32,7 +32,6 @@ namespace DrugTimer.Shared
         public TimeSpan AverageHoursBetweenDoses()
         {
             var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Ticks).TotalDays);
-            Console.WriteLine(groupedEntries.Count());
 
             if (groupedEntries.Count() == 0)
                 return TimeSpan.Zero;
@@ -59,8 +58,6 @@ namespace DrugTimer.Shared
         {
             Average = AveragePerDay();
             AverageHours = AverageHoursBetweenDoses();
-
-            Console.WriteLine($"Drug: {Name}\nAverage: {Average}\nAverageHours: {AverageHours}\n\n");
         }
     }
 }

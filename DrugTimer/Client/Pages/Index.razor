@@ -49,10 +49,7 @@ else
         var settings = await localStorage.GetItemAsync<Settings>("settings");
 
         //if settings is null, use default values - otherwise use values in local storage
-        if (settings == null)
-            Settings = Settings.Default;
-        else
-            Settings = settings;
+        Settings = settings ?? Settings.Default;
 
         //create a new websocket
         hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/api/hub"))

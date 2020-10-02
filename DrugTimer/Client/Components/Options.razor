@@ -102,8 +102,6 @@
     /// </summary>
     private async void WriteSettings()
     {
-        //Console.WriteLine("writing settings");
-
         await localStorage.SetItemAsync("settings", Settings);
     }
 }
