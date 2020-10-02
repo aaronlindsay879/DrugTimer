@@ -8,6 +8,10 @@ using System.Text.Json.Serialization;
 
 namespace DrugTimer.Shared
 {
+    /// <summary>
+    /// Used for parsing input strings - description is what to look for in the string
+    /// value is how many micrograms are in that unit
+    /// </summary>
     public enum Units
     {
         [Description("μg")] microgram = 1,
@@ -22,6 +26,11 @@ namespace DrugTimer.Shared
         public Dosage(int micrograms) => Micrograms = micrograms;
         public Dosage(string str) => Micrograms = FromString(str);
 
+        /// <summary>
+        /// Returns an integer (dosage in micrograms) from a string, supports all formatting laid out in Units enum
+        /// </summary>
+        /// <param name="str">String to parse</param>
+        /// <returns>Dosage in micrograms</returns>
         private int FromString(string str)
         {
             var type = typeof(Units);

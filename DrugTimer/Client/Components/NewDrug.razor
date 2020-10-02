@@ -92,6 +92,12 @@
         Connection.SendAsync("AddDrugInfo", info);
     }
 
+    /// <summary>
+    /// Method to handle text changes on drug dosage inputs
+    /// </summary>
+    /// <param name="e">Event Arguments</param>
+    /// <param name="index">Index of drug dosage - starts from one :(</param>
+    /// <param name="IsName">Whether the value is for dosage name - if false, it is for dosage value</param>
     private void TextChange(ChangeEventArgs e, int index, bool IsName)
     {
         Console.WriteLine(index);

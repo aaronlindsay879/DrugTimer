@@ -91,6 +91,10 @@ namespace DrugTimer.Server.Persistence
             return info;
         }
 
+        /// <summary>
+        /// Removes a given drug info from the database, along with all associated entries and dosages
+        /// </summary>
+        /// <param name="drugInfo">DrugInfo to remove</param>
         public static void RemoveDrugInfo(DrugInfo drugInfo)
         {
             //creates and opens the connection
@@ -176,6 +180,10 @@ namespace DrugTimer.Server.Persistence
             return entries;
         }
 
+        /// <summary>
+        /// Removes a given DrugEntry from the database
+        /// </summary>
+        /// <param name="drugEntry">DrugEntry to remove</param>
         public static void RemoveDrugEntry(DrugEntry drugEntry)
         {
             //creates and opens the connection
@@ -195,6 +203,10 @@ namespace DrugTimer.Server.Persistence
             command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Adds a given DosageInfo to the database
+        /// </summary>
+        /// <param name="info">DosageInfo to add</param>
         public static void AddDosageInfo(DosageInfo info)
         {
             //creates and opens the connection
@@ -214,6 +226,11 @@ namespace DrugTimer.Server.Persistence
             command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Returns all DosageInfos assosciated with a given DrugInfo from the database
+        /// </summary>
+        /// <param name="drugInfo">DrugInfo to find assosciated DosageInfos for</param>
+        /// <returns>A list of DosageInfos</returns>
         public static List<DosageInfo> GetDosageInfos(DrugInfo drugInfo)
         {
             //creates and opens the connection
