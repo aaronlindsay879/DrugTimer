@@ -54,7 +54,7 @@ namespace DrugTimer.Server.Controllers
             Database.AddDrugEntry(entry);
 
             //send new entry to all clients
-            await _hubContext.Clients.All.SendAsync("DrugEntry", entry);
+            await _hubContext.Clients.All.SendAsync("AddDrugEntry", entry);
         }
     }
 }
