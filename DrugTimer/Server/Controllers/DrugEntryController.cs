@@ -31,7 +31,7 @@ namespace DrugTimer.Server.Controllers
         }
 
         [HttpGet("{id}")]
-        public IEnumerable<DateTime> Get(string id)
+        public IEnumerable<DrugEntry> Get(string id)
         {
             //create a druginfo with the given id
             DrugInfo info = new DrugInfo() { Name = id };

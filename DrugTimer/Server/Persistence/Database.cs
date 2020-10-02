@@ -141,10 +141,11 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugEntry
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDrugEntries
-                                    VALUES($drugName, $time)";
+                                    VALUES($drugName, $time, $count)";
 
             command.Parameters.AddWithValue("$drugName", entry.DrugName);
             command.Parameters.AddWithValue("$time", entry.Time.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            command.Parameters.AddWithValue("$count", entry.Count);
 
             //write to database
             command.ExecuteNonQuery();
@@ -154,7 +155,7 @@ namespace DrugTimer.Server.Persistence
         /// Gets a list of all times associated with a given DrugInfo
         /// </summary>
         /// <returns>A list of DateTimes</returns>
-        public static List<DateTime> GetDrugEntries(DrugInfo drugInfo)
+        public static List<DrugEntry> GetDrugEntries(DrugInfo drugInfo)
         {
             //creates and opens the connection
             using var connection = new SQLiteConnection(_connectionInfo);
@@ -170,12 +171,16 @@ namespace DrugTimer.Server.Persistence
             var reader = command.ExecuteReader();
 
             //read a list of DateTimes from the table
-            List<DateTime> entries = new List<DateTime>();
+            List<DrugEntry> entries = new List<DrugEntry>();
             while (reader.Read())
-                entries.Add(DateTime.Parse((string)reader["Time"]));
+                entries.Add(new DrugEntry()
+                {
+                    Time = DateTime.Parse((string)reader["Time"]),
+                    Count = Convert.ToInt32(reader["Count"])
+                });
 
             //sort the list
-            entries.Sort();
+            entries.OrderBy(x => x.Time);
 
             return entries;
         }

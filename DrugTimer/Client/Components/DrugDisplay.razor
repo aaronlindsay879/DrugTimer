@@ -6,7 +6,7 @@
 
 @implements IDisposable
 
-@if (FindNearestPastEntry().HasValue && DrugInfo.TimeBetweenDoses.HasValue)
+@if (FindNearestPastEntry() != null && DrugInfo.TimeBetweenDoses.HasValue)
 {
     <div class="progress" style="margin-top: 10px; height: 30px">
         <div class="progress-bar" role="progressbar" aria-valuenow="@_progress" aria-valuemin="0" aria-valuemax="100" style="width:@_progress%; font-size: 20px">
@@ -21,10 +21,10 @@
             <h4>Recent entries</h4>
         </div>
         <ul class="list-group list-group-flush">
-            @foreach (DateTime entry in DrugInfo.Entries.TakeReversed(10))
+            @foreach (DrugEntry entry in DrugInfo.Entries.TakeReversed(10))
             {
                 <li class="list-group-item">
-                    <p style="float: left; margin-bottom: 0">@FormatDate(entry)</p>
+                    <p style="float: left; margin-bottom: 0">@FormatDate(entry.Time), @entry.Count doses</p>
                     <button class="btn btn-secondary btn-sm" style="float: right; margin-left: 5px; line-height: 1" @onclick="@(() => RemoveEntry(entry))">x</button>
                 </li>
             }
@@ -37,8 +37,11 @@
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item">
-                <label for="time">Time</label>
-                <input type="datetime" id="time" @bind="@_entryTime" />
+                <label for="time" style="width: 60px">Time</label>
+                <input type="datetime" id="time" @bind="@_entryTime" style="width: 180px" />
+                <br />
+                <label for="count" style="width: 60px">Count</label>
+                <input type="number" id="count" @bind="@_entryCount" style="width: 180px" />
                 <br />
                 <button class="btn btn-primary" @onclick="@AddEntry">Add entry</button>
             </li>
@@ -99,6 +102,7 @@
     private Timer _timer;
 
     private string _entryTime;
+    private string _entryCount;
 
     /// <summary>
     /// Initialise timer on component initialise
@@ -115,14 +119,14 @@
     private void TimerTick(bool changeNextRun = false)
     {
         //find nearest past entry, and ensure it both has a value and the drug time between doses has a value
-        DateTime? pastEntry = FindNearestPastEntry();
+        DrugEntry pastEntry = FindNearestPastEntry();
 
-        if (!(pastEntry.HasValue && DrugInfo.TimeBetweenDoses.HasValue))
+        if (!(pastEntry != null && DrugInfo.TimeBetweenDoses.HasValue))
             return;
 
         double seconds = (double)DrugInfo.TimeBetweenDoses * 3600;
 
-        if ((DateTime.Now - pastEntry.Value).TotalSeconds >= seconds)
+        if ((DateTime.Now - pastEntry.Time).TotalSeconds >= seconds)
         {
             //if dose has finished, display properly
             _progress = 100;
@@ -133,7 +137,7 @@
         else
         {
             //otherwise find percentage done, and display that
-            DateTime futureTime = pastEntry.Value.AddSeconds(seconds);
+            DateTime futureTime = pastEntry.Time.AddSeconds(seconds);
 
             _progress = seconds - (futureTime - DateTime.Now).TotalSeconds;
             _progress /= seconds;
@@ -164,14 +168,14 @@
     /// Finds the nearest past drug entry
     /// </summary>
     /// <returns>Most recent drug entry in past</returns>
-    private DateTime? FindNearestPastEntry()
+    private DrugEntry FindNearestPastEntry()
     {
         //if there are no entries, there will be no nearest past entry
         if (DrugInfo.Entries.Count == 0)
             return null;
 
         //if there are no entries in the past, return null again
-        var entries = DrugInfo.Entries.Where(x => x <= DateTime.Now);
+        var entries = DrugInfo.Entries.Where(x => x.Time <= DateTime.Now);
         if (entries.Count() == 0)
             return null;
 
@@ -198,14 +202,19 @@
     /// </summary>
     private async void AddEntry()
     {
-        //checks if string is null, whitespace or is not a valid date
-        if (string.IsNullOrWhiteSpace(_entryTime) || !DateTime.TryParse(_entryTime, CultureInfo.GetCultureInfo("en-GB"), DateTimeStyles.None, out _))
-            return;
+        //checks if date string is null, whitespace or not valid datetime
+        if (string.IsNullOrWhiteSpace(_entryTime)) return;
+        if (!DateTime.TryParse(_entryTime, CultureInfo.GetCultureInfo("en-GB"), DateTimeStyles.None, out _)) return;
+
+        //checks if count string is null, whitespace or not valid int
+        if (string.IsNullOrWhiteSpace(_entryCount)) return;
+        if (!int.TryParse(_entryCount, out _)) return;
 
         DrugEntry entry = new DrugEntry()
         {
             DrugName = DrugInfo.Name,
-            Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB"))
+            Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB")),
+            Count = Convert.ToInt32(_entryCount)
         };
 
         await Connection.SendAsync("AddDrugEntry", entry);
@@ -218,14 +227,8 @@
     /// Removes an entry from the database
     /// </summary>
     /// <param name="entryTime">Time of the entry to remove</param>
-    private async void RemoveEntry(DateTime entryTime)
+    private async void RemoveEntry(DrugEntry entry)
     {
-        DrugEntry entry = new DrugEntry()
-        {
-            DrugName = DrugInfo.Name,
-            Time = entryTime
-        };
-
         await Connection.SendAsync("RemoveDrugEntry", entry);
 
         await Task.Delay(500);

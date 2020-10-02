@@ -14,13 +14,13 @@ namespace DrugTimer.Shared
         public decimal? TimeBetweenDoses { get; set; }
         public string Info { get; set; }
 
-        public List<DateTime> Entries { get; set; } = new List<DateTime>();
+        public List<DrugEntry> Entries { get; set; } = new List<DrugEntry>();
         public List<DosageInfo> Dosages { get; set; } = new List<DosageInfo>();
 
         public decimal Average;
         public decimal AveragePerDay()
         {
-            var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Ticks).TotalDays);
+            var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Time.Ticks).TotalDays);
 
             if (groupedEntries.Count() == 0)
                 return 0;
@@ -31,7 +31,7 @@ namespace DrugTimer.Shared
         public TimeSpan AverageHours;
         public TimeSpan AverageHoursBetweenDoses()
         {
-            var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Ticks).TotalDays);
+            var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Time.Ticks).TotalDays);
 
             if (groupedEntries.Count() == 0)
                 return TimeSpan.Zero;
@@ -46,7 +46,7 @@ namespace DrugTimer.Shared
                 else if (group.Count() > 1)
                 {
                     //find (max-min)/count
-                    var diff = group.Max().Subtract(group.Min());
+                    var diff = group.Max(x => x.Time).Subtract(group.Min(x => x.Time));
                     sum += TimeSpan.FromTicks(diff.Ticks / (group.Count() - 1)).Ticks;
                 }
             }

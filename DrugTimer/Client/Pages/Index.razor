@@ -126,8 +126,8 @@ else
         }
 
         //add the new entry, resort all the entries and recalculate stats
-        _information.First(x => x.Name == entry.DrugName).Entries.Add(entry.Time);
-        _information.First(x => x.Name == entry.DrugName).Entries.Sort();
+        _information.First(x => x.Name == entry.DrugName).Entries.Add(entry);
+        _information.First(x => x.Name == entry.DrugName).Entries.OrderBy(x => x.Time);
         _information.First(x => x.Name == entry.DrugName).ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
@@ -147,7 +147,7 @@ else
         }
 
         //remove the given entry and recalculate stats
-        _information.First(x => x.Name == entry.DrugName).Entries.Remove(entry.Time);
+        _information.First(x => x.Name == entry.DrugName).Entries.Remove(entry);
         _information.First(x => x.Name == entry.DrugName).ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);

@@ -11,5 +11,6 @@ namespace DrugTimer.Shared
     {
         public string DrugName { get; set; }
         public DateTime Time { get; set; }
+        public int Count { get; set; }
     }
 }
