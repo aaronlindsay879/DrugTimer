@@ -41,7 +41,7 @@
                 <input type="datetime" id="time" @bind="@_entryTime" style="width: 180px" />
                 <br />
                 <label for="count" style="width: 60px">Count</label>
-                <input type="number" id="count" @bind="@_entryCount" style="width: 180px" />
+                <input type="number" min="1" id="count" @bind="@_entryCount" style="width: 180px" />
                 <br />
                 <button class="btn btn-primary" @onclick="@AddEntry">Add entry</button>
             </li>
@@ -110,6 +110,9 @@
     protected override void OnInitialized()
     {
         _timer = new Timer(e => TimerTick(true), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+
+        //also set default value for count
+        _entryCount = "1";
     }
 
     /// <summary>
