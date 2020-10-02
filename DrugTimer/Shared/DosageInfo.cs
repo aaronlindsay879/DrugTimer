@@ -14,7 +14,7 @@ namespace DrugTimer.Shared
     /// </summary>
     public enum Units
     {
-        [Description("μg")] microgram = 1,
+        [Description("μg|mcg")] microgram = 1,
         [Description("mg")] milligram = 1000,
         [Description("g")] gram = 1000000
     }
@@ -34,24 +34,39 @@ namespace DrugTimer.Shared
         private int FromString(string str)
         {
             var type = typeof(Units);
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
+
+            //sort the fields according to declaration order
+            fields = fields.OrderBy(x => x.MetadataToken).ToArray();
 
             //for every manually declared enum value
-            foreach (var member in type.GetFields(BindingFlags.Public | BindingFlags.Static))
+            foreach (var member in fields)
             {
                 //fetch the first attribute from the value (should be description)
                 DescriptionAttribute attribute = (DescriptionAttribute)member.GetCustomAttributes(false)[0];
 
-                //if the given string contains the value stored in description, we know it's a certain unit
-                if (str.Contains(attribute.Description))
+                //if the description contains multiple values (deliminated by |'s), split into array
+                string[] descriptions;
+                if (attribute.Description.Contains("|"))
+                    descriptions = attribute.Description.Split("|");
+                else
+                    descriptions = new string[] { attribute.Description };
+
+                //for every description
+                foreach (string desc in descriptions)
                 {
-                    //remove all non numerical chars from the given string
-                    var numberStr = new string(str.Where(c => char.IsDigit(c)).ToArray());
+                    //if the given string contains the value stored in description, we know it's a certain unit
+                    if (str.Contains(desc))
+                    {
+                        //remove all non numerical chars from the given string
+                        var numberStr = new string(str.Where(c => char.IsDigit(c)).ToArray());
 
-                    //find the enum value for the correct enum value
-                    var enumVal = (int)Enum.Parse(type, member.Name);
+                        //find the enum value for the correct enum value
+                        var enumVal = (int)Enum.Parse(type, member.Name);
 
-                    //return the value represented by that string
-                    return Convert.ToInt32(numberStr) * enumVal;
+                        //return the value represented by that string
+                        return Convert.ToInt32(numberStr) * enumVal;
+                    }
                 }
             }
 
