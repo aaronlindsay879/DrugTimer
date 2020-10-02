@@ -59,15 +59,15 @@ else
                                                   .Build();
 
         //listen for initial data being sent in
-        hubConnection.On<List<DrugInfo>>("SendInitialData", infos => SendAll(infos));
+        hubConnection.On<List<DrugInfo>>("SendInitialData", SendAll);
 
         //add handlers for DrugInfo requests
-        hubConnection.On<DrugInfo>("AddDrugInfo", drugInfo => AddDrugInfo(drugInfo));
-        hubConnection.On<DrugInfo>("RemoveDrugInfo", drugInfo => RemoveDrugInfo(drugInfo));
+        hubConnection.On<DrugInfo>("AddDrugInfo", AddDrugInfo);
+        hubConnection.On<DrugInfo>("RemoveDrugInfo", RemoveDrugInfo);
 
         //add handlers for DrugEntry requests
-        hubConnection.On<DrugEntry>("AddDrugEntry", drugEntry => AddDrugEntry(drugEntry));
-        hubConnection.On<DrugEntry>("RemoveDrugEntry", drugEntry => RemoveDrugEntry(drugEntry));
+        hubConnection.On<DrugEntry>("AddDrugEntry", AddDrugEntry);
+        hubConnection.On<DrugEntry>("RemoveDrugEntry", RemoveDrugEntry);
 
         //start socket
         await hubConnection.StartAsync();
