@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DrugTimer.Shared.Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -33,6 +34,7 @@ namespace DrugTimer.Shared
         /// <returns>Dosage in micrograms</returns>
         private int FromString(string str)
         {
+            //get the type and all manually declared fields from the Units enum
             var type = typeof(Units);
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
 
@@ -45,41 +47,44 @@ namespace DrugTimer.Shared
                 //fetch the first attribute from the value (should be description)
                 DescriptionAttribute attribute = (DescriptionAttribute)member.GetCustomAttributes(false)[0];
 
-                //if the description contains multiple values (deliminated by |'s), split into array
-                string[] descriptions;
-                if (attribute.Description.Contains("|"))
-                    descriptions = attribute.Description.Split("|");
-                else
-                    descriptions = new string[] { attribute.Description };
+                //split descriptions into array, with delimeter "|"
+                string[] descriptions = attribute.Description.Split("|");
 
-                //for every description
-                foreach (string desc in descriptions)
+                //get an array of descriptions, where the given string contains it
+                var validDescriptions = descriptions.Where(x => str.Contains(x));
+                
+                //if the count is greater than 0 (ie. the string contains one of the descriptions)
+                if (validDescriptions?.Count() > 0)
                 {
-                    //if the given string contains the value stored in description, we know it's a certain unit
-                    if (str.Contains(desc))
-                    {
-                        //remove all non numerical chars from the given string
-                        var numberStr = new string(str.Where(c => char.IsDigit(c)).ToArray());
+                    //remove all non numerical chars from the given string
+                    var numberStr = str.ToNumeric();
 
-                        //find the enum value for the correct enum value
-                        var enumVal = (int)Enum.Parse(type, member.Name);
+                    //find the enum value for the correct enum value
+                    var enumVal = (int)Enum.Parse(type, member.Name);
 
-                        //return the value represented by that string
-                        return Convert.ToInt32(numberStr) * enumVal;
-                    }
+                    //return the value represented by that string
+                    return Convert.ToInt32(numberStr) * enumVal;
                 }
             }
 
             return 0;
         }
 
+        /// <summary>
+        /// Formats the value into a string, with correct units
+        /// </summary>
+        /// <returns>Formatted string</returns>
         public override string ToString()
         {
-            var ooms = Math.Log10(Micrograms) / 3;
-            if (ooms < 1)
+            var ooms = Math.Log10(Micrograms);
+            //if ooms < 3, then num is less than 1000 (ie mcg)
+            if (ooms < 3)
                 return $"{Micrograms}μg";
-            if (ooms < 2)
+            //if 3 < ooms < 6, then num is between 1000 and 1000000 (ie mg)
+            if (ooms < 6)
                 return $"{Micrograms / 1000}mg";
+
+            //otherwise num > 1000000000 (ie g)
             return $"{Micrograms / 1000000}g";
         }
     }
