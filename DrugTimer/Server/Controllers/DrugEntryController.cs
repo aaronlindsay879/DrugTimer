@@ -11,6 +11,9 @@ using System.Text.RegularExpressions;
 using DrugTimer.Server.Hubs;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.SignalR;
+using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
+using DrugTimer.Server.Communication;
 
 namespace DrugTimer.Server.Controllers
 {
@@ -21,13 +24,15 @@ namespace DrugTimer.Server.Controllers
     [Route("/api/[controller]")]
     public class DrugEntryController : ControllerBase
     {
-        private readonly ILogger<DrugEntryController> logger;
+        private readonly ILogger<DrugEntryController> _logger;
         private readonly IHubContext<Hubs.CommHub> _hubContext;
+        private readonly HttpClient _httpClient;
 
-        public DrugEntryController(ILogger<DrugEntryController> logger, IHubContext<Hubs.CommHub> hubContext)
+        public DrugEntryController(ILogger<DrugEntryController> logger, IHubContext<Hubs.CommHub> hubContext, IHttpClientFactory httpClientFactory)
         {
-            this.logger = logger;
+            _logger = logger;
             _hubContext = hubContext;
+            _httpClient = httpClientFactory.CreateClient();
         }
 
         [HttpGet("{id}")]
