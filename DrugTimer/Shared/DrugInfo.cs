@@ -11,8 +11,9 @@ namespace DrugTimer.Shared
     public class DrugInfo
     {
         public string Name { get; set; }
-        public decimal? TimeBetweenDoses { get; set; }
         public string Info { get; set; }
+        public decimal? TimeBetweenDoses { get; set; }
+        public int? ExpectedDoses { get; set; }
 
         public List<DrugEntry> Entries { get; set; } = new List<DrugEntry>();
         public List<DosageInfo> Dosages { get; set; } = new List<DosageInfo>();

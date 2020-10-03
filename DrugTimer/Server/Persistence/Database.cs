@@ -34,11 +34,12 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDrugInfo
-                                    VALUES($drugName, $timeBetweenDose, $info)";
+                                    VALUES($drugName, $info, $timeBetweenDose, $expectedDoses)";
 
             command.Parameters.AddWithValue("$drugName", info.Name);
-            command.Parameters.AddWithValue("$timeBetweenDose", info.TimeBetweenDoses);
             command.Parameters.AddWithValue("$info", info.Info);
+            command.Parameters.AddWithValue("$timeBetweenDose", info.TimeBetweenDoses);
+            command.Parameters.AddWithValue("$expectedDoses", info.ExpectedDoses);
 
             //add all assosciated dosages
             foreach (DosageInfo dosageInfo in info.Dosages)
@@ -74,13 +75,20 @@ namespace DrugTimer.Server.Persistence
                     Info = reader["Info"] == DBNull.Value ? null : (string)reader["Info"]
                 };
 
-                decimal? value;
+                //have to do longhand because c# doesnt support ternaries with multiple variable types (null and decimal) :(
+                decimal? timeBetweenDoses;
                 if (reader["TimeBetweenDoses"] == DBNull.Value)
-                    value = null;
+                    timeBetweenDoses = null;
                 else
-                    value = Convert.ToDecimal(reader["TimeBetweenDoses"]);
+                    timeBetweenDoses = Convert.ToDecimal(reader["TimeBetweenDoses"]);
+                drug.TimeBetweenDoses = timeBetweenDoses;
 
-                drug.TimeBetweenDoses = value;
+                int? expectedDoses;
+                if (reader["ExpectedDoses"] == DBNull.Value)
+                    expectedDoses = null;
+                else
+                    expectedDoses = Convert.ToInt32(reader["ExpectedDoses"]);
+                drug.ExpectedDoses = expectedDoses;
 
                 //find all DrugEntries associated with the DrugInfo
                 drug.Entries = GetDrugEntries(drug);
