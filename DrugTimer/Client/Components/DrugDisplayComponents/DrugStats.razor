@@ -1,0 +1,51 @@
+﻿@using DrugTimer.Shared
+@using Microsoft.AspNetCore.SignalR.Client
+
+<div class="card text-center" style="display: inline-grid">
+    <ul class="list-group list-group-flush">
+        @if (DrugInfo.Info.Length > 0)
+        {
+            <li class="list-group-item">
+                <h4 class="card-title">Drug info</h4>
+                <p class="card-text">@DrugInfo.Info</p>
+            </li>
+        }
+        @if (DrugInfo.TimeBetweenDoses.HasValue)
+        {
+            <li class="list-group-item">
+                <h4 class="card-title">Time between doses</h4>
+                <p class="card-text">@DrugInfo.TimeBetweenDoses hours</p>
+            </li>
+        }
+        @if (DrugInfo.ExpectedDoses.HasValue)
+        {
+            <li class="list-group-item">
+                <h4 class="card-title">Expected daily doses</h4>
+                <p class="card-text">@DrugInfo.ExpectedDoses</p>
+            </li>
+        }
+        @foreach (DosageInfo dosage in DrugInfo.Dosages)
+        {
+            <li class="list-group-item">
+                <h4 class="card-title">@dosage.Drug</h4>
+                <p class="card-text">@(new Dosage(dosage.Dosage).ToString())</p>
+            </li>
+        }
+        <li class="list-group-item">
+            <button class="btn btn-danger" @onclick="@RemoveDrug">Remove drug</button>
+        </li>
+    </ul>
+</div>
+
+@code {
+    [Parameter] public DrugInfo DrugInfo { get; set; }
+    [Parameter] public HubConnection Connection { get; set; }
+
+    /// <summary>
+    /// Removes a drug from the database
+    /// </summary>
+    private void RemoveDrug()
+    {
+        Connection.SendAsync("RemoveDrugInfo", DrugInfo);
+    }
+}

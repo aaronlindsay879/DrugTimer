@@ -1,8 +1,8 @@
 ﻿@using DrugTimer.Shared
 @using System.Threading
-@using System.Globalization
 @using DrugTimer.Client.Extensions
 @using Microsoft.AspNetCore.SignalR.Client
+@using DrugTimer.Client.Components.DrugDisplayComponents
 
 @implements IDisposable
 
@@ -14,107 +14,11 @@
         </div>
     </div>
 }
-
 <div style="margin-top: 10px">
-    <div class="card text-center" style="display: inline-grid">
-        <div class="card-header">
-            <h4>Recent entries</h4>
-        </div>
-        <ul class="list-group list-group-flush">
-            @foreach (DrugEntry entry in DrugInfo.Entries.TakeReversed(10))
-            {
-                <li class="list-group-item">
-                    <p style="float: left; margin-bottom: 0">@FormatDate(entry.Time), @entry.Count doses</p>
-                    <button class="btn btn-secondary btn-sm" style="float: right; margin-left: 5px; line-height: 1" @onclick="@(() => RemoveEntry(entry))">x</button>
-                </li>
-            }
-        </ul>
-    </div>
-
-    <div class="card text-center" style="display: inline-grid">
-        <div class="card-header">
-            <h4>Add Entry</h4>
-        </div>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-                <label for="time" style="width: 60px">Time</label>
-                <input type="datetime" id="time" @bind="@_entryTime" style="width: 180px" />
-                <br />
-                <label for="count" style="width: 60px">Count</label>
-                <input type="number" min="1" id="count" @bind="@_entryCount" style="width: 180px" />
-                <br />
-                <button class="btn btn-primary" @onclick="@AddEntry">Add entry</button>
-            </li>
-        </ul>
-    </div>
-
-    <div class="card text-center" style="display: inline-grid">
-        <ul class="list-group list-group-flush">
-            @if (DrugInfo.Info.Length > 0)
-            {
-                <li class="list-group-item">
-                    <h4 class="card-title">Drug info</h4>
-                    <p class="card-text">@DrugInfo.Info</p>
-                </li>
-            }
-            @if (DrugInfo.TimeBetweenDoses.HasValue)
-            {
-                <li class="list-group-item">
-                    <h4 class="card-title">Time between doses</h4>
-                    <p class="card-text">@DrugInfo.TimeBetweenDoses hours</p>
-                </li>
-            }
-            @if (DrugInfo.ExpectedDoses.HasValue)
-            {
-                <li class="list-group-item">
-                    <h4 class="card-title">Expected daily doses</h4>
-                    <p class="card-text">@DrugInfo.ExpectedDoses</p>
-                </li>
-            }
-            @foreach (DosageInfo dosage in DrugInfo.Dosages)
-            {
-                <li class="list-group-item">
-                    <h4 class="card-title">@dosage.Drug</h4>
-                    <p class="card-text">@(new Dosage(dosage.Dosage).ToString())</p>
-                </li>
-            }
-            <li class="list-group-item">
-                <button class="btn btn-danger" @onclick="@RemoveDrug">Remove drug</button>
-            </li>
-        </ul>
-    </div>
-
-    <div class="card text-center" style="display: inline-grid">
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-                <h4 class="card-title">Average doses per day</h4>
-                <p class="card-text">
-                    @DrugInfo.Average.ToString("0.##")
-
-                    @if (DrugInfo.ExpectedDoses.HasValue)
-                    {
-                        @if (DrugInfo.ExpectedDoses == DrugInfo.Average)
-                        {
-                            <text> (as expected)</text>
-                        }
-                        else if (DrugInfo.ExpectedDoses.Value < DrugInfo.Average)
-                        {
-                            <text> (@(DrugInfo.Average - DrugInfo.ExpectedDoses) more than expected)</text>
-                        }
-                        else
-                        {
-
-                            <text> (@(DrugInfo.ExpectedDoses - DrugInfo.Average) less than expected)</text>
-                        }
-                    }
-                </p>
-            </li>
-            <li class="list-group-item">
-                <h4 class="card-title">Average time between doses</h4>
-                <p class="card-text">@DrugInfo.AverageHours.ToString("hh':'mm':'ss")</p>
-            </li>
-        </ul>
-    </div>
+    <Entries DrugInfo="@DrugInfo" Connection="@Connection" Settings="@Settings" TimerTick="@TimerTick" />
+    <AddEntry DrugInfo="@DrugInfo" Connection="@Connection" TimerTick="@TimerTick" />
+    <DrugStats DrugInfo="@DrugInfo" Connection="@Connection" />
+    <AverageStats DrugInfo="@DrugInfo" />
 </div>
 
 @code {
@@ -127,25 +31,19 @@
     private string _progressText;
     private Timer _timer;
 
-    private string _entryTime;
-    private string _entryCount;
-
     /// <summary>
     /// Initialise timer on component initialise
     /// </summary>
     protected override void OnInitialized()
     {
         _timer = new Timer(e => TimerTick(true), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
-
-        //also set default value for count
-        _entryCount = "1";
     }
 
     /// <summary>
     /// Function to perform a timer tick for updating progress bar
     /// </summary>
     /// <param name="changeNextRun">Whether to update time for next run</param>
-    private void TimerTick(bool changeNextRun = false)
+    private void TimerTick(bool changeNextRun)
     {
         //find nearest past entry, and ensure it both has a value and the drug time between doses has a value
         DrugEntry pastEntry = FindNearestPastEntry();
@@ -210,65 +108,5 @@
 
         //otherwise just return last element
         return entries.Last();
-    }
-
-    /// <summary>
-    /// Formats a date with the saved setting
-    /// </summary>
-    /// <param name="date">Date to format</param>
-    /// <returns>Formatted string</returns>
-    private string FormatDate(DateTime date)
-    {
-        //if there is a setting for date format, use it, otherwise use default formatting
-        if (Settings.DateFormat != null)
-            return date.ToString(Settings.DateFormat);
-
-        return date.ToString();
-    }
-
-    /// <summary>
-    /// Adds an entry to the database
-    /// </summary>
-    private async void AddEntry()
-    {
-        //checks if date string is null, whitespace or not valid datetime
-        if (string.IsNullOrWhiteSpace(_entryTime)) return;
-        if (!DateTime.TryParse(_entryTime, CultureInfo.GetCultureInfo("en-GB"), DateTimeStyles.None, out _)) return;
-
-        //checks if count string is null, whitespace or not valid int
-        if (string.IsNullOrWhiteSpace(_entryCount)) return;
-        if (!int.TryParse(_entryCount, out _)) return;
-
-        DrugEntry entry = new DrugEntry()
-        {
-            DrugName = DrugInfo.Name,
-            Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB")),
-            Count = Convert.ToInt32(_entryCount)
-        };
-
-        await Connection.SendAsync("AddDrugEntry", entry);
-
-        await Task.Delay(500);
-        TimerTick();
-    }
-
-    /// <summary>
-    /// Removes an entry from the database
-    /// </summary>
-    /// <param name="entryTime">Time of the entry to remove</param>
-    private async void RemoveEntry(DrugEntry entry)
-    {
-        await Connection.SendAsync("RemoveDrugEntry", entry);
-
-        await Task.Delay(500);
-        TimerTick();
-    }
-
-    /// <summary>
-    /// Removes a drug from the database
-    /// </summary>
-    private void RemoveDrug()
-    {
-        Connection.SendAsync("RemoveDrugInfo", DrugInfo);
     }
 }

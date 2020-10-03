@@ -1,0 +1,37 @@
+﻿@using DrugTimer.Shared
+
+<div class="card text-center" style="display: inline-grid">
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <h4 class="card-title">Average doses per day</h4>
+            <p class="card-text">
+                @DrugInfo.Average.ToString("0.##")
+
+                @if (DrugInfo.ExpectedDoses.HasValue)
+                {
+                    @if (DrugInfo.ExpectedDoses == DrugInfo.Average)
+                    {
+                        <text> (as expected)</text>
+                    }
+                    else if (DrugInfo.ExpectedDoses.Value < DrugInfo.Average)
+                    {
+                        <text> (@(DrugInfo.Average - DrugInfo.ExpectedDoses) more than expected)</text>
+                    }
+                    else
+                    {
+
+                        <text> (@(DrugInfo.ExpectedDoses - DrugInfo.Average) less than expected)</text>
+                    }
+                }
+            </p>
+        </li>
+        <li class="list-group-item">
+            <h4 class="card-title">Average time between doses</h4>
+            <p class="card-text">@DrugInfo.AverageHours.ToString("hh':'mm':'ss")</p>
+        </li>
+    </ul>
+</div>
+
+@code {
+    [Parameter] public DrugInfo DrugInfo { get; set; }
+}

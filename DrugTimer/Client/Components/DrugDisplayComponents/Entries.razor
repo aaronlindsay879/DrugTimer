@@ -1,0 +1,51 @@
+﻿@using DrugTimer.Shared
+@using DrugTimer.Client.Extensions
+@using Microsoft.AspNetCore.SignalR.Client
+
+<div class="card text-center" style="display: inline-grid">
+    <div class="card-header">
+        <h4>Recent entries</h4>
+    </div>
+    <ul class="list-group list-group-flush">
+        @foreach (DrugEntry entry in DrugInfo.Entries.TakeReversed(10))
+        {
+            <li class="list-group-item">
+                <p style="float: left; margin-bottom: 0">@FormatDate(entry.Time), @entry.Count doses</p>
+                <button class="btn btn-secondary btn-sm" style="float: right; margin-left: 5px; line-height: 1" @onclick="@(() => RemoveEntry(entry))">x</button>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    [Parameter] public DrugInfo DrugInfo { get; set; }
+    [Parameter] public HubConnection Connection { get; set; }
+    [Parameter] public Settings Settings { get; set; }
+    [Parameter] public Action<bool> TimerTick { get; set; }
+
+    /// <summary>
+    /// Formats a date with the saved setting
+    /// </summary>
+    /// <param name="date">Date to format</param>
+    /// <returns>Formatted string</returns>
+    private string FormatDate(DateTime date)
+    {
+        //if there is a setting for date format, use it, otherwise use default formatting
+        if (Settings.DateFormat != null)
+            return date.ToString(Settings.DateFormat);
+
+        return date.ToString();
+    }
+
+    /// <summary>
+    /// Removes an entry from the database
+    /// </summary>
+    /// <param name="entryTime">Time of the entry to remove</param>
+    private async void RemoveEntry(DrugEntry entry)
+    {
+        await Connection.SendAsync("RemoveDrugEntry", entry);
+
+        await Task.Delay(500);
+        TimerTick(false);
+    }
+}
