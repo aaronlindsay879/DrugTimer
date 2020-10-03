@@ -103,7 +103,7 @@ namespace DrugTimer.Server.Persistence
             using var connection = new SQLiteConnection(_connectionInfo);
             connection.Open();
 
-            //create a command, set the text and set all parameters to given DrugEntry
+            //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"DELETE FROM tblDrugInfo
                                     WHERE DrugName LIKE $drugName";
@@ -131,6 +131,31 @@ namespace DrugTimer.Server.Persistence
         }
 
         /// <summary>
+        /// Updates a given DrugInfo, uses drug name as comparator
+        /// </summary>
+        /// <param name="drugInfo">DrugInfo to update</param>
+        public static void UpdateDrugInfo(DrugInfo drugInfo)
+        {
+            //creates and opens the connection
+            using var connection = new SQLiteConnection(_connectionInfo);
+            connection.Open();
+
+            //create a command, set the text and set all parameters to given DrugInfo
+            var command = connection.CreateCommand();
+            command.CommandText = @"UPDATE tblDrugInfo
+                                       SET DiscordWebHook = $webHook,
+                                           DiscordWebHookEnabled = $webHookEnabled
+                                     WHERE DrugName LIKE $drugName";
+
+            command.Parameters.AddWithValue("$webHook", drugInfo.DrugSettings.DiscordWebHook);
+            command.Parameters.AddWithValue("$webHookEnabled", drugInfo.DrugSettings.DiscordWebHookEnabled);
+            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
+
+            //write to database
+            command.ExecuteNonQuery();
+        }
+
+        /// <summary>
         /// Add a given DrugEntry to the database
         /// </summary>
         /// <param name="info">DrugEntry to add</param>
@@ -152,6 +177,7 @@ namespace DrugTimer.Server.Persistence
             //write to database
             command.ExecuteNonQuery();
         }
+
 
         /// <summary>
         /// Gets a list of all times associated with a given DrugInfo

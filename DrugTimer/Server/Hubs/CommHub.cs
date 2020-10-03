@@ -49,6 +49,17 @@ namespace DrugTimer.Server.Hubs
         }
 
         /// <summary>
+        /// Hacky method for updating drug info. TODO: actually update columns instead of removing and inserting
+        /// </summary>
+        /// <param name="info">Info to update</param>
+        /// <returns></returns>
+        public async Task UpdateDrugInfo(DrugInfo info)
+        {
+            Database.UpdateDrugInfo(info);
+            await Clients.All.SendAsync("UpdateDrugInfo", info);
+        }
+
+        /// <summary>
         /// Adds a given DrugEntry to database, and updates all clients
         /// </summary>
         /// <param name="info">DrugEntry to add</param>

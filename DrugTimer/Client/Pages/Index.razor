@@ -16,7 +16,7 @@ else
 {
     <TabControl Pages="@Pages">
         <TabPage Text="Options">
-            <Options Settings="@Settings" />
+            <Options Settings="@Settings" DrugInfos="@_information" Connection="@hubConnection" />
         </TabPage>
         @foreach (DrugInfo info in _information)
         {
@@ -61,6 +61,7 @@ else
         //add handlers for DrugInfo requests
         hubConnection.On<DrugInfo>("AddDrugInfo", AddDrugInfo);
         hubConnection.On<DrugInfo>("RemoveDrugInfo", RemoveDrugInfo);
+        hubConnection.On<DrugInfo>("UpdateDrugInfo", UpdateDrugInfo);
 
         //add handlers for DrugEntry requests
         hubConnection.On<DrugEntry>("AddDrugEntry", AddDrugEntry);
@@ -108,6 +109,18 @@ else
         //Remove the given drug from both the stored data and the pages
         _information.RemoveAll(x => x.Name == info.Name);
         Pages.RemoveAll(x => x.Text == info.Name);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handler for UpdateDrugInfo events - updates it (as the name suggests)
+    /// </summary>
+    /// <param name="info">DrugInfo to remove</param>
+    private async void UpdateDrugInfo(DrugInfo info)
+    {
+        int index = _information.FindIndex(x => x.Name == info.Name);
+        _information[index] = info;
 
         await InvokeAsync(StateHasChanged);
     }
