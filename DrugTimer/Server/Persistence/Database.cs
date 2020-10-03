@@ -34,12 +34,13 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDrugInfo
-                                    VALUES($drugName, $info, $timeBetweenDose, $expectedDoses)";
+                                    VALUES($drugName, $info, $timeBetweenDose, $expectedDoses, $discordWebHook)";
 
             command.Parameters.AddWithValue("$drugName", info.Name);
             command.Parameters.AddWithValue("$info", info.Info);
             command.Parameters.AddWithValue("$timeBetweenDose", info.TimeBetweenDoses);
             command.Parameters.AddWithValue("$expectedDoses", info.ExpectedDoses);
+            command.Parameters.AddWithValue("$expectedDoses", info.DrugSettings.DiscordWebHook);
 
             //add all assosciated dosages
             foreach (DosageInfo dosageInfo in info.Dosages)
@@ -89,6 +90,13 @@ namespace DrugTimer.Server.Persistence
                 else
                     expectedDoses = Convert.ToInt32(reader["ExpectedDoses"]);
                 drug.ExpectedDoses = expectedDoses;
+
+                string webHookUrl;
+                if (reader["DiscordWebHook"] == DBNull.Value)
+                    webHookUrl = null;
+                else
+                    webHookUrl = (string)reader["DiscordWebHook"];
+                drug.DrugSettings.DiscordWebHook = webHookUrl;
 
                 //find all DrugEntries associated with the DrugInfo
                 drug.Entries = GetDrugEntries(drug);
