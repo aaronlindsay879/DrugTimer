@@ -11,8 +11,10 @@ using System.Threading.Tasks;
 
 namespace DrugTimer.Server.Communication
 {
-    public class Discord : Communicator
+    public class Discord
     {
+        public static HttpClient HttpClient;
+
         /// <summary>
         /// Handles sending a message to a given webhook url
         /// </summary>
@@ -25,7 +27,7 @@ namespace DrugTimer.Server.Communication
             messageContent["content"] = $"Timer started for {entry.DrugName} at {entry.Time}";
 
             var content = new StringContent(messageContent.ToString(), Encoding.UTF8, "application/json");
-            using HttpResponseMessage response = await _httpClient.PostAsync(webHookUrl, content);
+            using HttpResponseMessage response = await HttpClient.PostAsync(webHookUrl, content);
 
             response.EnsureSuccessStatusCode();
         }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using DrugTimer.Server.Communication;
 using DrugTimer.Server.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -14,12 +16,10 @@ namespace DrugTimer.Server
     {
         public static void Main(string[] args)
         {
+            var sharedClient = new HttpClient();
             Database.SetConnInfo(@"DataSource=database.db");
-            /*Database.AddDrugEntry(new Shared.DrugEntry()
-            {
-                DrugName = "Co-codamol",
-                Time = new DateTime(2000, 10, 15, 10, 10, 10, 300)
-            });*/
+            Discord.HttpClient = sharedClient;
+
 
             CreateHostBuilder(args).Build().Run();
         }
