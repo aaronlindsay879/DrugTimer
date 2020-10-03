@@ -5,6 +5,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Threading.Tasks;
 using DrugTimer.Client.Extensions;
+using DrugTimer.Shared.Extensions;
 
 namespace DrugTimer.Server.Persistence
 {
@@ -73,30 +74,12 @@ namespace DrugTimer.Server.Persistence
                 var drug = new DrugInfo()
                 {
                     Name = (string)reader["DrugName"],
-                    Info = reader["Info"] == DBNull.Value ? null : (string)reader["Info"]
+                    Info = reader["Info"].HandleNull<string>(),
+                    TimeBetweenDoses = reader["TimeBetweenDoses"].HandleNull<decimal?>(),
+                    ExpectedDoses = reader["ExpectedDoses"].HandleNull<int?>()
                 };
 
-                //have to do longhand because c# doesnt support ternaries with multiple variable types (null and decimal) :(
-                decimal? timeBetweenDoses;
-                if (reader["TimeBetweenDoses"] == DBNull.Value)
-                    timeBetweenDoses = null;
-                else
-                    timeBetweenDoses = Convert.ToDecimal(reader["TimeBetweenDoses"]);
-                drug.TimeBetweenDoses = timeBetweenDoses;
-
-                int? expectedDoses;
-                if (reader["ExpectedDoses"] == DBNull.Value)
-                    expectedDoses = null;
-                else
-                    expectedDoses = Convert.ToInt32(reader["ExpectedDoses"]);
-                drug.ExpectedDoses = expectedDoses;
-
-                string webHookUrl;
-                if (reader["DiscordWebHook"] == DBNull.Value)
-                    webHookUrl = null;
-                else
-                    webHookUrl = (string)reader["DiscordWebHook"];
-                drug.DrugSettings.DiscordWebHook = webHookUrl;
+                drug.DrugSettings.DiscordWebHook = reader["DiscordWebHook"].HandleNull<string>();
 
                 //find all DrugEntries associated with the DrugInfo
                 drug.Entries = GetDrugEntries(drug);
