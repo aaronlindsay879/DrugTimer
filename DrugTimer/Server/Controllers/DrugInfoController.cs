@@ -1,13 +1,9 @@
-﻿using DrugTimer.Shared;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using DrugTimer.Server.Persistence;
+using DrugTimer.Shared;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using DrugTimer.Server.Persistence;
-using DrugTimer.Server.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace DrugTimer.Server.Controllers
 {
@@ -35,7 +31,7 @@ namespace DrugTimer.Server.Controllers
         }
 
         [HttpPost]
-        public async void Post([FromBody]DrugInfo info)
+        public async void Post([FromBody] DrugInfo info)
         {
             //add the druginfo from the post request to the database
             Database.AddDrugInfo(info);

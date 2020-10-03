@@ -1,19 +1,12 @@
-﻿using DrugTimer.Shared;
+﻿using DrugTimer.Server.Persistence;
+using DrugTimer.Shared;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using DrugTimer.Server.Persistence;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using DrugTimer.Server.Hubs;
-using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.AspNetCore.SignalR;
-using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
-using DrugTimer.Server.Communication;
 
 namespace DrugTimer.Server.Controllers
 {
@@ -44,7 +37,7 @@ namespace DrugTimer.Server.Controllers
         }
 
         [HttpPost]
-        public async void Post([FromBody]JsonElement data)
+        public async void Post([FromBody] JsonElement data)
         {
             //create the entry from the post request
             DrugEntry entry = new DrugEntry()

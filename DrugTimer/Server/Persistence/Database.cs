@@ -1,11 +1,9 @@
 ﻿using DrugTimer.Shared;
+using DrugTimer.Shared.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
-using System.Threading.Tasks;
-using DrugTimer.Client.Extensions;
-using DrugTimer.Shared.Extensions;
 
 namespace DrugTimer.Server.Persistence
 {

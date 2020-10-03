@@ -1,11 +1,8 @@
 ﻿using DrugTimer.Shared.Extensions;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.Json.Serialization;
 
 namespace DrugTimer.Shared
 {
@@ -52,7 +49,7 @@ namespace DrugTimer.Shared
 
                 //get an array of descriptions, where the given string contains it
                 var validDescriptions = descriptions.Where(x => str.Contains(x));
-                
+
                 //if the count is greater than 0 (ie. the string contains one of the descriptions)
                 if (validDescriptions?.Count() > 0)
                 {

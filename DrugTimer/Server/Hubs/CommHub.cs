@@ -1,10 +1,7 @@
 ﻿using DrugTimer.Server.Communication;
-using DrugTimer.Server.Controllers;
 using DrugTimer.Server.Persistence;
 using DrugTimer.Shared;
 using Microsoft.AspNetCore.SignalR;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,7 +28,7 @@ namespace DrugTimer.Server.Hubs
         /// </summary>
         /// <param name="info">DrugInfo to add</param>
         /// <returns></returns>
-        public async Task AddDrugInfo(DrugInfo info) 
+        public async Task AddDrugInfo(DrugInfo info)
         {
             Database.AddDrugInfo(info);
             await Clients.All.SendAsync("AddDrugInfo", info);
