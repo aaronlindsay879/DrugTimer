@@ -148,9 +148,16 @@ else
         }
 
         //remove the given entry and recalculate stats
-        _information.First(x => x.Name == entry.DrugName).Entries.Remove(entry);
+        //have to do removal longhand since DrugEntry does not have a proper comparer. TODO: introduce comparer
+        _information.First(x => x.Name == entry.DrugName).Entries.RemoveAll(x => x.DrugName == entry.DrugName
+                                                                              && x.Time == entry.Time
+                                                                              && x.Count == entry.Count);
         _information.First(x => x.Name == entry.DrugName).ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
+    }
+
+    private void RemoveLocalDrugEntry(DrugEntry entry)
+    {
     }
 }

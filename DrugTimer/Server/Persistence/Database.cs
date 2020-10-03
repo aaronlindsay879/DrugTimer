@@ -184,6 +184,7 @@ namespace DrugTimer.Server.Persistence
             while (reader.Read())
                 entries.Add(new DrugEntry()
                 {
+                    DrugName = drugInfo.Name,
                     Time = DateTime.Parse((string)reader["Time"]),
                     Count = Convert.ToInt32(reader["Count"])
                 });
