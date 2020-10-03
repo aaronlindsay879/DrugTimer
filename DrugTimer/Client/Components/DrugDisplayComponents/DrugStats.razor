@@ -3,7 +3,7 @@
 
 <div class="card text-center" style="display: inline-grid">
     <ul class="list-group list-group-flush">
-        @if (DrugInfo.Info.Length > 0)
+        @if (!string.IsNullOrWhiteSpace(DrugInfo.Info))
         {
             <li class="list-group-item">
                 <h4 class="card-title">Drug info</h4>
