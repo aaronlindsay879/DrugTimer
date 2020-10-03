@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DrugTimer.Client.Extensions
+namespace DrugTimer.Shared.Extensions
 {
     public static class IEnumerableExtension
     {
