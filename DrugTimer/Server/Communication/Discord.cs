@@ -11,10 +11,8 @@ using System.Threading.Tasks;
 
 namespace DrugTimer.Server.Communication
 {
-    public static class Discord
+    public class Discord : Communicator
     {
-        private static HttpClient _httpClient = new HttpClient();
-
         /// <summary>
         /// Handles sending a message to a given webhook url
         /// </summary>

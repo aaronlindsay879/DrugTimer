@@ -26,13 +26,11 @@ namespace DrugTimer.Server.Controllers
     {
         private readonly ILogger<DrugEntryController> _logger;
         private readonly IHubContext<Hubs.CommHub> _hubContext;
-        private readonly HttpClient _httpClient;
 
-        public DrugEntryController(ILogger<DrugEntryController> logger, IHubContext<Hubs.CommHub> hubContext, IHttpClientFactory httpClientFactory)
+        public DrugEntryController(ILogger<DrugEntryController> logger, IHubContext<Hubs.CommHub> hubContext)
         {
             _logger = logger;
             _hubContext = hubContext;
-            _httpClient = httpClientFactory.CreateClient();
         }
 
         [HttpGet("{id}")]
