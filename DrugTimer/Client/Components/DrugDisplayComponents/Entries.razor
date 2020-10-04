@@ -10,7 +10,7 @@
         @foreach (DrugEntry entry in DrugInfo.Entries.TakeReversed(10))
         {
             <li class="list-group-item">
-                <p style="float: left; margin-bottom: 0">@FormatDate(entry.Time), @entry.Count doses</p>
+                <p style="float: left; margin-bottom: 0">@FormatDate(entry.Time.ToLocalTime()), @entry.Count doses</p>
                 <button class="btn btn-secondary btn-sm" style="float: right; margin-left: 5px; line-height: 1" @onclick="@(() => RemoveEntry(entry))">x</button>
             </li>
         }
@@ -32,9 +32,9 @@
     {
         //if there is a setting for date format, use it, otherwise use default formatting
         if (Settings.DateFormat != null)
-            return date.ToLocalTime().ToString(Settings.DateFormat);
+            return date.ToString(Settings.DateFormat);
 
-        return date.ToLocalTime().ToString();
+        return date.ToString();
     }
 
     /// <summary>
