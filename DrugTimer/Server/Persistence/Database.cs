@@ -33,7 +33,7 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDrugInfo
-                                    VALUES($drugName, $info, $timeBetweenDose, $expectedDoses, $discordWebHook, $discordWebHookEnabled)";
+                                    VALUES($drugName, $info, $timeBetweenDose, $expectedDoses, $discordWebHook, $discordWebHookEnabled, $notificationsEnabled)";
 
             command.Parameters.AddWithValue("$drugName", info.Name);
             command.Parameters.AddWithValue("$info", info.Info);
@@ -41,6 +41,7 @@ namespace DrugTimer.Server.Persistence
             command.Parameters.AddWithValue("$expectedDoses", info.ExpectedDoses);
             command.Parameters.AddWithValue("$discordWebHook", info.DrugSettings.DiscordWebHook);
             command.Parameters.AddWithValue("$discordWebHookEnabled", info.DrugSettings.DiscordWebHookEnabled);
+            command.Parameters.AddWithValue("$notificationsEnabled", info.DrugSettings.NotificationsEnabled);
 
             //add all assosciated dosages
             foreach (DosageInfo dosageInfo in info.Dosages)
@@ -78,6 +79,7 @@ namespace DrugTimer.Server.Persistence
                     ExpectedDoses = reader["ExpectedDoses"].HandleNull<int?>()
                 };
 
+                drug.DrugSettings.DiscordWebHookEnabled = reader["NotificationsEnabled"].HandleNull<bool>();
                 drug.DrugSettings.DiscordWebHook = reader["DiscordWebHook"].HandleNull<string>();
                 drug.DrugSettings.DiscordWebHookEnabled = reader["DiscordWebHookEnabled"].HandleNull<bool>();
 
@@ -142,11 +144,13 @@ namespace DrugTimer.Server.Persistence
             var command = connection.CreateCommand();
             command.CommandText = @"UPDATE tblDrugInfo
                                        SET DiscordWebHook = $webHook,
-                                           DiscordWebHookEnabled = $webHookEnabled
+                                           DiscordWebHookEnabled = $webHookEnabled,
+                                           NotificationsEnabled = $notifications
                                      WHERE DrugName LIKE $drugName";
 
             command.Parameters.AddWithValue("$webHook", drugInfo.DrugSettings.DiscordWebHook);
             command.Parameters.AddWithValue("$webHookEnabled", drugInfo.DrugSettings.DiscordWebHookEnabled);
+            command.Parameters.AddWithValue("$notifications", drugInfo.DrugSettings.NotificationsEnabled);
             command.Parameters.AddWithValue("$drugName", drugInfo.Name);
 
             //write to database
