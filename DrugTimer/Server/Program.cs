@@ -11,7 +11,7 @@ namespace DrugTimer.Server
         public static void Main(string[] args)
         {
             var sharedClient = new HttpClient();
-            Database.SetConnInfo(@"DataSource=database.db");
+            Database.SetConnInfo(@"data/database.db");
             Discord.HttpClient = sharedClient;
 
 

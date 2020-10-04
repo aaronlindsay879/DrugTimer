@@ -3,6 +3,7 @@ using DrugTimer.Shared.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.IO;
 using System.Linq;
 
 namespace DrugTimer.Server.Persistence
@@ -17,7 +18,57 @@ namespace DrugTimer.Server.Persistence
 
         public static void SetConnInfo(string info)
         {
-            _connectionInfo = info;
+            _connectionInfo = $"DataSource={info}";
+
+            if (!File.Exists(info))
+                InitTables(info);
+        }
+
+        private static void InitTables(string info)
+        {
+            if (info.Contains("/"))
+            {
+                //split on /'s, take all but the last one and recombine into string
+                string dirPath = info.Split('/').Take(info.Split('/').Length - 1).Aggregate((a, b) => a + b);
+                Directory.CreateDirectory(dirPath);
+            }
+
+            SQLiteConnection.CreateFile(info);
+
+            using var connection = new SQLiteConnection(_connectionInfo);
+            connection.Open();
+
+            var command = connection.CreateCommand();
+
+            //create tblDrugInfo
+            command.CommandText = @"CREATE TABLE tblDrugInfo (
+                                        DrugName TEXT PRIMARY KEY,
+	                                    Info TEXT,
+	                                    TimeBetweenDoses REAL,
+	                                    ExpectedDoses INTEGER,
+	                                    DiscordWebHook TEXT,
+	                                    DiscordWebHookEnabled INTEGER,
+	                                    NotificationsEnabled INTEGER
+                                    )";
+            command.ExecuteNonQuery();
+
+            //create tblDosageInfo
+            command.CommandText = @"CREATE TABLE tblDosageInfo (
+                                        DrugName TEXT,
+	                                    Drug TEXT,
+	                                    Dosage INTEGER,
+	                                    FOREIGN KEY(DrugName) REFERENCES tblDrugInfo(DrugName) ON DELETE CASCADE
+                                    )";
+            command.ExecuteNonQuery();
+
+            //create tblDrugEntries
+            command.CommandText = @"CREATE TABLE tblDrugEntries (
+                DrugName TEXT,
+	            Time TEXT,
+	            Count INTEGER,
+	            FOREIGN KEY(DrugName) REFERENCES tblDrugInfo(DrugName) ON DELETE CASCADE
+            )";
+            command.ExecuteNonQuery();
         }
 
         /// <summary>
