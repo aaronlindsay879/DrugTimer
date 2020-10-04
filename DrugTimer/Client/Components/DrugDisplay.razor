@@ -51,6 +51,7 @@
             return;
 
         double seconds = (double)DrugInfo.TimeBetweenDoses * 3600;
+        pastEntry.Time = pastEntry.Time.ToLocalTime();
 
         if ((DateTime.Now - pastEntry.Time).TotalSeconds >= seconds)
         {
