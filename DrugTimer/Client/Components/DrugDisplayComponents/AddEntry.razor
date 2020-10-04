@@ -43,7 +43,7 @@
         DrugEntry entry = new DrugEntry()
         {
             DrugName = DrugInfo.Name,
-            Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB")),
+            Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB")).ToUniversalTime(),
             Count = Convert.ToInt32(_entryCount)
         };
 

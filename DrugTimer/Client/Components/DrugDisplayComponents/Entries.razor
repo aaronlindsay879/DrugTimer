@@ -32,9 +32,9 @@
     {
         //if there is a setting for date format, use it, otherwise use default formatting
         if (Settings.DateFormat != null)
-            return date.ToString(Settings.DateFormat);
+            return date.ToLocalTime().ToString(Settings.DateFormat);
 
-        return date.ToString();
+        return date.ToLocalTime().ToString();
     }
 
     /// <summary>
