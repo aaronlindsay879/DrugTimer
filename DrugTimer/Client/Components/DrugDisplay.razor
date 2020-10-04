@@ -101,7 +101,7 @@
             return null;
 
         //if there are no entries in the past, return null again
-        var entries = DrugInfo.Entries.Where(x => x.Time <= DateTime.Now);
+        var entries = DrugInfo.Entries.Where(x => x.Time.ToLocalTime() <= DateTime.Now);
         if (entries.Count() == 0)
             return null;
 
