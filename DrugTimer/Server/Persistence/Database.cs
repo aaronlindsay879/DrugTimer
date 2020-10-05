@@ -65,7 +65,7 @@ namespace DrugTimer.Server.Persistence
             command.CommandText = @"CREATE TABLE tblDrugEntries (
                 DrugName TEXT,
 	            Time TEXT,
-	            Count INTEGER,
+	            Count REAL,
 	            FOREIGN KEY(DrugName) REFERENCES tblDrugInfo(DrugName) ON DELETE CASCADE
             )";
             command.ExecuteNonQuery();
