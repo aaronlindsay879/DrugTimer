@@ -17,7 +17,7 @@
         <InputNumber class="form-control" id="drugTime" @bind-Value="@_newDrug.TimeBetweenDoses" />
         <ValidationMessage For="@(() => _newDrug.TimeBetweenDoses)" />
         <small class="form-text text-muted">
-            How many hours between doses. Leave empty (or 0) if drug doesn't fit that schedule.
+            How many hours between doses. Leave empty if drug doesn't fit that schedule.
         </small>
     </div>
     <div class="form-group" style="margin-left: 0px;">
@@ -25,14 +25,14 @@
         <InputNumber class="form-control" id="drugDoses" @bind-Value="@_newDrug.ExpectedDoses" />
         <ValidationMessage For="@(() => _newDrug.ExpectedDoses)" />
         <small class="form-text text-muted">
-            How many doses are expected a day. Leave empty (or 0) if drug doesn't fit that schedule.
+            How many doses are expected a day. Leave empty if drug doesn't fit that schedule.
         </small>
     </div>
     <div class="form-group" style="margin-left: 0px;">
         <label for="drugInfo">Drug information</label>
         <InputText class="form-control" id="drugInfo" @bind-Value="@_newDrug.Info" />
         <small class="form-text text-muted">
-            Any other drug information, such as dosage.
+            Any other drug information.
         </small>
     </div>
     @for (int i = 0; i < _drugDosages.Count; i++)
