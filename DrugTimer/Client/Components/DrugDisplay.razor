@@ -77,7 +77,7 @@
         }
 
         //ensure timer runs next based on refresh rate setting
-        var time = Convert.ToDouble(Settings.RefreshRate ?? "5");
+        var time = Convert.ToDouble(Settings.RefreshRate);
 
         if (changeNextRun)
             _timer.Change(TimeSpan.FromSeconds(time), TimeSpan.FromSeconds(time));

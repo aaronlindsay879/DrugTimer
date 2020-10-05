@@ -4,103 +4,31 @@
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
-<form style="margin-top: 20px">
+<EditForm Model="Settings" OnValidSubmit="WriteSettings" style="margin-top: 20px">
+    <DataAnnotationsValidator />
     <div class="form-group" style="margin-left: 0px;">
         <label for="refreshRate">Refresh Rate</label>
-        <input type="number" min="1" max="15" id="refreshRate" class="form-control" @bind="@RefreshRate" />
+        <InputNumber id="refreshRate" class="form-control" @bind-Value="@Settings.RefreshRate" />
+        <ValidationMessage For="@(() => Settings.RefreshRate)" />
         <small class="form-text text-muted">
             How often to redraw the progress bar, in seconds.
         </small>
     </div>
     <div class="form-group" style="margin-left: 0px;">
         <label for="dateFormat">Date Format</label>
-        <input type="text" class="form-control" id="dateFormat" @bind="@DateFormat" />
+        <InputDateFormat class="form-control" id="dateFormat" @bind-Value="@Settings.DateFormat" />
+        <ValidationMessage For="@(() => Settings.DateFormat)" />
         <small class="form-text text-muted">
             Date formatting to use within application.
-            <span class="alert-danger" style="@RefreshVisible">Invalid string.</span>
         </small>
     </div>
-</form>
+    <button class="btn btn-primary" type="submit">Save data</button>
+</EditForm>
 
 @code {
     [Parameter] public Settings Settings { get; set; }
     [Parameter] public List<DrugInfo> DrugInfos { get; set; }
     [Parameter] public HubConnection Connection { get; set; }
-
-    private string _refreshRate;
-    public string RefreshRate
-    {
-        get => _refreshRate;
-        set
-        {
-            _refreshRate = value;
-
-            Settings.RefreshRate = value;
-
-            WriteSettings();
-        }
-    }
-
-    public string RefreshVisible;
-    private string _dateFormat;
-    public string DateFormat
-    {
-        get => _dateFormat;
-        set
-        {
-            //if invalid format, let user know
-            if (IsValidFormatString(value))
-            {
-                RefreshVisible = "display: none";
-            }
-            else
-            {
-                RefreshVisible = "";
-            }
-
-            //save user value to _dateFormat so it is displayed properly
-            //if null was set here too, it'd remove any text the user entered
-            _dateFormat = value;
-
-            //if invalid format, save null instead of value
-            Settings.DateFormat = IsValidFormatString(value) ? value : null;
-
-            WriteSettings();
-        }
-    }
-
-    /// <summary>
-    /// Ensure options are set correctly on initialisation
-    /// </summary>
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        _refreshRate = Settings.RefreshRate;
-        _dateFormat = Settings.DateFormat;
-
-        RefreshVisible = "display: none";
-    }
-
-    /// <summary>
-    /// Checks if a given DateTime formatting string is valid
-    /// </summary>
-    /// <param name="str">String to check</param>
-    /// <returns>Bool indicating if valid</returns>
-    private bool IsValidFormatString(string str)
-    {
-        try
-        {
-            //format string with given format, and check if valid - if invalid, error will be thrown
-            string date = DateTime.Now.ToString(str);
-            DateTime.ParseExact(date, str, CultureInfo.InvariantCulture);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
 
     /// <summary>
     /// Writes the users settings to local storage
