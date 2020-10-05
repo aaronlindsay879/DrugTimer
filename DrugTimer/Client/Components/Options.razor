@@ -21,37 +21,6 @@
         </small>
     </div>
 </form>
-<div class="row">
-    @foreach (DrugInfo info in DrugInfos)
-    {
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">@info.Name</h5>
-                    <div class="form-group form-check" style="margin-left: 0px;">
-                        <input class="form-check-input" type="checkbox" id="notifications" @bind="@info.DrugSettings.NotificationsEnabled">
-                        <label class="form-check-label" for="notifications">Enable Notifications</label>
-                        <small class="form-text text-muted">
-                            Not yet implemented.
-                        </small>
-                    </div>
-                    <div class="form-group form-check" style="margin-left: 0px;">
-                        <input class="form-check-input" type="checkbox" id="webHook" @bind="@info.DrugSettings.DiscordWebHookEnabled">
-                        <label class="form-check-label" for="webHook">Enable Discord Webhook Integration</label>
-                    </div>
-                    <div class="form-group" style="margin-left: 0px;">
-                        <label for="webHookUrl">Discord Webhook Url</label>
-                        <input type="text" class="form-control" id="webHookUrl" @bind="@info.DrugSettings.DiscordWebHook" />
-                        <small class="form-text text-muted">
-                            The url to use for webhook integration.
-                        </small>
-                    </div>
-                    <button class="btn btn-primary" @onclick="@(() => UpdateDrugInfo(info))">Save data</button>
-                </div>
-            </div>
-        </div>
-    }
-</div>
 
 @code {
     [Parameter] public Settings Settings { get; set; }
@@ -137,10 +106,4 @@
     /// Writes the users settings to local storage
     /// </summary>
     private async void WriteSettings() => await localStorage.SetItemAsync("settings", Settings);
-
-    /// <summary>
-    /// Tells the server to update the given DrugInfo with new data
-    /// </summary>
-    /// <param name="info">DrugInfo to update</param>
-    private async void UpdateDrugInfo(DrugInfo info) => await Connection.SendAsync("UpdateDrugInfo", info);
 }

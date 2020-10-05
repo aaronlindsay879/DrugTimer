@@ -13,7 +13,10 @@
 else
 {
     <TabControl Pages="@Pages">
-        <TabPage Text="Options">
+        <TabPage Text="Server Options">
+            <ServerOptions DrugInfos="@_information" Connection="@hubConnection"/>
+        </TabPage>
+        <TabPage Text="Client Options">
             <Options Settings="@Settings" DrugInfos="@_information" Connection="@hubConnection" />
         </TabPage>
         @foreach (DrugInfo info in _information)
