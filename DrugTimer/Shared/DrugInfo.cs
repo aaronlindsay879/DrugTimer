@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace DrugTimer.Shared
@@ -9,10 +10,15 @@ namespace DrugTimer.Shared
     /// </summary>
     public class DrugInfo
     {
+        [Required(ErrorMessage = "Name is a required field")]
         public string Name { get; set; }
-        public string Info { get; set; }
+
+        [Range(0, (double)decimal.MaxValue, ErrorMessage = "Time between doses cannot be below 0")]
         public decimal? TimeBetweenDoses { get; set; }
+
+        [Range(1, (double)int.MaxValue, ErrorMessage = "Expected doses cannot be below 1")]
         public int? ExpectedDoses { get; set; }
+        public string Info { get; set; }
 
         public DrugSettings DrugSettings { get; set; } = new DrugSettings();
         public List<DrugEntry> Entries { get; set; } = new List<DrugEntry>();
