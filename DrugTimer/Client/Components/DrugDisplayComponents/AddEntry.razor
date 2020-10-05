@@ -12,7 +12,7 @@
             <input type="datetime" id="time" @bind="@_entryTime" style="width: 180px" />
             <br />
             <label for="count" style="width: 60px">Count</label>
-            <input type="number" min="1" id="count" @bind="@_entryCount" style="width: 180px" />
+            <input type="number" step="0.01" min="0" id="count" @bind="@_entryCount" style="width: 180px" />
             <br />
             <button class="btn btn-primary" @onclick="@CreateEntry">Add entry</button>
         </li>
@@ -38,13 +38,13 @@
 
         //checks if count string is null, whitespace or not valid int
         if (string.IsNullOrWhiteSpace(_entryCount)) return;
-        if (!int.TryParse(_entryCount, out _)) return;
+        if (!decimal.TryParse(_entryCount, out _)) return;
 
         DrugEntry entry = new DrugEntry()
         {
             DrugName = DrugInfo.Name,
             Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB")).ToUniversalTime(),
-            Count = Convert.ToInt32(_entryCount)
+            Count = Convert.ToDecimal(_entryCount)
         };
 
         await Connection.SendAsync("AddDrugEntry", entry);

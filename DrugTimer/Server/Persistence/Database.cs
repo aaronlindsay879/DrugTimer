@@ -65,7 +65,7 @@ namespace DrugTimer.Server.Persistence
             command.CommandText = @"CREATE TABLE tblDrugEntries (
                 DrugName TEXT,
 	            Time TEXT,
-	            Count INTEGER,
+	            Count REAL,
 	            FOREIGN KEY(DrugName) REFERENCES tblDrugInfo(DrugName) ON DELETE CASCADE
             )";
             command.ExecuteNonQuery();
@@ -258,7 +258,7 @@ namespace DrugTimer.Server.Persistence
                 {
                     DrugName = drugInfo.Name,
                     Time = DateTime.Parse((string)reader["Time"]),
-                    Count = Convert.ToInt32(reader["Count"])
+                    Count = Convert.ToDecimal(reader["Count"])
                 });
 
             //sort the list

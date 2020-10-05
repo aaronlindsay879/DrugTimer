@@ -10,7 +10,7 @@
         @foreach (DrugEntry entry in DrugInfo.Entries.TakeReversed(10))
         {
             <li class="list-group-item">
-                <p style="float: left; margin-bottom: 0">@FormatDate(entry.Time.ToLocalTime()), @entry.Count doses</p>
+                <p style="float: left; margin-bottom: 0">@FormatDate(entry.Time.ToLocalTime()), @entry.Count.ToString("G29") @(entry.Count == 1m ? "dose" : "doses")</p>
                 <button class="btn btn-secondary btn-sm" style="float: right; margin-left: 5px; line-height: 1" @onclick="@(() => RemoveEntry(entry))">x</button>
             </li>
         }

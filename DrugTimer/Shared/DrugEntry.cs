@@ -9,6 +9,6 @@ namespace DrugTimer.Shared
     {
         public string DrugName { get; set; }
         public DateTime Time { get; set; }
-        public int Count { get; set; }
+        public decimal Count { get; set; }
     }
 }
