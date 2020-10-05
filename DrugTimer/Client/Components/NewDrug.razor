@@ -1,32 +1,36 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @using DrugTimer.Shared
-@using DrugTimer.Client.Data  
+@using DrugTimer.Client.Data
 
-<form style="margin-top: 20px">
+<EditForm Model="_newDrug" OnValidSubmit="AddDrug" style="margin-top: 20px">
+    <DataAnnotationsValidator />
     <div class="form-group" style="margin-left: 0px;">
         <label for="drugName">Drug name</label>
-        <input type="text" id="drugName" class="form-control" @bind="@_newDrug["name"]" />
+        <InputText id="drugName" class="form-control" @bind-Value="@_newDrug.Name" />
+        <ValidationMessage For="@(() => _newDrug.Name)" />
         <small class="form-text text-muted">
             The name of the drug.
         </small>
     </div>
     <div class="form-group" style="margin-left: 0px;">
         <label for="drugTime">Time between doses</label>
-        <input type="number" class="form-control" id="drugTime" @bind="@_newDrug["doseTime"]" />
+        <InputNumber class="form-control" id="drugTime" @bind-Value="@_newDrug.TimeBetweenDoses" />
+        <ValidationMessage For="@(() => _newDrug.TimeBetweenDoses)" />
         <small class="form-text text-muted">
             How many hours between doses. Leave empty (or 0) if drug doesn't fit that schedule.
         </small>
     </div>
     <div class="form-group" style="margin-left: 0px;">
         <label for="drugDoses">Expected doses a day</label>
-        <input type="number" class="form-control" id="drugDoses" @bind="@_newDrug["expectedDoses"]" />
+        <InputNumber class="form-control" id="drugDoses" @bind-Value="@_newDrug.ExpectedDoses" />
+        <ValidationMessage For="@(() => _newDrug.ExpectedDoses)" />
         <small class="form-text text-muted">
             How many doses are expected a day. Leave empty (or 0) if drug doesn't fit that schedule.
         </small>
     </div>
     <div class="form-group" style="margin-left: 0px;">
         <label for="drugInfo">Drug information</label>
-        <input type="text" class="form-control" id="drugInfo" @bind="@_newDrug["info"]" />
+        <InputText class="form-control" id="drugInfo" @bind-Value="@_newDrug.Info" />
         <small class="form-text text-muted">
             Any other drug information, such as dosage.
         </small>
@@ -42,25 +46,19 @@
             </div>
         </div>
     }
-</form>
-<button class="btn btn-primary" @onclick="@AddDrug">Add drug</button>
+    <button class="btn btn-primary" type="submit">Add drug</button>
+</EditForm>
 
 @code {
     [Parameter] public HubConnection Connection { get; set; }
 
-    private Dictionary<string, string> _newDrug;
+    private DrugInfo _newDrug;
     private List<DrugDosage> _drugDosages;
 
     protected override void OnInitialized()
     {
         //set up new drug options
-        _newDrug = new Dictionary<string, string>()
-        {
-            { "name", "" },
-            { "doseTime", "" },
-            { "info", "" },
-            { "expectedDoses", "" }
-        };
+        _newDrug = new DrugInfo();
 
         _drugDosages = new List<DrugDosage>();
         _drugDosages.Add(new DrugDosage("", ""));
@@ -71,40 +69,14 @@
     /// </summary>
     private void AddDrug()
     {
-        if (String.IsNullOrEmpty(_newDrug["name"]))
-            return;
-
-        if (String.IsNullOrEmpty(_drugDosages[0].Name) || String.IsNullOrEmpty(_drugDosages[0].Dosage))
-            return;
-
-        decimal? doseTime;
-        if (_newDrug["doseTime"] == "" || _newDrug["doseTime"] == "0")
-            doseTime = null;
-        else
-            doseTime = Convert.ToDecimal(_newDrug["doseTime"]);
-
-        int? expectedDoses;
-        if (_newDrug["expectedDoses"] == "" || _newDrug["expectedDoses"] == "0")
-            expectedDoses = null;
-        else
-            expectedDoses = Convert.ToInt32(_newDrug["expectedDoses"]);
-
-        DrugInfo info = new DrugInfo()
+        _newDrug.Dosages = _drugDosages.Where(x => !String.IsNullOrWhiteSpace(x.Name)).Select(x => new DosageInfo()
         {
-            Name = _newDrug["name"],
-            Info = _newDrug["info"],
-            TimeBetweenDoses = doseTime,
-            ExpectedDoses = expectedDoses
-        };
-
-        info.Dosages = _drugDosages.Where(x => !String.IsNullOrWhiteSpace(x.Name)).Select(x => new DosageInfo()
-        {
-            DrugName = info.Name,
+            DrugName = _newDrug.Name,
             Drug = x.Name,
             Dosage = new Dosage(x.Dosage).Micrograms
         }).ToList();
 
-        Connection.SendAsync("AddDrugInfo", info);
+        Connection.SendAsync("AddDrugInfo", _newDrug);
     }
 
     /// <summary>
