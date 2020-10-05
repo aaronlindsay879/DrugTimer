@@ -258,7 +258,7 @@ namespace DrugTimer.Server.Persistence
                 {
                     DrugName = drugInfo.Name,
                     Time = DateTime.Parse((string)reader["Time"]),
-                    Count = Convert.ToInt32(reader["Count"])
+                    Count = Convert.ToDecimal(reader["Count"])
                 });
 
             //sort the list
