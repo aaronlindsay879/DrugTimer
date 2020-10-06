@@ -9,19 +9,19 @@
                 <div class="card-body">
                     <h5 class="card-title">@info.Name</h5>
                     <div class="form-group form-check" style="margin-left: 0px;">
-                        <input class="form-check-input" type="checkbox" id="notifications" @bind="@info.DrugSettings.NotificationsEnabled">
-                        <label class="form-check-label" for="notifications">Enable Notifications</label>
+                        <input class="form-check-input" type="checkbox" id="notifications-@info.Name" @bind="@info.DrugSettings.NotificationsEnabled">
+                        <label class="form-check-label" for="notifications-@info.Name">Enable Notifications</label>
                         <small class="form-text text-muted">
                             Not yet implemented.
                         </small>
                     </div>
                     <div class="form-group form-check" style="margin-left: 0px;">
-                        <input class="form-check-input" type="checkbox" id="webHook" @bind="@info.DrugSettings.DiscordWebHookEnabled">
-                        <label class="form-check-label" for="webHook">Enable Discord Webhook Integration</label>
+                        <input class="form-check-input" type="checkbox" id="webHook-@info.Name" @bind="@info.DrugSettings.DiscordWebHookEnabled">
+                        <label class="form-check-label" for="webHook-@info.Name">Enable Discord Webhook Integration</label>
                     </div>
                     <div class="form-group" style="margin-left: 0px;">
-                        <label for="webHookUrl">Discord Webhook Url</label>
-                        <input type="text" class="form-control" id="webHookUrl" @bind="@info.DrugSettings.DiscordWebHook" />
+                        <label for="webHookUrl-@info.Name">Discord Webhook Url</label>
+                        <input type="text" class="form-control" id="webHookUrl-@info.Name" @bind="@info.DrugSettings.DiscordWebHook" />
                         <small class="form-text text-muted">
                             The url to use for webhook integration.
                         </small>
