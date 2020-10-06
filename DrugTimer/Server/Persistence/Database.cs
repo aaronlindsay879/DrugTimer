@@ -44,6 +44,7 @@ namespace DrugTimer.Server.Persistence
             command.CommandText = @"CREATE TABLE tblDrugInfo (
                                         DrugName TEXT PRIMARY KEY,
 	                                    Info TEXT,
+                                        User TEXT,
 	                                    TimeBetweenDoses REAL,
 	                                    ExpectedDoses INTEGER,
 	                                    DiscordWebHook TEXT,
@@ -84,10 +85,11 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDrugInfo
-                                    VALUES($drugName, $info, $timeBetweenDose, $expectedDoses, $discordWebHook, $discordWebHookEnabled, $notificationsEnabled)";
+                                    VALUES($drugName, $info, $user, $timeBetweenDose, $expectedDoses, $discordWebHook, $discordWebHookEnabled, $notificationsEnabled)";
 
             command.Parameters.AddWithValue("$drugName", info.Name);
             command.Parameters.AddWithValue("$info", info.Info);
+            command.Parameters.AddWithValue("user", info.User);
             command.Parameters.AddWithValue("$timeBetweenDose", info.TimeBetweenDoses);
             command.Parameters.AddWithValue("$expectedDoses", info.ExpectedDoses);
             command.Parameters.AddWithValue("$discordWebHook", info.DrugSettings.DiscordWebHook);
@@ -125,6 +127,7 @@ namespace DrugTimer.Server.Persistence
                 var drug = new DrugInfo()
                 {
                     Name = (string)reader["DrugName"],
+                    User = (string)reader["User"],
                     Info = reader["Info"].HandleNull<string>(),
                     TimeBetweenDoses = reader["TimeBetweenDoses"].HandleNull<decimal?>(),
                     ExpectedDoses = reader["ExpectedDoses"].HandleNull<int?>()

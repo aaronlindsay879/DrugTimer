@@ -1,4 +1,7 @@
-﻿<div class="btn-group" role="group">
+﻿@using System.Linq
+@implements IDisposable
+
+<div class="btn-group" role="group">
     @foreach (TabPage tabPage in Pages)
     {
         <button type="button"
@@ -27,8 +30,8 @@
     {
         Pages.Add(tabPage);
 
-        //set default page to page number3  (as options take up 1 and 2)
-        if (Pages.Count == 3)
+        //set default to the first page not containing the text "Options"
+        if (!tabPage.Text.Contains("Options") && Pages.SkipLast(1).All(x => x.Text.Contains("Options")))
             ActivePage = tabPage;
 
         //ensure "+" tab is at end
@@ -47,17 +50,16 @@
     /// </summary>
     /// <param name="page">Page to check</param>
     /// <returns>A css class</returns>
-    private string GetButtonClass(TabPage page)
-    {
-        return page == ActivePage ? "btn-primary" : "btn-secondary";
-    }
+    private string GetButtonClass(TabPage page) => (page == ActivePage) ? "btn-primary" : "btn-secondary";
 
     /// <summary>
     /// Sets the active page to the given page
     /// </summary>
     /// <param name="page">Page to activate</param>
-    private void ActivatePage(TabPage page)
-    {
-        ActivePage = page;
-    }
+    private void ActivatePage(TabPage page) => ActivePage = page;
+
+    /// <summary>
+    /// Implements a dispose method so that tabs are removed when TabControl is no longer visible
+    /// </summary>
+    public void Dispose() => Pages.Clear();
 }
