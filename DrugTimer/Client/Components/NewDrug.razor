@@ -13,6 +13,14 @@
         </small>
     </div>
     <div class="form-group" style="margin-left: 0px;">
+        <label for="drugName">Username</label>
+        <InputText id="drugName" class="form-control" @bind-Value="@_newDrug.User" />
+        <ValidationMessage For="@(() => _newDrug.User)" />
+        <small class="form-text text-muted">
+            The person taking the drug. To add a new user to the system, simply change this to a name which does not exist.
+        </small>
+    </div>
+    <div class="form-group" style="margin-left: 0px;">
         <label for="drugTime">Time between doses</label>
         <InputNumber class="form-control" id="drugTime" @bind-Value="@_newDrug.TimeBetweenDoses" />
         <ValidationMessage For="@(() => _newDrug.TimeBetweenDoses)" />

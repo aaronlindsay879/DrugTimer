@@ -19,10 +19,17 @@ else
         <TabPage Text="Client Options">
             <Options Settings="@Settings" DrugInfos="@_information" Connection="@hubConnection" />
         </TabPage>
-        @foreach (DrugInfo info in _information)
+        @foreach (string user in _information.GroupBy(x => x.User).Select(x => x.Key))
         {
-            <TabPage Text="@info.Name">
-                <DrugDisplay DrugInfo="@info" Settings="@Settings" Connection="@hubConnection" />
+            <TabPage Text="@user">
+                <TabControl Pages="@NestedPages[user]">
+                @foreach (DrugInfo info in _information.Where(x => x.User == user))
+                {
+                    <TabPage Text="@info.Name">
+                        <DrugDisplay DrugInfo="@info" Settings="@Settings" Connection="@hubConnection" />
+                    </TabPage>
+                }
+                </TabControl>
             </TabPage>
         }
         <TabPage Text="+">
@@ -37,6 +44,7 @@ else
 
     public Settings Settings { get; set; }
     public List<TabPage> Pages;
+    public Dictionary<string, List<TabPage>> NestedPages;
 
     /// <summary>
     /// Override the initialization to add a websocket
@@ -45,6 +53,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         Pages = new List<TabPage>();
+        NestedPages = new Dictionary<string, List<TabPage>>();
 
         //fetch all settings from local storage
         var settings = await localStorage.GetItemAsync<Settings>("settings");
@@ -87,6 +96,10 @@ else
         foreach (var info in _information)
             info.ReCalculateStats();
 
+        //ensure nested pages has all needed keys
+        foreach (string user in _information.GroupBy(x => x.User).Select(x => x.Key))
+            NestedPages.Add(user, new List<TabPage>());
+
         await InvokeAsync(StateHasChanged);
     }
 
@@ -97,6 +110,10 @@ else
     private async void AddDrugInfo(DrugInfo info)
     {
         _information.Add(info);
+
+        //only add new nestedpages element if user does not exist
+        if (!NestedPages.ContainsKey(info.User))
+            NestedPages.Add(info.User, new List<TabPage>());
 
         await InvokeAsync(StateHasChanged);
     }
@@ -109,7 +126,7 @@ else
     {
         //Remove the given drug from both the stored data and the pages
         _information.RemoveAll(x => x.Name == info.Name);
-        Pages.RemoveAll(x => x.Text == info.Name);
+        NestedPages[info.User].RemoveAll(x => x.Text == info.Name);
 
         await InvokeAsync(StateHasChanged);
     }
