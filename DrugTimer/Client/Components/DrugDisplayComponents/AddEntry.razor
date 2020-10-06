@@ -12,7 +12,7 @@
             <input type="datetime" id="time" @bind="@_entryTime" style="width: 180px" />
             <br />
             <label for="count" style="width: 60px">Count</label>
-            <input type="number" step="0.01" min="0" id="count" @bind="@_entryCount" style="width: 180px" />
+            <input type="number" step="@Settings.IncrementStep" min="0" id="count" @bind="@_entryCount" style="width: 180px" />
             <br />
             <button class="btn btn-primary" @onclick="@CreateEntry">Add entry</button>
         </li>
@@ -23,6 +23,7 @@
     [Parameter] public HubConnection Connection { get; set; }
     [Parameter] public DrugInfo DrugInfo { get; set; }
     [Parameter] public Action<bool> TimerTick { get; set; }
+    [Parameter] public Settings Settings { get; set; }
 
     private string _entryTime;
     private string _entryCount = "1";
