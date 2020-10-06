@@ -38,26 +38,33 @@ namespace DrugTimer.Shared
         public TimeSpan AverageHours;
         public TimeSpan AverageHoursBetweenDoses()
         {
+            //group entries by days
             var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Time.Ticks).TotalDays);
-
-            if (groupedEntries.Count() == 0)
-                return TimeSpan.Zero;
 
             double sum = 0;
             int count = groupedEntries.Count();
 
+            //if no entries, return 0
+            if (count == 0)
+                return TimeSpan.Zero;
+
+            //for every day
             foreach (var group in groupedEntries)
             {
-                if (group.Count() <= 1 && count > 1)
+                //if no entries and count is at least 1, decrement count (keep above 0 to avoid divide by 0 errors)
+                if (group.Count() == 0 && count > 1)
                     count--;
                 else if (group.Count() > 1)
                 {
-                    //find (max-min)/count
+                    //find highest time in day - lowest time in day
                     var diff = group.Max(x => x.Time).Subtract(group.Min(x => x.Time));
+
+                    //divide by number of entries in day to find average time difference in one day, and add to total sum
                     sum += TimeSpan.FromTicks(diff.Ticks / (group.Count() - 1)).Ticks;
                 }
             }
 
+            //find average of all days
             return TimeSpan.FromTicks((long)(sum / count));
         }
 
