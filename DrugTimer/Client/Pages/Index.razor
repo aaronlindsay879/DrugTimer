@@ -110,7 +110,10 @@ else
     private async void AddDrugInfo(DrugInfo info)
     {
         _information.Add(info);
-        NestedPages.Add(info.User, new List<TabPage>());
+
+        //only add new nestedpages element if user does not exist
+        if (!NestedPages.ContainsKey(info.User))
+            NestedPages.Add(info.User, new List<TabPage>());
 
         await InvokeAsync(StateHasChanged);
     }
