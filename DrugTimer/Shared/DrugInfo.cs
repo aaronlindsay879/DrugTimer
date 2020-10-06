@@ -13,13 +13,15 @@ namespace DrugTimer.Shared
         [Required(ErrorMessage = "Name is a required field")]
         public string Name { get; set; }
 
+        [Required(ErrorMessage = "User is a required field")]
+        public string User { get; set; }
+
         [Range(0, (double)decimal.MaxValue, ErrorMessage = "Time between doses cannot be below 0")]
         public decimal? TimeBetweenDoses { get; set; }
 
         [Range(1, (double)int.MaxValue, ErrorMessage = "Expected doses cannot be below 1")]
         public int? ExpectedDoses { get; set; }
         public string Info { get; set; }
-        public string User { get; set; }
 
         public DrugSettings DrugSettings { get; set; } = new DrugSettings();
         public List<DrugEntry> Entries { get; set; } = new List<DrugEntry>();
