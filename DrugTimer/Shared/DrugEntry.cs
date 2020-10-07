@@ -7,7 +7,7 @@ namespace DrugTimer.Shared
     /// </summary>
     public class DrugEntry
     {
-        public string DrugName { get; set; }
+        public string Guid { get; set; }
         public DateTime Time { get; set; }
         public decimal Count { get; set; }
     }

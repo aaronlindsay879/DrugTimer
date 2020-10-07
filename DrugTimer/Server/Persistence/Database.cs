@@ -42,11 +42,13 @@ namespace DrugTimer.Server.Persistence
 
             //create tblDrugInfo
             command.CommandText = @"CREATE TABLE tblDrugInfo (
-                                        DrugName TEXT PRIMARY KEY,
+                                        Guid TEXT PRIMARY KEY,
+                                        DrugName,
 	                                    Info TEXT,
                                         User TEXT,
 	                                    TimeBetweenDoses REAL,
 	                                    ExpectedDoses INTEGER,
+                                        NumberLeft REAL,
 	                                    DiscordWebHook TEXT,
 	                                    DiscordWebHookEnabled INTEGER,
 	                                    NotificationsEnabled INTEGER
@@ -55,19 +57,19 @@ namespace DrugTimer.Server.Persistence
 
             //create tblDosageInfo
             command.CommandText = @"CREATE TABLE tblDosageInfo (
-                                        DrugName TEXT,
-	                                    Drug TEXT,
+                                        Guid TEXT,
+                                        Drug TEXT,
 	                                    Dosage INTEGER,
-	                                    FOREIGN KEY(DrugName) REFERENCES tblDrugInfo(DrugName) ON DELETE CASCADE
+	                                    FOREIGN KEY(Guid) REFERENCES tblDrugInfo(Guid) ON DELETE CASCADE
                                     )";
             command.ExecuteNonQuery();
 
             //create tblDrugEntries
             command.CommandText = @"CREATE TABLE tblDrugEntries (
-                DrugName TEXT,
+                Guid TEXT,
 	            Time TEXT,
 	            Count REAL,
-	            FOREIGN KEY(DrugName) REFERENCES tblDrugInfo(DrugName) ON DELETE CASCADE
+	            FOREIGN KEY(Guid) REFERENCES tblDrugInfo(Guid) ON DELETE CASCADE
             )";
             command.ExecuteNonQuery();
         }
@@ -85,13 +87,15 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDrugInfo
-                                    VALUES($drugName, $info, $user, $timeBetweenDose, $expectedDoses, $discordWebHook, $discordWebHookEnabled, $notificationsEnabled)";
+                                    VALUES($guid, $drugName, $info, $user, $timeBetweenDose, $expectedDoses, $numberLeft, $discordWebHook, $discordWebHookEnabled, $notificationsEnabled)";
 
+            command.Parameters.AddWithValue("$guid", info.Guid);
             command.Parameters.AddWithValue("$drugName", info.Name);
             command.Parameters.AddWithValue("$info", info.Info);
             command.Parameters.AddWithValue("user", info.User);
             command.Parameters.AddWithValue("$timeBetweenDose", info.TimeBetweenDoses);
             command.Parameters.AddWithValue("$expectedDoses", info.ExpectedDoses);
+            command.Parameters.AddWithValue("$numberLeft", info.NumberLeft);
             command.Parameters.AddWithValue("$discordWebHook", info.DrugSettings.DiscordWebHook);
             command.Parameters.AddWithValue("$discordWebHookEnabled", info.DrugSettings.DiscordWebHookEnabled);
             command.Parameters.AddWithValue("$notificationsEnabled", info.DrugSettings.NotificationsEnabled);
@@ -126,11 +130,13 @@ namespace DrugTimer.Server.Persistence
             {
                 var drug = new DrugInfo()
                 {
+                    Guid = (string)reader["Guid"],
                     Name = (string)reader["DrugName"],
                     User = (string)reader["User"],
                     Info = reader["Info"].HandleNull<string>(),
                     TimeBetweenDoses = reader["TimeBetweenDoses"].HandleNull<decimal?>(),
-                    ExpectedDoses = reader["ExpectedDoses"].HandleNull<int?>()
+                    ExpectedDoses = reader["ExpectedDoses"].HandleNull<int?>(),
+                    NumberLeft = reader["NumberLeft"].HandleNull<int>()
                 };
 
                 drug.DrugSettings.DiscordWebHookEnabled = reader["NotificationsEnabled"].HandleNull<bool>();
@@ -160,27 +166,25 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"DELETE FROM tblDrugInfo
-                                    WHERE DrugName LIKE $drugName";
+                                    WHERE Guid LIKE $guid";
 
-            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
-            command.Parameters.AddWithValue("$timeBetweenDoses", drugInfo.TimeBetweenDoses);
-            command.Parameters.AddWithValue("$info", drugInfo.Info);
+            command.Parameters.AddWithValue("$guid", drugInfo.Guid);
 
             //write to database
             command.ExecuteNonQuery();
 
             //then remove all drug entries with same name
             command.CommandText = @"DELETE FROM tblDrugEntries
-                                    WHERE DrugName LIKE $drugName";
+                                    WHERE Guid LIKE $guid";
 
-            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
+            command.Parameters.AddWithValue("$guid", drugInfo.Guid);
             command.ExecuteNonQuery();
 
             //then remove all dosage info with same name
             command.CommandText = @"DELETE FROM tblDosageInfo
-                                    WHERE DrugName LIKE $drugName";
+                                    WHERE Guid LIKE $guid";
 
-            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
+            command.Parameters.AddWithValue("$guid", drugInfo.Guid);
             command.ExecuteNonQuery();
         }
 
@@ -197,15 +201,17 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"UPDATE tblDrugInfo
-                                       SET DiscordWebHook = $webHook,
+                                       SET NumberLeft = $numberLeft,
+                                           DiscordWebHook = $webHook,
                                            DiscordWebHookEnabled = $webHookEnabled,
                                            NotificationsEnabled = $notifications
-                                     WHERE DrugName LIKE $drugName";
+                                     WHERE Guid LIKE $guid";
 
+            command.Parameters.AddWithValue("$numberLeft", drugInfo.NumberLeft);
             command.Parameters.AddWithValue("$webHook", drugInfo.DrugSettings.DiscordWebHook);
             command.Parameters.AddWithValue("$webHookEnabled", drugInfo.DrugSettings.DiscordWebHookEnabled);
             command.Parameters.AddWithValue("$notifications", drugInfo.DrugSettings.NotificationsEnabled);
-            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
+            command.Parameters.AddWithValue("$guid", drugInfo.Guid);
 
             //write to database
             command.ExecuteNonQuery();
@@ -224,9 +230,9 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugEntry
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDrugEntries
-                                    VALUES($drugName, $time, $count)";
+                                    VALUES($guid, $time, $count)";
 
-            command.Parameters.AddWithValue("$drugName", entry.DrugName);
+            command.Parameters.AddWithValue("$guid", entry.Guid);
             command.Parameters.AddWithValue("$time", entry.Time.ToString("yyyy-MM-dd HH:mm:ss.fff"));
             command.Parameters.AddWithValue("$count", entry.Count);
 
@@ -248,9 +254,9 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"SELECT * FROM tblDrugEntries
-                                    WHERE DrugName = $drugName";
+                                    WHERE Guid = $guid";
 
-            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
+            command.Parameters.AddWithValue("$guid", drugInfo.Guid);
 
             var reader = command.ExecuteReader();
 
@@ -259,7 +265,7 @@ namespace DrugTimer.Server.Persistence
             while (reader.Read())
                 entries.Add(new DrugEntry()
                 {
-                    DrugName = drugInfo.Name,
+                    Guid = drugInfo.Guid,
                     Time = DateTime.Parse((string)reader["Time"]),
                     Count = Convert.ToDecimal(reader["Count"])
                 });
@@ -283,10 +289,10 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugEntry
             var command = connection.CreateCommand();
             command.CommandText = @"DELETE FROM tblDrugEntries
-                                    WHERE DrugName LIKE $drugName
+                                    WHERE Guid LIKE $guid
                                       AND Time LIKE $time";
 
-            command.Parameters.AddWithValue("$drugName", drugEntry.DrugName);
+            command.Parameters.AddWithValue("$guid", drugEntry.Guid);
             command.Parameters.AddWithValue("$time", drugEntry.Time.ToString("yyyy-MM-dd HH:mm:ss.fff"));
 
             //write to database
@@ -306,9 +312,9 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugEntry
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDosageInfo
-                                    VALUES($drugName, $drug, $dosage)";
+                                    VALUES($guid, $drug, $dosage)";
 
-            command.Parameters.AddWithValue("$drugName", info.DrugName);
+            command.Parameters.AddWithValue("$guid", info.Guid);
             command.Parameters.AddWithValue("$drug", info.Drug);
             command.Parameters.AddWithValue("$dosage", info.Dosage);
 
@@ -330,9 +336,9 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"SELECT * FROM tblDosageInfo
-                                    WHERE DrugName = $drugName";
+                                    WHERE Guid = $guid";
 
-            command.Parameters.AddWithValue("$drugName", drugInfo.Name);
+            command.Parameters.AddWithValue("$guid", drugInfo.Guid);
 
             var reader = command.ExecuteReader();
 
@@ -342,7 +348,7 @@ namespace DrugTimer.Server.Persistence
             {
                 dosages.Add(new DosageInfo()
                 {
-                    DrugName = drugInfo.Name,
+                    Guid = drugInfo.Guid,
                     Drug = (string)reader["Drug"],
                     Dosage = new Dosage(Convert.ToInt32(reader["Dosage"])).Micrograms
                 });

@@ -68,9 +68,9 @@ namespace DrugTimer.Server.Hubs
             await Clients.All.SendAsync("AddDrugEntry", entry);
 
             //sends a discord message, if enabled
-            DrugInfo relevantInfo = Database.GetDrugInfo().First(x => x.Name == entry.DrugName);
+            DrugInfo relevantInfo = Database.GetDrugInfo().First(x => x.Guid == entry.Guid);
             if (relevantInfo.DrugSettings.DiscordWebHookEnabled)
-                await Discord.SendMessage(entry, relevantInfo.DrugSettings.DiscordWebHook);
+                await Discord.SendMessage(entry, relevantInfo.Name, relevantInfo.DrugSettings.DiscordWebHook);
         }
 
         /// <summary>

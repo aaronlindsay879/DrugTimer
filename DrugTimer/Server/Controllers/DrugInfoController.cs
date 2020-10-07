@@ -3,6 +3,7 @@ using DrugTimer.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 
 namespace DrugTimer.Server.Controllers
@@ -33,6 +34,9 @@ namespace DrugTimer.Server.Controllers
         [HttpPost]
         public async void Post([FromBody] DrugInfo info)
         {
+            //generate GUID
+            info.Guid = Guid.NewGuid().ToString();
+
             //add the druginfo from the post request to the database
             Database.AddDrugInfo(info);
 

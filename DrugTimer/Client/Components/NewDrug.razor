@@ -77,9 +77,11 @@
     /// </summary>
     private void AddDrug()
     {
+        _newDrug.Guid = Guid.NewGuid().ToString();
+
         _newDrug.Dosages = _drugDosages.Where(x => !String.IsNullOrWhiteSpace(x.Name)).Select(x => new DosageInfo()
         {
-            DrugName = _newDrug.Name,
+            Guid = _newDrug.Guid,
             Drug = x.Name,
             Dosage = new Dosage(x.Dosage).Micrograms
         }).ToList();

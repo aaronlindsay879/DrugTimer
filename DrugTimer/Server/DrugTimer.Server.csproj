@@ -18,5 +18,9 @@
     <ProjectReference Include="..\Client\DrugTimer.Client.csproj" />
     <ProjectReference Include="..\Shared\DrugTimer.Shared.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="data\" />
+  </ItemGroup>
     
 </Project>
