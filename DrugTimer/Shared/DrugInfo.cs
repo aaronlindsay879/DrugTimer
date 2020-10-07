@@ -54,8 +54,8 @@ namespace DrugTimer.Shared
             //for every day
             foreach (var group in groupedEntries)
             {
-                //if no entries and count is at least 1, decrement count (keep above 0 to avoid divide by 0 errors)
-                if (group.Count() == 0 && count > 1)
+                //if 1 or fewer entries and count is at least 1, decrement count (keep above 0 to avoid divide by 0 errors)
+                if (group.Count() <= 1 && count > 1)
                     count--;
                 else if (group.Count() > 1)
                 {
