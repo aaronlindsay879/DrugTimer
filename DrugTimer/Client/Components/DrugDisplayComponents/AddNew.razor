@@ -84,7 +84,7 @@
         if (string.IsNullOrWhiteSpace(_prescriptionCount)) return;
         if (!int.TryParse(_prescriptionCount, out _)) return;
 
-        DrugInfo.NumberLeft += int.Parse(_prescriptionCount);
+        DrugInfo.NumberLeft += decimal.Parse(_prescriptionCount);
 
         await Connection.SendAsync("UpdateDrugInfo", DrugInfo);
 
