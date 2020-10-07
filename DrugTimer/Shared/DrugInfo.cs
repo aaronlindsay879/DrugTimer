@@ -21,7 +21,9 @@ namespace DrugTimer.Shared
 
         [Range(1, (double)int.MaxValue, ErrorMessage = "Expected doses cannot be below 1")]
         public int? ExpectedDoses { get; set; }
+
         public string Info { get; set; }
+        public int NumberLeft { get; set; }
 
         public DrugSettings DrugSettings { get; set; } = new DrugSettings();
         public List<DrugEntry> Entries { get; set; } = new List<DrugEntry>();

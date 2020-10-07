@@ -138,6 +138,8 @@ else
     private async void UpdateDrugInfo(DrugInfo info)
     {
         int index = _information.FindIndex(x => x.Name == info.Name);
+        info.ReCalculateStats();
+
         _information[index] = info;
 
         await InvokeAsync(StateHasChanged);

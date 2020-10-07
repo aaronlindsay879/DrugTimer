@@ -47,6 +47,7 @@ namespace DrugTimer.Server.Persistence
                                         User TEXT,
 	                                    TimeBetweenDoses REAL,
 	                                    ExpectedDoses INTEGER,
+                                        NumberLeft REAL,
 	                                    DiscordWebHook TEXT,
 	                                    DiscordWebHookEnabled INTEGER,
 	                                    NotificationsEnabled INTEGER
@@ -85,13 +86,14 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDrugInfo
-                                    VALUES($drugName, $info, $user, $timeBetweenDose, $expectedDoses, $discordWebHook, $discordWebHookEnabled, $notificationsEnabled)";
+                                    VALUES($drugName, $info, $user, $timeBetweenDose, $expectedDoses, $numberLeft, $discordWebHook, $discordWebHookEnabled, $notificationsEnabled)";
 
             command.Parameters.AddWithValue("$drugName", info.Name);
             command.Parameters.AddWithValue("$info", info.Info);
             command.Parameters.AddWithValue("user", info.User);
             command.Parameters.AddWithValue("$timeBetweenDose", info.TimeBetweenDoses);
             command.Parameters.AddWithValue("$expectedDoses", info.ExpectedDoses);
+            command.Parameters.AddWithValue("$numberLeft", info.NumberLeft);
             command.Parameters.AddWithValue("$discordWebHook", info.DrugSettings.DiscordWebHook);
             command.Parameters.AddWithValue("$discordWebHookEnabled", info.DrugSettings.DiscordWebHookEnabled);
             command.Parameters.AddWithValue("$notificationsEnabled", info.DrugSettings.NotificationsEnabled);
@@ -130,7 +132,8 @@ namespace DrugTimer.Server.Persistence
                     User = (string)reader["User"],
                     Info = reader["Info"].HandleNull<string>(),
                     TimeBetweenDoses = reader["TimeBetweenDoses"].HandleNull<decimal?>(),
-                    ExpectedDoses = reader["ExpectedDoses"].HandleNull<int?>()
+                    ExpectedDoses = reader["ExpectedDoses"].HandleNull<int?>(),
+                    NumberLeft = reader["NumberLeft"].HandleNull<int>()
                 };
 
                 drug.DrugSettings.DiscordWebHookEnabled = reader["NotificationsEnabled"].HandleNull<bool>();
@@ -197,11 +200,13 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"UPDATE tblDrugInfo
-                                       SET DiscordWebHook = $webHook,
+                                       SET NumberLeft = $numberLeft,
+                                           DiscordWebHook = $webHook,
                                            DiscordWebHookEnabled = $webHookEnabled,
                                            NotificationsEnabled = $notifications
                                      WHERE DrugName LIKE $drugName";
 
+            command.Parameters.AddWithValue("$numberLeft", drugInfo.NumberLeft);
             command.Parameters.AddWithValue("$webHook", drugInfo.DrugSettings.DiscordWebHook);
             command.Parameters.AddWithValue("$webHookEnabled", drugInfo.DrugSettings.DiscordWebHookEnabled);
             command.Parameters.AddWithValue("$notifications", drugInfo.DrugSettings.NotificationsEnabled);

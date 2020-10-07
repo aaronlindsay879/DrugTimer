@@ -17,16 +17,33 @@
             <button class="btn btn-primary" @onclick="@CreateEntry">Add entry</button>
         </li>
     </ul>
+    <div class="card-header">
+        <h4>Add Prescription</h4>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            <label for="count" style="width: 130px">Prescription count</label>
+            <input type="number" step="@Settings.IncrementStep" min="0" id="count" @bind="@_prescriptionCount" style="width: 180px" />
+            <br />
+            <button class="btn btn-primary" @onclick="@CreatePrescription">Add prescription</button>
+        </li>
+    </ul>
 </div>
 
 @code {
-        [Parameter] public HubConnection Connection { get; set; }
-        [Parameter] public DrugInfo DrugInfo { get; set; }
-        [Parameter] public Action<bool> TimerTick { get; set; }
-        [Parameter] public Settings Settings { get; set; }
+    [Parameter] public HubConnection Connection { get; set; }
+    [Parameter] public DrugInfo DrugInfo { get; set; }
+    [Parameter] public Action<bool> TimerTick { get; set; }
+    [Parameter] public Settings Settings { get; set; }
 
     private string _entryTime;
     private string _entryCount = "1";
+    private string _prescriptionCount;
+
+    protected override void OnInitialized()
+    {
+        _prescriptionCount = Settings.PrescriptionSize.ToString();
+    }
 
     /// <summary>
     /// Adds an entry to the database
@@ -53,6 +70,20 @@
             entry.Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB")).ToUniversalTime();
 
         await Connection.SendAsync("AddDrugEntry", entry);
+
+        await Task.Delay(500);
+        TimerTick(false);
+    }
+
+    private async void CreatePrescription()
+    {
+        //checks if count string is null, whitespace or not valid int
+        if (string.IsNullOrWhiteSpace(_prescriptionCount)) return;
+        if (!int.TryParse(_prescriptionCount, out _)) return;
+
+        DrugInfo.NumberLeft += int.Parse(_prescriptionCount);
+
+        await Connection.SendAsync("UpdateDrugInfo", DrugInfo);
 
         await Task.Delay(500);
         TimerTick(false);

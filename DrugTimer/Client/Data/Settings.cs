@@ -10,6 +10,9 @@ namespace DrugTimer.Client
         [Required(ErrorMessage = "Dosage increment is a required field")]
         public decimal IncrementStep { get; set; }
 
+        [Range(1, int.MaxValue, ErrorMessage = "Prescription size cannot be below 0")]
+        public int PrescriptionSize { get; set; }
+
         public string DateFormat { get; set; }
 
         public static Settings Default
@@ -20,7 +23,8 @@ namespace DrugTimer.Client
                 {
                     RefreshRate = 5,
                     DateFormat = "HH:mm dd/MM/yy",
-                    IncrementStep = 0.25m
+                    IncrementStep = 0.25m,
+                    PrescriptionSize = 1
                 };
             }
         }
