@@ -309,10 +309,12 @@ namespace DrugTimer.Server.Persistence
             var command = connection.CreateCommand();
             command.CommandText = @"DELETE FROM tblDrugEntries
                                     WHERE Guid LIKE $guid
-                                      AND Time LIKE $time";
+                                      AND Time LIKE $time
+                                      AND Count like $count";
 
             command.Parameters.AddWithValue("$guid", drugEntry.Guid);
-            command.Parameters.AddWithValue("$time", drugEntry.Time.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            command.Parameters.AddWithValue("$time", drugEntry.Time.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            command.Parameters.AddWithValue("$count", drugEntry.Count);
 
             //write to database
             command.ExecuteNonQuery();
