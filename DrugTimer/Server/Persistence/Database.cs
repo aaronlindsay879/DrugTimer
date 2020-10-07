@@ -136,7 +136,7 @@ namespace DrugTimer.Server.Persistence
                     Info = reader["Info"].HandleNull<string>(),
                     TimeBetweenDoses = reader["TimeBetweenDoses"].HandleNull<decimal?>(),
                     ExpectedDoses = reader["ExpectedDoses"].HandleNull<int?>(),
-                    NumberLeft = reader["NumberLeft"].HandleNull<int>()
+                    NumberLeft = reader["NumberLeft"].HandleNull<decimal>()
                 };
 
                 drug.DrugSettings.DiscordWebHookEnabled = reader["NotificationsEnabled"].HandleNull<bool>();
@@ -212,6 +212,25 @@ namespace DrugTimer.Server.Persistence
             command.Parameters.AddWithValue("$webHookEnabled", drugInfo.DrugSettings.DiscordWebHookEnabled);
             command.Parameters.AddWithValue("$notifications", drugInfo.DrugSettings.NotificationsEnabled);
             command.Parameters.AddWithValue("$guid", drugInfo.Guid);
+
+            //write to database
+            command.ExecuteNonQuery();
+        }
+
+        public static void UpdateNumberLeft(string guid, decimal amount)
+        {
+            //creates and opens the connection
+            using var connection = new SQLiteConnection(_connectionInfo);
+            connection.Open();
+
+            //create a command, set the text and set all parameters to given DrugInfo
+            var command = connection.CreateCommand();
+            command.CommandText = @"UPDATE tblDrugInfo
+                                       SET NumberLeft = $numberLeft
+                                     WHERE Guid LIKE $guid";
+
+            command.Parameters.AddWithValue("$numberLeft", amount);
+            command.Parameters.AddWithValue("$guid", guid);
 
             //write to database
             command.ExecuteNonQuery();

@@ -25,7 +25,7 @@ namespace DrugTimer.Shared
         public int? ExpectedDoses { get; set; }
 
         public string Info { get; set; }
-        public int NumberLeft { get; set; }
+        public decimal NumberLeft { get; set; }
 
         public DrugSettings DrugSettings { get; set; } = new DrugSettings();
         public List<DrugEntry> Entries { get; set; } = new List<DrugEntry>();

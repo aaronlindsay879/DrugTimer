@@ -61,9 +61,10 @@ namespace DrugTimer.Server.Hubs
         /// </summary>
         /// <param name="info">DrugEntry to add</param>
         /// <returns></returns>
-        public async Task AddDrugEntry(DrugEntry entry)
+        public async Task AddDrugEntry(DrugEntry entry, decimal amount = 0m)
         {
             Database.AddDrugEntry(entry);
+            Database.UpdateNumberLeft(entry.Guid, amount);
 
             await Clients.All.SendAsync("AddDrugEntry", entry);
 
