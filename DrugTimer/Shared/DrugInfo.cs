@@ -10,6 +10,8 @@ namespace DrugTimer.Shared
     /// </summary>
     public class DrugInfo
     {
+        public string Guid { get; set; }
+
         [Required(ErrorMessage = "Name is a required field")]
         public string Name { get; set; }
 

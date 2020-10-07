@@ -88,7 +88,7 @@ namespace DrugTimer.Shared
 
     public class DosageInfo
     {
-        public string DrugName { get; set; }
+        public string Guid { get; set; }
         public string Drug { get; set; }
         public int Dosage { get; set; }
     }
