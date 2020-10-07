@@ -15,12 +15,12 @@
                     }
                     else if (DrugInfo.ExpectedDoses.Value < DrugInfo.Average)
                     {
-                        <text> (@(DrugInfo.Average - DrugInfo.ExpectedDoses) more than expected)</text>
+                        <text> (@((DrugInfo.Average - DrugInfo.ExpectedDoses).Value.ToString("0.##")) more than expected)</text>
                     }
                     else
                     {
 
-                        <text> (@(DrugInfo.ExpectedDoses - DrugInfo.Average) less than expected)</text>
+                        <text> (@((DrugInfo.ExpectedDoses - DrugInfo.Average).Value.ToString("0.##")) less than expected)</text>
                     }
                 }
             </p>
