@@ -43,7 +43,10 @@
     /// <param name="entryTime">Time of the entry to remove</param>
     private async void RemoveEntry(DrugEntry entry)
     {
-        await Connection.SendAsync("RemoveDrugEntry", entry);
+        //add doses to amount left
+        DrugInfo.NumberLeft += entry.Count;
+
+        await Connection.SendAsync("RemoveDrugEntry", entry, DrugInfo.NumberLeft);
 
         await Task.Delay(500);
         TimerTick(false);

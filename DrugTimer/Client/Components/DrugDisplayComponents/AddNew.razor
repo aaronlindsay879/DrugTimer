@@ -23,7 +23,7 @@
     <ul class="list-group list-group-flush">
         <li class="list-group-item">
             <label for="count" style="width: 130px">Prescription count</label>
-            <input type="number" step="@Settings.IncrementStep" min="0" id="count" @bind="@_prescriptionCount" style="width: 180px" />
+            <input type="number" min="0" id="count" @bind="@_prescriptionCount" style="width: 180px" />
             <br />
             <button class="btn btn-primary" @onclick="@CreatePrescription">Add prescription</button>
         </li>
@@ -65,11 +65,14 @@
 
         //if _entryTime is empty, use time now, otherwise use time passed
         if (String.IsNullOrWhiteSpace(_entryTime))
-            entry.Time = DateTime.Now;
+            entry.Time = DateTime.UtcNow;
         else
             entry.Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB")).ToUniversalTime();
 
-        await Connection.SendAsync("AddDrugEntry", entry);
+        //remove doses from amount left
+        DrugInfo.NumberLeft -= entry.Count;
+
+        await Connection.SendAsync("AddDrugEntry", entry, DrugInfo.NumberLeft);
 
         await Task.Delay(500);
         TimerTick(false);
