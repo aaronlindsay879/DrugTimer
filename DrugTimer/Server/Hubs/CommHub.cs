@@ -60,8 +60,9 @@ namespace DrugTimer.Server.Hubs
         /// Adds a given DrugEntry to database, and updates all clients
         /// </summary>
         /// <param name="info">DrugEntry to add</param>
+        /// <param name="amount">Amount of doses left</param>
         /// <returns></returns>
-        public async Task AddDrugEntry(DrugEntry entry, decimal amount = 0m)
+        public async Task AddDrugEntry(DrugEntry entry, decimal amount)
         {
             Database.AddDrugEntry(entry);
             Database.UpdateNumberLeft(entry.Guid, amount);
@@ -78,10 +79,13 @@ namespace DrugTimer.Server.Hubs
         /// Removes a given DrugEntry from daatabase, and updates all clients
         /// </summary>
         /// <param name="info">DrugEntry to remove<param>
+        /// <param name="amount">Amount of doses left</param>
         /// <returns></returns>
-        public async Task RemoveDrugEntry(DrugEntry entry)
+        public async Task RemoveDrugEntry(DrugEntry entry, decimal amount)
         {
             Database.RemoveDrugEntry(entry);
+            Database.UpdateNumberLeft(entry.Guid, amount);
+
             await Clients.All.SendAsync("RemoveDrugEntry", entry);
         }
     }
