@@ -20,10 +20,10 @@
 </div>
 
 @code {
-    [Parameter] public HubConnection Connection { get; set; }
-    [Parameter] public DrugInfo DrugInfo { get; set; }
-    [Parameter] public Action<bool> TimerTick { get; set; }
-    [Parameter] public Settings Settings { get; set; }
+        [Parameter] public HubConnection Connection { get; set; }
+        [Parameter] public DrugInfo DrugInfo { get; set; }
+        [Parameter] public Action<bool> TimerTick { get; set; }
+        [Parameter] public Settings Settings { get; set; }
 
     private string _entryTime;
     private string _entryCount = "1";
@@ -33,9 +33,8 @@
     /// </summary>
     private async void CreateEntry()
     {
-        //checks if date string is null, whitespace or not valid datetime
-        if (string.IsNullOrWhiteSpace(_entryTime)) return;
-        if (!DateTime.TryParse(_entryTime, CultureInfo.GetCultureInfo("en-GB"), DateTimeStyles.None, out _)) return;
+        //checks if date string is not valid datetime
+        if (!DateTime.TryParse(_entryTime, CultureInfo.GetCultureInfo("en-GB"), DateTimeStyles.None, out _) && !String.IsNullOrWhiteSpace(_entryTime)) return;
 
         //checks if count string is null, whitespace or not valid int
         if (string.IsNullOrWhiteSpace(_entryCount)) return;
@@ -44,9 +43,14 @@
         DrugEntry entry = new DrugEntry()
         {
             DrugName = DrugInfo.Name,
-            Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB")).ToUniversalTime(),
             Count = Convert.ToDecimal(_entryCount)
         };
+
+        //if _entryTime is empty, use time now, otherwise use time passed
+        if (String.IsNullOrWhiteSpace(_entryTime))
+            entry.Time = DateTime.Now;
+        else
+            entry.Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB")).ToUniversalTime();
 
         await Connection.SendAsync("AddDrugEntry", entry);
 
