@@ -23,7 +23,7 @@
     <ul class="list-group list-group-flush">
         <li class="list-group-item">
             <label for="count" style="width: 130px">Prescription count</label>
-            <input type="number" min="0" id="count" @bind="@_prescriptionCount" style="width: 180px" />
+            <input type="number" id="count" @bind="@_prescriptionCount" style="width: 180px" />
             <br />
             <button class="btn btn-primary" @onclick="@CreatePrescription">Add prescription</button>
         </li>
@@ -82,7 +82,7 @@
     {
         //checks if count string is null, whitespace or not valid int
         if (string.IsNullOrWhiteSpace(_prescriptionCount)) return;
-        if (!int.TryParse(_prescriptionCount, out _)) return;
+        if (!decimal.TryParse(_prescriptionCount, out _)) return;
 
         DrugInfo.NumberLeft += decimal.Parse(_prescriptionCount);
 
