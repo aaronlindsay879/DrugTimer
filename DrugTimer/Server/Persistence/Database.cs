@@ -70,6 +70,7 @@ namespace DrugTimer.Server.Persistence
                 EntryGuid TEXT,
 	            Time TEXT,
 	            Count REAL,
+                Notes TEXT,
 	            FOREIGN KEY(DrugGuid) REFERENCES tblDrugInfo(Guid) ON DELETE CASCADE
             )";
             command.ExecuteNonQuery();

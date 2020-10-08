@@ -1,4 +1,5 @@
 ﻿using DrugTimer.Shared;
+using DrugTimer.Shared.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
@@ -22,12 +23,13 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugEntry
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDrugEntries
-                                    VALUES($drugGuid, $entryGuid, $time, $count)";
+                                    VALUES($drugGuid, $entryGuid, $time, $count, $notes)";
 
             command.Parameters.AddWithValue("$drugGuid", entry.DrugGuid);
             command.Parameters.AddWithValue("$entryGuid", entry.EntryGuid);
             command.Parameters.AddWithValue("$time", entry.Time.ToString("yyyy-MM-dd HH:mm:ss.fff"));
             command.Parameters.AddWithValue("$count", entry.Count);
+            command.Parameters.AddWithValue("$notes", entry.Notes);
 
             //write to database
             command.ExecuteNonQuery();
@@ -65,7 +67,8 @@ namespace DrugTimer.Server.Persistence
                     DrugGuid = drugInfo.Guid,
                     EntryGuid = (string)reader["EntryGuid"],
                     Time = DateTime.Parse((string)reader["Time"]),
-                    Count = Convert.ToDecimal(reader["Count"])
+                    Count = Convert.ToDecimal(reader["Count"]),
+                    Notes = reader["Notes"].HandleNull<string>()
                 };
 
                 entries.Add(entry);
@@ -93,6 +96,29 @@ namespace DrugTimer.Server.Persistence
                                     WHERE EntryGuid LIKE $entryGuid";
 
             command.Parameters.AddWithValue("$drugGuid", drugEntry.DrugGuid);
+            command.Parameters.AddWithValue("$entryGuid", drugEntry.EntryGuid);
+
+            //write to database
+            command.ExecuteNonQuery();
+        }
+
+        public static void UpdateDrugEntry(DrugEntry drugEntry)
+        {
+            //creates and opens the connection
+            using var connection = new SQLiteConnection(_connectionInfo);
+            connection.Open();
+
+            //create a command, set the text and set all parameters to given DrugInfo
+            var command = connection.CreateCommand();
+            command.CommandText = @"UPDATE tblDrugEntries
+                                       SET Time = $time,
+                                           Count = $count,
+                                           Notes = $notes
+                                     WHERE EntryGuid LIKE $entryGuid";
+
+            command.Parameters.AddWithValue("$time", drugEntry.Time);
+            command.Parameters.AddWithValue("$count", drugEntry.Count);
+            command.Parameters.AddWithValue("$notes", drugEntry.Notes);
             command.Parameters.AddWithValue("$entryGuid", drugEntry.EntryGuid);
 
             //write to database
