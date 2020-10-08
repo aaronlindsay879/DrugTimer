@@ -42,6 +42,6 @@
     {
         await Connection.SendAsync("UpdateDrugEntry", _localDrugEntry);
 
-        BlazoredModal.Close(ModalResult.Ok(true));
+        await BlazoredModal.Close(ModalResult.Ok(true));
     }
 }
