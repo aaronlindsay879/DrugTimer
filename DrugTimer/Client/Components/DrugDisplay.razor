@@ -21,6 +21,7 @@
 </div>
 
 @code {
+    [CascadingParameter] public IModalService Modal { get; set; }
     [CascadingParameter] private TabPage Parent { get; set; }
     [Parameter] public DrugInfo DrugInfo { get; set; }
     [Parameter] public Settings Settings { get; set; }
