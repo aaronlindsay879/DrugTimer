@@ -66,7 +66,7 @@
 
         //if _entryTime is empty, use time now, otherwise use time passed
         if (String.IsNullOrWhiteSpace(_entryTime))
-            entry.Time = DateTime.UtcNow;
+            entry.Time = DateTime.Now.ToUniversalTime();
         else
             entry.Time = DateTime.Parse(_entryTime, CultureInfo.GetCultureInfo("en-GB")).ToUniversalTime();
 
