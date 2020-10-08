@@ -76,6 +76,7 @@ else
         //add handlers for DrugEntry requests
         hubConnection.On<DrugEntry>("AddDrugEntry", AddDrugEntry);
         hubConnection.On<DrugEntry>("RemoveDrugEntry", RemoveDrugEntry);
+        hubConnection.On<DrugEntry>("UpdateDrugEntry", UpdateDrugEntry);
 
         //start socket
         await hubConnection.StartAsync();
@@ -125,7 +126,7 @@ else
     private async void RemoveDrugInfo(DrugInfo info)
     {
         //Remove the given drug from both the stored data and the pages
-        _information.RemoveAll(x => x.Name == info.Name);
+        _information.RemoveAll(x => x.Guid == info.Guid);
         NestedPages[info.User].RemoveAll(x => x.Text == info.Name);
 
         await InvokeAsync(StateHasChanged);
@@ -134,10 +135,10 @@ else
     /// <summary>
     /// Handler for UpdateDrugInfo events - updates it (as the name suggests)
     /// </summary>
-    /// <param name="info">DrugInfo to remove</param>
+    /// <param name="info">DrugInfo to update</param>
     private async void UpdateDrugInfo(DrugInfo info)
     {
-        int index = _information.FindIndex(x => x.Name == info.Name);
+        int index = _information.FindIndex(x => x.Guid == info.Guid);
         info.ReCalculateStats();
 
         _information[index] = info;
@@ -186,6 +187,21 @@ else
                                                                          && x.Time == entry.Time
                                                                          && x.Count == entry.Count);
         _information.First(x => x.Guid == entry.DrugGuid).ReCalculateStats();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handler for UpdateDrugEntry events - updates it (as the name suggests)
+    /// </summary>
+    /// <param name="info">DrugEntry to update</param>
+    private async void UpdateDrugEntry(DrugEntry entry)
+    {
+        int index = _information.First(x => x.Guid == entry.DrugGuid).Entries.FindIndex(x => x.DrugGuid == entry.DrugGuid
+                                                                                     && x.Time == entry.Time
+                                                                                     && x.Count == entry.Count);
+
+        _information.First(x => x.Guid == entry.DrugGuid).Entries[index] = entry;
 
         await InvokeAsync(StateHasChanged);
     }

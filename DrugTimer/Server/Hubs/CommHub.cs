@@ -46,7 +46,7 @@ namespace DrugTimer.Server.Hubs
         }
 
         /// <summary>
-        /// Hacky method for updating drug info. TODO: actually update columns instead of removing and inserting
+        /// Updates a given DrugInfo
         /// </summary>
         /// <param name="info">Info to update</param>
         /// <returns></returns>
@@ -87,6 +87,17 @@ namespace DrugTimer.Server.Hubs
             Database.UpdateNumberLeft(entry.DrugGuid, amount);
 
             await Clients.All.SendAsync("RemoveDrugEntry", entry);
+        }
+
+        /// <summary>
+        /// Updates a given DrugEntry
+        /// </summary>
+        /// <param name="entry">Entry to update</param>
+        /// <returns></returns>
+        public async Task UpdateDrugEntry(DrugEntry entry)
+        {
+            Database.UpdateDrugEntry(entry);
+            await Clients.All.SendAsync("UpdateDrugEntry", entry);
         }
     }
 }
