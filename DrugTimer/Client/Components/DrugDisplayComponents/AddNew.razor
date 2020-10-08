@@ -59,7 +59,8 @@
 
         DrugEntry entry = new DrugEntry()
         {
-            Guid = DrugInfo.Guid,
+            DrugGuid = DrugInfo.Guid,
+            EntryGuid = Guid.NewGuid().ToString(),
             Count = Convert.ToDecimal(_entryCount)
         };
 

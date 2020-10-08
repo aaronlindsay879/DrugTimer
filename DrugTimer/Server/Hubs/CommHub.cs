@@ -65,12 +65,12 @@ namespace DrugTimer.Server.Hubs
         public async Task AddDrugEntry(DrugEntry entry, decimal amount)
         {
             Database.AddDrugEntry(entry);
-            Database.UpdateNumberLeft(entry.Guid, amount);
+            Database.UpdateNumberLeft(entry.DrugGuid, amount);
 
             await Clients.All.SendAsync("AddDrugEntry", entry);
 
             //sends a discord message, if enabled
-            DrugInfo relevantInfo = Database.GetDrugInfo().First(x => x.Guid == entry.Guid);
+            DrugInfo relevantInfo = Database.GetDrugInfo().First(x => x.Guid == entry.DrugGuid);
             if (relevantInfo.DrugSettings.DiscordWebHookEnabled)
                 await Discord.SendMessage(entry, relevantInfo.Name, relevantInfo.DrugSettings.DiscordWebHook);
         }
@@ -84,7 +84,7 @@ namespace DrugTimer.Server.Hubs
         public async Task RemoveDrugEntry(DrugEntry entry, decimal amount)
         {
             Database.RemoveDrugEntry(entry);
-            Database.UpdateNumberLeft(entry.Guid, amount);
+            Database.UpdateNumberLeft(entry.DrugGuid, amount);
 
             await Clients.All.SendAsync("RemoveDrugEntry", entry);
         }

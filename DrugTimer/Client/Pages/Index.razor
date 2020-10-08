@@ -152,17 +152,17 @@ else
     private async void AddDrugEntry(DrugEntry entry)
     {
         //check if DrugInfo exists with that name
-        if (!_information.Any(x => x.Guid == entry.Guid))
+        if (!_information.Any(x => x.Guid == entry.DrugGuid))
         {
             Console.WriteLine("no drug with that guid, probably a big error?");
             return;
         }
 
         //add the new entry, resort all the entries and recalculate stats
-        _information.First(x => x.Guid == entry.Guid).Entries.Add(entry);
-        var sortedEntries = _information.First(x => x.Guid == entry.Guid).Entries.OrderBy(x => x.Time);
-        _information.First(x => x.Guid == entry.Guid).Entries = sortedEntries.ToList();
-        _information.First(x => x.Guid == entry.Guid).ReCalculateStats();
+        _information.First(x => x.Guid == entry.DrugGuid).Entries.Add(entry);
+        var sortedEntries = _information.First(x => x.Guid == entry.DrugGuid).Entries.OrderBy(x => x.Time);
+        _information.First(x => x.Guid == entry.DrugGuid).Entries = sortedEntries.ToList();
+        _information.First(x => x.Guid == entry.DrugGuid).ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
     }
@@ -174,7 +174,7 @@ else
     private async void RemoveDrugEntry(DrugEntry entry)
     {
         //check if DrugInfo exists with that name
-        if (!_information.Any(x => x.Guid == entry.Guid))
+        if (!_information.Any(x => x.Guid == entry.DrugGuid))
         {
             Console.WriteLine("no drug with that name, probably a big error?");
             return;
@@ -182,10 +182,10 @@ else
 
         //remove the given entry and recalculate stats
         //have to do removal longhand since DrugEntry does not have a proper comparer. TODO: introduce comparer
-        _information.First(x => x.Guid == entry.Guid).Entries.RemoveAll(x => x.Guid == entry.Guid
-                                                                          && x.Time == entry.Time
-                                                                          && x.Count == entry.Count);
-        _information.First(x => x.Guid == entry.Guid).ReCalculateStats();
+        _information.First(x => x.Guid == entry.DrugGuid).Entries.RemoveAll(x => x.DrugGuid == entry.DrugGuid
+                                                                         && x.Time == entry.Time
+                                                                         && x.Count == entry.Count);
+        _information.First(x => x.Guid == entry.DrugGuid).ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
     }

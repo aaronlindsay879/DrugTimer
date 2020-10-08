@@ -66,10 +66,11 @@ namespace DrugTimer.Server.Persistence
 
             //create tblDrugEntries
             command.CommandText = @"CREATE TABLE tblDrugEntries (
-                Guid TEXT,
+                DrugGuid TEXT,
+                EntryGuid TEXT,
 	            Time TEXT,
 	            Count REAL,
-	            FOREIGN KEY(Guid) REFERENCES tblDrugInfo(Guid) ON DELETE CASCADE
+	            FOREIGN KEY(DrugGuid) REFERENCES tblDrugInfo(Guid) ON DELETE CASCADE
             )";
             command.ExecuteNonQuery();
         }
@@ -249,9 +250,10 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugEntry
             var command = connection.CreateCommand();
             command.CommandText = @"INSERT INTO tblDrugEntries
-                                    VALUES($guid, $time, $count)";
+                                    VALUES($drugGuid, $entryGuid, $time, $count)";
 
-            command.Parameters.AddWithValue("$guid", entry.Guid);
+            command.Parameters.AddWithValue("$drugGuid", entry.DrugGuid);
+            command.Parameters.AddWithValue("$entryGuid", entry.EntryGuid);
             command.Parameters.AddWithValue("$time", entry.Time.ToString("yyyy-MM-dd HH:mm:ss.fff"));
             command.Parameters.AddWithValue("$count", entry.Count);
 
@@ -273,21 +275,29 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"SELECT * FROM tblDrugEntries
-                                    WHERE Guid = $guid";
+                                    WHERE DrugGuid = $drugGuid";
 
-            command.Parameters.AddWithValue("$guid", drugInfo.Guid);
+            command.Parameters.AddWithValue("$drugGuid", drugInfo.Guid);
 
             var reader = command.ExecuteReader();
+
+            //create a list of commands to run once main loop is done
+            List<DrugEntry> updateEntries = new List<DrugEntry>();
 
             //read a list of DateTimes from the table
             List<DrugEntry> entries = new List<DrugEntry>();
             while (reader.Read())
-                entries.Add(new DrugEntry()
+            {
+                DrugEntry entry = new DrugEntry()
                 {
-                    Guid = drugInfo.Guid,
+                    DrugGuid = drugInfo.Guid,
+                    EntryGuid = (string)reader["EntryGuid"],
                     Time = DateTime.Parse((string)reader["Time"]),
                     Count = Convert.ToDecimal(reader["Count"])
-                });
+                };
+
+                entries.Add(entry);
+            }
 
             //sort the list
             entries = entries.OrderBy(x => x.Time).ToList();
@@ -308,13 +318,10 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugEntry
             var command = connection.CreateCommand();
             command.CommandText = @"DELETE FROM tblDrugEntries
-                                    WHERE Guid LIKE $guid
-                                      AND Time LIKE $time
-                                      AND Count like $count";
+                                    WHERE EntryGuid LIKE $entryGuid";
 
-            command.Parameters.AddWithValue("$guid", drugEntry.Guid);
-            command.Parameters.AddWithValue("$time", drugEntry.Time.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss.fff"));
-            command.Parameters.AddWithValue("$count", drugEntry.Count);
+            command.Parameters.AddWithValue("$drugGuid", drugEntry.DrugGuid);
+            command.Parameters.AddWithValue("$entryGuid", drugEntry.EntryGuid);
 
             //write to database
             command.ExecuteNonQuery();
