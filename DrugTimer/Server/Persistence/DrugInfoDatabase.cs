@@ -112,7 +112,7 @@ namespace DrugTimer.Server.Persistence
 
             //then remove all drug entries with same name
             command.CommandText = @"DELETE FROM tblDrugEntries
-                                    WHERE Guid LIKE $guid";
+                                    WHERE DrugGuid LIKE $guid";
 
             command.Parameters.AddWithValue("$guid", drugInfo.Guid);
             command.ExecuteNonQuery();

@@ -87,6 +87,12 @@
         }).ToList();
 
         Connection.SendAsync("AddDrugInfo", _newDrug);
+
+        //clear local buffer
+        _newDrug = new DrugInfo();
+
+        _drugDosages = new List<DrugDosage>();
+        _drugDosages.Add(new DrugDosage("", ""));
     }
 
     /// <summary>
