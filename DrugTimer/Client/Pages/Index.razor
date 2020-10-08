@@ -39,6 +39,8 @@ else
 }
 
 @code {
+        [CascadingParameter] public IModalService Modal { get; set; }
+
     private List<DrugInfo> _information;
     private HubConnection hubConnection;
 
@@ -76,6 +78,7 @@ else
         //add handlers for DrugEntry requests
         hubConnection.On<DrugEntry>("AddDrugEntry", AddDrugEntry);
         hubConnection.On<DrugEntry>("RemoveDrugEntry", RemoveDrugEntry);
+        hubConnection.On<DrugEntry>("UpdateDrugEntry", UpdateDrugEntry);
 
         //start socket
         await hubConnection.StartAsync();
@@ -125,7 +128,7 @@ else
     private async void RemoveDrugInfo(DrugInfo info)
     {
         //Remove the given drug from both the stored data and the pages
-        _information.RemoveAll(x => x.Name == info.Name);
+        _information.RemoveAll(x => x.Guid == info.Guid);
         NestedPages[info.User].RemoveAll(x => x.Text == info.Name);
 
         await InvokeAsync(StateHasChanged);
@@ -134,10 +137,10 @@ else
     /// <summary>
     /// Handler for UpdateDrugInfo events - updates it (as the name suggests)
     /// </summary>
-    /// <param name="info">DrugInfo to remove</param>
+    /// <param name="info">DrugInfo to update</param>
     private async void UpdateDrugInfo(DrugInfo info)
     {
-        int index = _information.FindIndex(x => x.Name == info.Name);
+        int index = _information.FindIndex(x => x.Guid == info.Guid);
         info.ReCalculateStats();
 
         _information[index] = info;
@@ -152,17 +155,17 @@ else
     private async void AddDrugEntry(DrugEntry entry)
     {
         //check if DrugInfo exists with that name
-        if (!_information.Any(x => x.Guid == entry.Guid))
+        if (!_information.Any(x => x.Guid == entry.DrugGuid))
         {
             Console.WriteLine("no drug with that guid, probably a big error?");
             return;
         }
 
         //add the new entry, resort all the entries and recalculate stats
-        _information.First(x => x.Guid == entry.Guid).Entries.Add(entry);
-        var sortedEntries = _information.First(x => x.Guid == entry.Guid).Entries.OrderBy(x => x.Time);
-        _information.First(x => x.Guid == entry.Guid).Entries = sortedEntries.ToList();
-        _information.First(x => x.Guid == entry.Guid).ReCalculateStats();
+        _information.First(x => x.Guid == entry.DrugGuid).Entries.Add(entry);
+        var sortedEntries = _information.First(x => x.Guid == entry.DrugGuid).Entries.OrderBy(x => x.Time);
+        _information.First(x => x.Guid == entry.DrugGuid).Entries = sortedEntries.ToList();
+        _information.First(x => x.Guid == entry.DrugGuid).ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
     }
@@ -174,18 +177,29 @@ else
     private async void RemoveDrugEntry(DrugEntry entry)
     {
         //check if DrugInfo exists with that name
-        if (!_information.Any(x => x.Guid == entry.Guid))
+        if (!_information.Any(x => x.Guid == entry.DrugGuid))
         {
             Console.WriteLine("no drug with that name, probably a big error?");
             return;
         }
 
         //remove the given entry and recalculate stats
-        //have to do removal longhand since DrugEntry does not have a proper comparer. TODO: introduce comparer
-        _information.First(x => x.Guid == entry.Guid).Entries.RemoveAll(x => x.Guid == entry.Guid
-                                                                          && x.Time == entry.Time
-                                                                          && x.Count == entry.Count);
-        _information.First(x => x.Guid == entry.Guid).ReCalculateStats();
+        _information.First(x => x.Guid == entry.DrugGuid).Entries.RemoveAll(x => x.EntryGuid == entry.EntryGuid);
+        _information.First(x => x.Guid == entry.DrugGuid).ReCalculateStats();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Handler for UpdateDrugEntry events - updates it (as the name suggests)
+    /// </summary>
+    /// <param name="info">DrugEntry to update</param>
+    private async void UpdateDrugEntry(DrugEntry entry)
+    {
+        int index = _information.First(x => x.Guid == entry.DrugGuid).Entries.FindIndex(x => x.EntryGuid == entry.EntryGuid);
+
+        _information.First(x => x.Guid == entry.DrugGuid).Entries[index] = entry;
+        _information.First(x => x.Guid == entry.DrugGuid).ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
     }

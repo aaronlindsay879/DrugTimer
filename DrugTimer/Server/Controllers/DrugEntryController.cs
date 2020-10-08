@@ -42,7 +42,7 @@ namespace DrugTimer.Server.Controllers
             //create the entry from the post request
             DrugEntry entry = new DrugEntry()
             {
-                Guid = data.GetProperty("Guid").ToString(),
+                DrugGuid = data.GetProperty("Guid").ToString(),
                 Time = DateTime.Parse(data.GetProperty("Time").ToString()),
                 Count = data.GetProperty("Count").GetInt32()
             };

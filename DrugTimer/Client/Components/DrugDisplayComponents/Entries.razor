@@ -9,15 +9,37 @@
     <ul class="list-group list-group-flush">
         @foreach (DrugEntry entry in DrugInfo.Entries.TakeReversed(10))
         {
-            <li class="list-group-item">
-                <p style="float: left; margin-bottom: 0">@FormatDate(entry.Time.ToLocalTime()), @entry.Count.ToString("G29") @(entry.Count == 1m ? "dose" : "doses")</p>
-                <button class="btn btn-secondary btn-sm" style="float: right; margin-left: 5px; line-height: 1" @onclick="@(() => RemoveEntry(entry))">x</button>
-            </li>
-        }
+        <li class="list-group-item">
+            <p style="float: left; margin-bottom: 0">@FormatDate(entry.Time.ToLocalTime()), @entry.Count.ToString("G29") @(entry.Count == 1m ? "dose" : "doses")</p>
+            <button class="btn btn-secondary btn-sm" style="float: right; margin-left: 5px; line-height: 1" @onclick="@(() => RemoveEntry(entry))">x</button>
+            <button class="btn btn-secondary btn-sm" style="float: right; margin-left: 5px; line-height: 1" @onclick="@(() => EditEntry(entry))">✎</button>
+        </li>
+        } 
     </ul>
 </div>
 
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @code {
+    [CascadingParameter] public IModalService Modal { get; set; }
     [Parameter] public DrugInfo DrugInfo { get; set; }
     [Parameter] public HubConnection Connection { get; set; }
     [Parameter] public Settings Settings { get; set; }
@@ -50,5 +72,15 @@
 
         await Task.Delay(500);
         TimerTick(false);
+    }
+
+    private void EditEntry(DrugEntry entry)
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(EditEntryModal.Connection), Connection);
+        parameters.Add(nameof(EditEntryModal.Entry), entry);
+        parameters.Add(nameof(EditEntryModal.Settings), Settings);
+
+        Modal.Show<EditEntryModal>("Edit Entry", parameters);
     }
 }

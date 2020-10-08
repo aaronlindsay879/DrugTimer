@@ -46,7 +46,7 @@ namespace DrugTimer.Server.Hubs
         }
 
         /// <summary>
-        /// Hacky method for updating drug info. TODO: actually update columns instead of removing and inserting
+        /// Updates a given DrugInfo
         /// </summary>
         /// <param name="info">Info to update</param>
         /// <returns></returns>
@@ -65,12 +65,12 @@ namespace DrugTimer.Server.Hubs
         public async Task AddDrugEntry(DrugEntry entry, decimal amount)
         {
             Database.AddDrugEntry(entry);
-            Database.UpdateNumberLeft(entry.Guid, amount);
+            Database.UpdateNumberLeft(entry.DrugGuid, amount);
 
             await Clients.All.SendAsync("AddDrugEntry", entry);
 
             //sends a discord message, if enabled
-            DrugInfo relevantInfo = Database.GetDrugInfo().First(x => x.Guid == entry.Guid);
+            DrugInfo relevantInfo = Database.GetDrugInfo().First(x => x.Guid == entry.DrugGuid);
             if (relevantInfo.DrugSettings.DiscordWebHookEnabled)
                 await Discord.SendMessage(entry, relevantInfo.Name, relevantInfo.DrugSettings.DiscordWebHook);
         }
@@ -84,9 +84,20 @@ namespace DrugTimer.Server.Hubs
         public async Task RemoveDrugEntry(DrugEntry entry, decimal amount)
         {
             Database.RemoveDrugEntry(entry);
-            Database.UpdateNumberLeft(entry.Guid, amount);
+            Database.UpdateNumberLeft(entry.DrugGuid, amount);
 
             await Clients.All.SendAsync("RemoveDrugEntry", entry);
+        }
+
+        /// <summary>
+        /// Updates a given DrugEntry
+        /// </summary>
+        /// <param name="entry">Entry to update</param>
+        /// <returns></returns>
+        public async Task UpdateDrugEntry(DrugEntry entry)
+        {
+            Database.UpdateDrugEntry(entry);
+            await Clients.All.SendAsync("UpdateDrugEntry", entry);
         }
     }
 }
