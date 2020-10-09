@@ -1,7 +1,4 @@
-﻿using DrugTimer.Shared;
-using DrugTimer.Shared.Extensions;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -16,6 +13,10 @@ namespace DrugTimer.Server.Persistence
         private static string _connectionInfo;
         public static Dictionary<string, bool> StateHasChanged = new Dictionary<string, bool>();
 
+        /// <summary>
+        /// Sets connection info for the database, creates file if needed
+        /// </summary>
+        /// <param name="info">Path to the database</param>
         public static void SetConnInfo(string info)
         {
             _connectionInfo = $"DataSource={info}";
@@ -24,15 +25,24 @@ namespace DrugTimer.Server.Persistence
                 InitTables(info);
         }
 
+        /// <summary>
+        /// Creates the database with all needed tables
+        /// </summary>
+        /// <param name="info">Path to the database</param>
         private static void InitTables(string info)
         {
+            //if the path contains a slash (ie. a directory)
             if (info.Contains("/"))
             {
-                //split on /'s, take all but the last one and recombine into string
-                string dirPath = info.Split('/').Take(info.Split('/').Length - 1).Aggregate((a, b) => a + b);
+                //split on /'s, take all but the last one and recombine into string. this gives a string with all directories but not the last file
+                //e.g. folderOne/folderTwo/database.db -> folderOne/folderTwo
+                string dirPath = info.Split('/').Take(info.Split('/').Length - 1).Aggregate((a, b) => a + "/" + b);
+
+                //creates the directory at the given path
                 Directory.CreateDirectory(dirPath);
             }
 
+            //creates a file at the path, now directory exists
             SQLiteConnection.CreateFile(info);
 
             using var connection = new SQLiteConnection(_connectionInfo);

@@ -1,13 +1,13 @@
 ﻿using DrugTimer.Shared;
 using DrugTimer.Shared.Extensions;
-using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DrugTimer.Server.Persistence
 {
+    /// <summary>
+    /// A class to allow writing to and reading from a database
+    /// </summary>
     public static partial class Database
     {
 
@@ -126,7 +126,7 @@ namespace DrugTimer.Server.Persistence
         }
 
         /// <summary>
-        /// Updates a given DrugInfo, uses drug name as comparator
+        /// Updates a given DrugInfo, uses drug guid as comparator
         /// </summary>
         /// <param name="drugInfo">DrugInfo to update</param>
         public static void UpdateDrugInfo(DrugInfo drugInfo)

@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace DrugTimer.Server.Communication
 {
-    public class Discord
+    /// <summary>
+    /// A class representing communication methods with discord
+    /// </summary>
+    public static class Discord
     {
         public static HttpClient HttpClient;
 

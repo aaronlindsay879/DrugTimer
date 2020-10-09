@@ -17,6 +17,9 @@ namespace DrugTimer.Shared
         [Description("g")] gram = 1000000
     }
 
+    /// <summary>
+    /// A class representing a single dosage size, which handles converting from and to strings
+    /// </summary>
     public class Dosage
     {
         public int Micrograms { get; set; }
@@ -86,6 +89,9 @@ namespace DrugTimer.Shared
         }
     }
 
+    /// <summary>
+    /// A class representing a single dosage, with guid, name and dosage
+    /// </summary>
     public class DosageInfo
     {
         public string Guid { get; set; }

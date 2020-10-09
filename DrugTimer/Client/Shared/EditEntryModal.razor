@@ -26,6 +26,9 @@
 
     DrugEntry _localDrugEntry;
 
+    /// <summary>
+    /// Override InInitialized method to create a copy of given DrugEntry (this prevents entry updating until saved)
+    /// </summary>
     protected override void OnInitialized()
     {
         _localDrugEntry = new DrugEntry()
@@ -38,6 +41,9 @@
         };
     }
 
+    /// <summary>
+    /// Method to save data and close modal
+    /// </summary>
     private async void Save()
     {
         await Connection.SendAsync("UpdateDrugEntry", _localDrugEntry);
