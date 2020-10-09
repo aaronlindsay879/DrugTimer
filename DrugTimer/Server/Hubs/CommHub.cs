@@ -1,6 +1,7 @@
 ﻿using DrugTimer.Server.Communication;
 using DrugTimer.Server.Persistence;
 using DrugTimer.Shared;
+using DrugTimer.Shared.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using System.Linq;
 using System.Threading.Tasks;
@@ -70,7 +71,7 @@ namespace DrugTimer.Server.Hubs
             await Clients.All.SendAsync("AddDrugEntry", entry);
 
             //sends a discord message, if enabled
-            DrugInfo relevantInfo = Database.GetDrugInfo().First(x => x.Guid == entry.DrugGuid);
+            DrugInfo relevantInfo = Database.GetDrugInfo().FirstGuid(entry.DrugGuid);
             if (relevantInfo.DrugSettings.DiscordWebHookEnabled)
                 await Discord.SendMessage(entry, relevantInfo.Name, relevantInfo.DrugSettings.DiscordWebHook);
         }

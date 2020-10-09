@@ -1,4 +1,5 @@
 ﻿@using DrugTimer.Shared
+@using DrugTimer.Shared.Extensions 
 @using DrugTimer.Client.Components
 @using Microsoft.AspNetCore.SignalR.Client
 
@@ -161,11 +162,13 @@ else
             return;
         }
 
-        //add the new entry, resort all the entries and recalculate stats
-        _information.First(x => x.Guid == entry.DrugGuid).Entries.Add(entry);
-        var sortedEntries = _information.First(x => x.Guid == entry.DrugGuid).Entries.OrderBy(x => x.Time);
-        _information.First(x => x.Guid == entry.DrugGuid).Entries = sortedEntries.ToList();
-        _information.First(x => x.Guid == entry.DrugGuid).ReCalculateStats();
+        //find info with given guid
+        DrugInfo info = _information.FirstGuid(entry.DrugGuid);
+
+        //add entry, sort and recalculate stats
+        info.Entries.Add(entry);
+        info.Entries = info.Entries.OrderBy(x => x.Time).ToList();
+        info.ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
     }
@@ -183,9 +186,12 @@ else
             return;
         }
 
+        //find info with given guid
+        DrugInfo info = _information.FirstGuid(entry.DrugGuid);
+
         //remove the given entry and recalculate stats
-        _information.First(x => x.Guid == entry.DrugGuid).Entries.RemoveAll(x => x.EntryGuid == entry.EntryGuid);
-        _information.First(x => x.Guid == entry.DrugGuid).ReCalculateStats();
+        info.Entries.RemoveAll(x => x.EntryGuid == entry.EntryGuid);
+        info.ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
     }
@@ -196,10 +202,15 @@ else
     /// <param name="info">DrugEntry to update</param>
     private async void UpdateDrugEntry(DrugEntry entry)
     {
-        int index = _information.First(x => x.Guid == entry.DrugGuid).Entries.FindIndex(x => x.EntryGuid == entry.EntryGuid);
+        //find info with given guid
+        DrugInfo info = _information.FirstGuid(entry.DrugGuid);
 
-        _information.First(x => x.Guid == entry.DrugGuid).Entries[index] = entry;
-        _information.First(x => x.Guid == entry.DrugGuid).ReCalculateStats();
+        //find index of drugentry with given guid
+        int index = info.Entries.FindIndex(x => x.EntryGuid == entry.EntryGuid);
+
+        //update that entry, and recalcuate stats
+        info.Entries[index] = entry;
+        info.ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
     }

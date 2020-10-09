@@ -19,5 +19,13 @@ namespace DrugTimer.Shared.Extensions
 
             return newEnumerable.Take(num);
         }
+
+        /// <summary>
+        /// Finds the first info with a given GUID
+        /// </summary>
+        /// <param name="list">List to search</param>
+        /// <param name="guid">GUID to search for</param>
+        /// <returns>Info with that GUID</returns>
+        public static DrugInfo FirstGuid(this IEnumerable<DrugInfo> list, string guid) => list.First(entry => entry.Guid == guid);
     }
 }
