@@ -32,17 +32,29 @@ namespace DrugTimer.Shared
         public List<DosageInfo> Dosages { get; set; } = new List<DosageInfo>();
 
         public decimal Average;
+        public TimeSpan AverageHours;
+
+        /// <summary>
+        /// Calculates the average number of doses per day
+        /// </summary>
+        /// <returns>Average doses per day</returns>
         public decimal AveragePerDay()
         {
+            //group entries by days
             var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Time.Ticks).TotalDays);
 
+            //if no entries, return 0
             if (groupedEntries.Count() == 0)
                 return 0;
 
-            return groupedEntries.Sum(x => x.Sum(y => y.Count)) / (decimal)groupedEntries.Count();
+            //otherwise, sum up all dosages (by summing the counts), and divide by number of days with entries
+            return groupedEntries.Sum(x => x.Sum(y => y.Count)) / groupedEntries.Count();
         }
 
-        public TimeSpan AverageHours;
+        /// <summary>
+        /// Finds the average time between doses
+        /// </summary>
+        /// <returns>Time between doses</returns>
         public TimeSpan AverageHoursBetweenDoses()
         {
             //group entries by days
@@ -75,6 +87,9 @@ namespace DrugTimer.Shared
             return TimeSpan.FromTicks((long)(sum / count));
         }
 
+        /// <summary>
+        /// Recalculates all the stats, prevents needless CPU usage as things are only calculated when updated
+        /// </summary>
         public void ReCalculateStats()
         {
             Average = AveragePerDay();
