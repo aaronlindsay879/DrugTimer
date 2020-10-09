@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace DrugTimer.Server.Hubs
 {
     /// <summary>
-    /// Class to allow communication from server to client
+    /// Class to allow communication between server and client
     /// </summary>
     public class CommHub : Hub
     {

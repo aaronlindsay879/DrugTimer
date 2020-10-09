@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace DrugTimer.Server.Persistence
 {
+    /// <summary>
+    /// A class to allow writing to and reading from a database
+    /// </summary>
     public static partial class Database
     {
         /// <summary>

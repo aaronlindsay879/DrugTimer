@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace DrugTimer.Server.Persistence
 {
+    /// <summary>
+    /// A class to allow writing to and reading from a database
+    /// </summary>
     public static partial class Database
     {
         /// <summary>
@@ -102,6 +105,10 @@ namespace DrugTimer.Server.Persistence
             command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Updates a DrugEntry, using GUID as comparator
+        /// </summary>
+        /// <param name="drugEntry">DrugEntry to update</param>
         public static void UpdateDrugEntry(DrugEntry drugEntry)
         {
             //creates and opens the connection
