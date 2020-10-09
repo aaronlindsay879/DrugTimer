@@ -3,7 +3,6 @@ using DrugTimer.Server.Persistence;
 using DrugTimer.Shared;
 using DrugTimer.Shared.Extensions;
 using Microsoft.AspNetCore.SignalR;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace DrugTimer.Server.Hubs

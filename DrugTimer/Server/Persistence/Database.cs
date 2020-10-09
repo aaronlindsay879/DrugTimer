@@ -1,7 +1,4 @@
-﻿using DrugTimer.Shared;
-using DrugTimer.Shared.Extensions;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
