@@ -103,11 +103,13 @@
     /// <param name="IsName">Whether the value is for dosage name - if false, it is for dosage value</param>
     private void TextChange(ChangeEventArgs e, int index, bool IsName)
     {
+        //if IsName, update name of dosage - otherwise dosage
         if (IsName)
             _drugDosages[index - 1].Name = (string)e.Value;
         else
             _drugDosages[index - 1].Dosage = (string)e.Value;
 
+        //if all dosages have a name and value, create a new entry
         if (_drugDosages.All(x => !String.IsNullOrWhiteSpace(x.Dosage) && !String.IsNullOrWhiteSpace(x.Name)))
             _drugDosages.Add(new DrugDosage("", ""));
     }

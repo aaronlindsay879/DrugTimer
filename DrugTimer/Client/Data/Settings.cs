@@ -2,6 +2,9 @@
 
 namespace DrugTimer.Client
 {
+    /// <summary>
+    /// Class representing user settings
+    /// </summary>
     public class Settings
     {
         [Range(1, 30, ErrorMessage = "Refresh rate must be between 1 and 30 seconds")]

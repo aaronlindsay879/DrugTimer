@@ -74,13 +74,19 @@
         TimerTick(false);
     }
 
+    /// <summary>
+    /// Shows the edit entry modal popup
+    /// </summary>
+    /// <param name="entry"></param>
     private void EditEntry(DrugEntry entry)
     {
+        //create and add all needed parameters
         var parameters = new ModalParameters();
         parameters.Add(nameof(EditEntryModal.Connection), Connection);
         parameters.Add(nameof(EditEntryModal.Entry), entry);
         parameters.Add(nameof(EditEntryModal.Settings), Settings);
 
+        //show modal with title "Edit Entry"
         Modal.Show<EditEntryModal>("Edit Entry", parameters);
     }
 }
