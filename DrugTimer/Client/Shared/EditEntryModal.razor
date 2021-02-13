@@ -5,12 +5,12 @@
 <div>
     <EditForm Model="_localDrugEntry" OnValidSubmit="Save">
         <DataAnnotationsValidator />
-        <div class="form-group" style="margin-left: 0px;">
+        <div class="form-group" style="margin-left: 0;">
             <label for="count">Entry count</label>
             <InputNumber step="@Settings.IncrementStep" min="0" id="count" class="form-control" @bind-Value="@_localDrugEntry.Count" />
             <ValidationMessage For="@(() => _localDrugEntry.Count)" />
         </div>
-        <div class="form-group" style="margin-left: 0px">
+        <div class="form-group" style="margin-left: 0;">
             <label for="notes">Notes</label>
             <InputTextArea class="form-control" id="notes" @bind-Value="@_localDrugEntry.Notes" style="resize: both; width: 400px" />
             <ValidationMessage For="@(() => _localDrugEntry.Notes)" />

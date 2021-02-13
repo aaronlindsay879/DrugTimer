@@ -14,21 +14,21 @@
 }
 else
 {
-    <TabControl Pages="@Pages">
+    <TabControl Pages="@_pages">
         <TabPage Text="Server Options">
             <ServerOptions DrugInfos="@_information" Connection="@_hubConnection"/>
         </TabPage>
         <TabPage Text="Client Options">
-            <Options Settings="@Settings" DrugInfos="@_information" Connection="@_hubConnection" />
+            <Options Settings="@_settings" DrugInfos="@_information" Connection="@_hubConnection" />
         </TabPage>
         @foreach (string user in _information.GroupBy(x => x.User).Select(x => x.Key))
         {
             <TabPage Text="@user">
-                <TabControl Pages="@NestedPages[user]">
+                <TabControl Pages="@_nestedPages[user]">
                 @foreach (DrugInfo info in _information.Where(x => x.User == user))
                 {
                     <TabPage Text="@info.Name" Guid="@info.Guid">
-                        <DrugDisplay DrugInfo="@info" Settings="@Settings" Connection="@_hubConnection" />
+                        <DrugDisplay DrugInfo="@info" Settings="@_settings" Connection="@_hubConnection" />
                     </TabPage>
                 }
                 </TabControl>
@@ -42,13 +42,13 @@ else
 
 @code {
     [CascadingParameter] public IModalService Modal { get; set; }
-
+    
     private List<DrugInfo> _information;
     private HubConnection _hubConnection;
 
-    public Settings Settings { get; set; }
-    public List<TabPage> Pages;
-    public Dictionary<string, List<TabPage>> NestedPages;
+    private Settings _settings;
+    private List<TabPage> _pages;
+    private Dictionary<string, List<TabPage>> _nestedPages;
 
     /// <summary>
     /// Override the initialization to add a websocket
@@ -56,14 +56,14 @@ else
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
-        Pages = new List<TabPage>();
-        NestedPages = new Dictionary<string, List<TabPage>>();
+        _pages = new List<TabPage>();
+        _nestedPages = new Dictionary<string, List<TabPage>>();
 
         //fetch all settings from local storage
         var settings = await LocalStorage.GetItemAsync<Settings>("settings");
 
         //if settings is null, use default values - otherwise use values in local storage
-        Settings = settings ?? Settings.Default;
+        _settings = settings ?? Settings.Default;
 
         //create a new websocket
         _hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/api/hub"))
@@ -102,7 +102,7 @@ else
 
     //ensure nested pages has all needed keys
         foreach (string user in _information.GroupBy(x => x.User).Select(x => x.Key))
-            NestedPages.Add(user, new List<TabPage>());
+            _nestedPages.Add(user, new List<TabPage>());
 
         await InvokeAsync(StateHasChanged);
     }
@@ -115,9 +115,9 @@ else
     {
         _information.Add(info);
 
-        //only add new nestedpages element if user does not exist
-        if (!NestedPages.ContainsKey(info.User))
-            NestedPages.Add(info.User, new List<TabPage>());
+        //only add new nested pages element if user does not exist
+        if (!_nestedPages.ContainsKey(info.User))
+            _nestedPages.Add(info.User, new List<TabPage>());
 
         await InvokeAsync(StateHasChanged);
     }
@@ -130,7 +130,7 @@ else
     {
         //Remove the given drug from both the stored data and the pages
         _information.RemoveAll(x => x.Guid == info.Guid);
-        NestedPages[info.User].RemoveAll(x => x.Guid == info.Guid);
+        _nestedPages[info.User].RemoveAll(x => x.Guid == info.Guid);
 
         await InvokeAsync(StateHasChanged);
     }
@@ -156,7 +156,7 @@ else
     private async void AddDrugEntry(DrugEntry entry, DrugStats stats)
     {
         //check if DrugInfo exists with that name
-        if (!_information.Any(x => x.Guid == entry.DrugGuid))
+        if (_information.All(x => x.Guid != entry.DrugGuid))
         {
             Console.WriteLine("no drug with that guid, probably a big error?");
             return;
@@ -183,7 +183,7 @@ else
     private async void RemoveDrugEntry(DrugEntry entry, DrugStats stats)
     {
         //check if DrugInfo exists with that name
-        if (!_information.Any(x => x.Guid == entry.DrugGuid))
+        if (_information.All(x => x.Guid != entry.DrugGuid))
         {
             Console.WriteLine("no drug with that name, probably a big error?");
             return;
@@ -212,10 +212,10 @@ else
         _information.FirstGuid(entry.DrugGuid).Stats = stats;
         info.NumberLeft = numberLeft;
         
-        //find index of drugentry with given guid
+        //find index of drug entry with given guid
         int index = info.Entries.FindIndex(x => x.EntryGuid == entry.EntryGuid);
 
-        //update that entry, and recalcuate stats
+        //update that entry, and recalculate stats
         info.Entries[index] = entry;
 
         await InvokeAsync(StateHasChanged);

@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using DrugTimer.Client.Components.DrugDisplayComponents
 @using DrugTimer.Client.Data
+@using System.Diagnostics.CodeAnalysis
 
 @implements IDisposable
 
@@ -73,7 +74,7 @@
             _progress *= 100;
 
             //format text correctly
-            _progressText = $"{(futureTime - DateTime.Now).ToString("hh':'mm")} remaining, finishes at {futureTime.ToString("HH:mm")}";
+            _progressText = $"{(futureTime - DateTime.Now):hh':'mm} remaining, finishes at {futureTime:HH:mm}";
 
             StateHasChanged();
         }

@@ -10,7 +10,7 @@
     <ul class="list-group list-group-flush">
         <li class="list-group-item">
             <label for="time" style="width: 60px">Time</label>
-            <input type="datetime" id="time" @bind="@_entryTime" style="width: 180px" />
+            <input id="time" @bind="@_entryTime" style="width: 180px" />
             <br />
             <label for="count" style="width: 60px">Count</label>
             <input type="number" step="@Settings.IncrementStep" min="0" id="count" @bind="@_entryCount" style="width: 180px" />
@@ -65,6 +65,7 @@
             Count = Convert.ToDecimal(_entryCount)
         };
 
+        // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
         //if _entryTime is empty, use time now, otherwise use time passed
         if (String.IsNullOrWhiteSpace(_entryTime))
             entry.Time = DateTime.Now.ToUniversalTime();

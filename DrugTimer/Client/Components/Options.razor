@@ -7,7 +7,7 @@
 
 <EditForm Model="Settings" OnValidSubmit="WriteSettings" style="margin-top: 20px">
     <DataAnnotationsValidator />
-    <div class="form-group" style="margin-left: 0px;">
+    <div class="form-group" style="margin-left: 0;">
         <label for="refreshRate">Refresh Rate</label>
         <InputNumber id="refreshRate" class="form-control" @bind-Value="@Settings.RefreshRate" />
         <ValidationMessage For="@(() => Settings.RefreshRate)" />
@@ -15,7 +15,7 @@
             How often to redraw the progress bar, in seconds.
         </small>
     </div>
-    <div class="form-group" style="margin-left: 0px;">
+    <div class="form-group" style="margin-left: 0;">
         <label for="refreshRate">Entries to load</label>
         <InputNumber id="numToLoad" class="form-control" @bind-Value="@Settings.NumToLoad" />
         <ValidationMessage For="@(() => Settings.NumToLoad)" />
@@ -23,7 +23,7 @@
             How many entries to load for each drug on load.
         </small>
     </div>
-    <div class="form-group" style="margin-left: 0px;">
+    <div class="form-group" style="margin-left: 0;">
         <label for="dateFormat">Date Format</label>
         <InputDateFormat class="form-control" id="dateFormat" @bind-Value="@Settings.DateFormat" />
         <ValidationMessage For="@(() => Settings.DateFormat)" />
@@ -31,7 +31,7 @@
             Date formatting to use within application.
         </small>
     </div>
-    <div class="form-group" style="margin-left: 0px;">
+    <div class="form-group" style="margin-left: 0;">
         <label for="incrementStep">Dosage increment step</label>
         <InputNumber class="form-control" id="incrementStep" @bind-Value="@Settings.IncrementStep" />
         <ValidationMessage For="@(() => Settings.IncrementStep)" />
@@ -39,7 +39,7 @@
             How much to increase/decrease dosages with arrow key step.
         </small>
     </div>
-    <div class="form-group" style="margin-left: 0px;">
+    <div class="form-group" style="margin-left: 0;">
         <label for="prescriptionSize">Default prescription size</label>
         <InputNumber class="form-control" id="prescriptionSize" @bind-Value="@Settings.PrescriptionSize" />
         <ValidationMessage For="@(() => Settings.PrescriptionSize)" />

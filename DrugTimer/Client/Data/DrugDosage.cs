@@ -1,7 +1,7 @@
 ﻿namespace DrugTimer.Client.Data
 {
     /// <summary>
-    /// Client side implementation of DosageInfo - data cannot be serialised correctly, so have to have seperate classes on client and server
+    /// Client side implementation of DosageInfo - data cannot be serialised correctly, so have to have separate classes on client and server
     /// </summary>
     public class DrugDosage
     {

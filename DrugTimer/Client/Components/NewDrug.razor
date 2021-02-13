@@ -4,7 +4,7 @@
 
 <EditForm Model="_newDrug" OnValidSubmit="AddDrug" style="margin-top: 20px">
     <DataAnnotationsValidator />
-    <div class="form-group" style="margin-left: 0px;">
+    <div class="form-group" style="margin-left: 0;">
         <label for="drugName">Drug name</label>
         <InputText id="drugName" class="form-control" @bind-Value="@_newDrug.Name" />
         <ValidationMessage For="@(() => _newDrug.Name)" />
@@ -12,7 +12,7 @@
             The name of the drug.
         </small>
     </div>
-    <div class="form-group" style="margin-left: 0px;">
+    <div class="form-group" style="margin-left: 0;">
         <label for="username">Username</label>
         <InputText id="username" class="form-control" @bind-Value="@_newDrug.User" />
         <ValidationMessage For="@(() => _newDrug.User)" />
@@ -20,7 +20,7 @@
             The person taking the drug. To add a new user to the system, simply change this to a name which does not exist.
         </small>
     </div>
-    <div class="form-group" style="margin-left: 0px;">
+    <div class="form-group" style="margin-left: 0;">
         <label for="timeBetweenDoses">Time between doses</label>
         <InputNumber class="form-control" id="timeBetweenDoses" @bind-Value="@_newDrug.TimeBetweenDoses" />
         <ValidationMessage For="@(() => _newDrug.TimeBetweenDoses)" />
@@ -28,7 +28,7 @@
             How many hours between doses. Leave empty if drug doesn't fit that schedule.
         </small>
     </div>
-    <div class="form-group" style="margin-left: 0px;">
+    <div class="form-group" style="margin-left: 0;">
         <label for="drugDoses">Expected doses a day</label>
         <InputNumber class="form-control" id="drugDoses" @bind-Value="@_newDrug.ExpectedDoses" />
         <ValidationMessage For="@(() => _newDrug.ExpectedDoses)" />
@@ -36,7 +36,7 @@
             How many doses are expected a day. Leave empty if drug doesn't fit that schedule.
         </small>
     </div>
-    <div class="form-group" style="margin-left: 0px;">
+    <div class="form-group" style="margin-left: 0;">
         <label for="drugInfo">Drug information</label>
         <InputText class="form-control" id="drugInfo" @bind-Value="@_newDrug.Info" />
         <small class="form-text text-muted">
@@ -47,9 +47,11 @@
     {
         <div class="row">
             <div class="col">
+                @* ReSharper disable once AccessToModifiedClosure *@
                 <input type="text" class="form-control" placeholder="Drug" @onchange="@(e => TextChange(e, i, true))">
             </div>
             <div class="col">
+                @* ReSharper disable once AccessToModifiedClosure *@
                 <input type="text" class="form-control" placeholder="Dosage" @onchange="@(e => TextChange(e, i, false))">
             </div>
         </div>
@@ -68,8 +70,10 @@
         //set up new drug options
         _newDrug = new DrugInfo();
 
-        _drugDosages = new List<DrugDosage>();
-        _drugDosages.Add(new DrugDosage("", ""));
+        _drugDosages = new List<DrugDosage>
+        {
+            new DrugDosage("", "")
+        };
     }
 
     /// <summary>
@@ -91,8 +95,10 @@
         //clear local buffer
         _newDrug = new DrugInfo();
 
-        _drugDosages = new List<DrugDosage>();
-        _drugDosages.Add(new DrugDosage("", ""));
+        _drugDosages = new List<DrugDosage>
+        {
+            new DrugDosage("", "")
+        };
     }
 
     /// <summary>
