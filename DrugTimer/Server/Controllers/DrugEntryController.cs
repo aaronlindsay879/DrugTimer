@@ -50,7 +50,7 @@ namespace DrugTimer.Server.Controllers
             DrugEntry entry = new DrugEntry()
             {
                 DrugGuid = data.GetProperty("Guid").ToString(),
-                Time = DateTime.Parse(data.GetProperty("Time").ToString()),
+                Time = DateTime.Parse(data.GetProperty("Time").ToString()!),
                 Count = data.GetProperty("Count").GetInt32()
             };
 

@@ -22,7 +22,7 @@ namespace DrugTimer.Shared
     /// </summary>
     public class Dosage
     {
-        public int Micrograms { get; set; }
+        public int Micrograms { get; }
 
         public Dosage(int micrograms) => Micrograms = micrograms;
         public Dosage(string str) => Micrograms = FromString(str);
@@ -47,14 +47,14 @@ namespace DrugTimer.Shared
                 //fetch the first attribute from the value (should be description)
                 DescriptionAttribute attribute = (DescriptionAttribute)member.GetCustomAttributes(false)[0];
 
-                //split descriptions into array, with delimeter "|"
+                //split descriptions into array, with delimiter "|"
                 string[] descriptions = attribute.Description.Split("|");
 
                 //get an array of descriptions, where the given string contains it
-                var validDescriptions = descriptions.Where(x => str.Contains(x));
+                var validDescriptions = descriptions.Where(str.Contains);
 
                 //if the count is greater than 0 (ie. the string contains one of the descriptions)
-                if (validDescriptions?.Count() > 0)
+                if (validDescriptions.Any())
                 {
                     //remove all non numerical chars from the given string
                     var numberStr = str.ToNumeric();

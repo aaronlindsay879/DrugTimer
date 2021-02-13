@@ -14,7 +14,7 @@ namespace DrugTimer.Server.Persistence
         /// Adds a given DosageInfo to the database
         /// </summary>
         /// <param name="info">DosageInfo to add</param>
-        public static void AddDosageInfo(DosageInfo info)
+        private static void AddDosageInfo(DosageInfo info)
         {
             //creates and opens the connection
             using var connection = new SQLiteConnection(_connectionInfo);
@@ -34,11 +34,11 @@ namespace DrugTimer.Server.Persistence
         }
 
         /// <summary>
-        /// Returns all DosageInfos assosciated with a given DrugInfo from the database
+        /// Returns all DosageInfos associated with a given DrugInfo from the database
         /// </summary>
-        /// <param name="drugInfo">DrugInfo to find assosciated DosageInfos for</param>
+        /// <param name="drugInfo">DrugInfo to find associated DosageInfos for</param>
         /// <returns>A list of DosageInfos</returns>
-        public static List<DosageInfo> GetDosageInfos(DrugInfo drugInfo)
+        private static List<DosageInfo> GetDosageInfos(DrugInfo drugInfo)
         {
             //creates and opens the connection
             using var connection = new SQLiteConnection(_connectionInfo);

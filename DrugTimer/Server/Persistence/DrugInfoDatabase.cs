@@ -37,7 +37,7 @@ namespace DrugTimer.Server.Persistence
             command.Parameters.AddWithValue("$discordWebHookEnabled", info.DrugSettings.DiscordWebHookEnabled);
             command.Parameters.AddWithValue("$notificationsEnabled", info.DrugSettings.NotificationsEnabled);
 
-            //add all assosciated dosages
+            //add all associated dosages
             foreach (DosageInfo dosageInfo in info.Dosages)
                 AddDosageInfo(dosageInfo);
 
@@ -71,20 +71,23 @@ namespace DrugTimer.Server.Persistence
             List<DrugInfo> info = new List<DrugInfo>();
             while (reader.Read())
             {
-                var drug = new DrugInfo()
+                var drug = new DrugInfo
                 {
-                    Guid = (string)reader["Guid"],
-                    Name = (string)reader["DrugName"],
-                    User = (string)reader["User"],
+                    Guid = (string) reader["Guid"],
+                    Name = (string) reader["DrugName"],
+                    User = (string) reader["User"],
                     Info = reader["Info"].HandleNull<string>(),
                     TimeBetweenDoses = reader["TimeBetweenDoses"].HandleNull<decimal?>(),
                     ExpectedDoses = reader["ExpectedDoses"].HandleNull<int?>(),
-                    NumberLeft = reader["NumberLeft"].HandleNull<decimal>()
+                    NumberLeft = reader["NumberLeft"].HandleNull<decimal>(),
+                    DrugSettings =
+                    {
+                        NotificationsEnabled = reader["NotificationsEnabled"].HandleNull<bool>(),
+                        DiscordWebHook = reader["DiscordWebHook"].HandleNull<string>(),
+                        DiscordWebHookEnabled = reader["DiscordWebHookEnabled"].HandleNull<bool>()
+                    }
                 };
 
-                drug.DrugSettings.DiscordWebHookEnabled = reader["NotificationsEnabled"].HandleNull<bool>();
-                drug.DrugSettings.DiscordWebHook = reader["DiscordWebHook"].HandleNull<string>();
-                drug.DrugSettings.DiscordWebHookEnabled = reader["DiscordWebHookEnabled"].HandleNull<bool>();
 
                 //find all DrugEntries associated with the DrugInfo
                 drug.Entries = GetDrugEntries(drug);

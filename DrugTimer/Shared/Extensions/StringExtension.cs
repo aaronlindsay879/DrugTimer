@@ -11,7 +11,7 @@ namespace DrugTimer.Shared.Extensions
         /// <returns>Formatted string</returns>
         public static string ToNumeric(this string str)
         {
-            var numericChar = str.Where(c => char.IsDigit(c)).ToArray();
+            var numericChar = str.Where(char.IsDigit).ToArray();
 
             return new string(numericChar);
         }

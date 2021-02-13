@@ -43,7 +43,7 @@ namespace DrugTimer.Shared
             var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Time.Ticks).TotalDays);
 
             //if no entries, return 0
-            if (groupedEntries.Count() == 0)
+            if (!groupedEntries.Any())
                 return 0;
 
             //otherwise, sum up all dosages (by summing the counts), and divide by number of days with entries

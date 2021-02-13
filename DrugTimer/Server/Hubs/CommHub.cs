@@ -2,12 +2,12 @@
 using DrugTimer.Server.Communication;
 using DrugTimer.Server.Persistence;
 using DrugTimer.Shared;
-using DrugTimer.Shared.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 
 namespace DrugTimer.Server.Hubs
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     /// <summary>
     /// Class to allow communication between server and client
     /// </summary>
@@ -45,7 +45,7 @@ namespace DrugTimer.Server.Hubs
         }
 
         /// <summary>
-        /// Removes a given DrugInfo from daatabase, and updates all clients
+        /// Removes a given DrugInfo from database, and updates all clients
         /// </summary>
         /// <param name="info">DrugInfo to remove</param>
         /// <returns></returns>
