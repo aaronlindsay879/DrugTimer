@@ -12,7 +12,7 @@ COPY DrugTimer/Server/ ./DrugTimer/Server/
 COPY DrugTimer/Shared/ ./DrugTimer/Shared/
 RUN dotnet publish DrugTimer.sln -c release -o /app -r linux-musl-x64 --self-contained true --no-restore /p:PublishTrimmed=true /p:PublishReadyToRun=true
 
-FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.1-alpine
+FROM mcr.microsoft.com/dotnet/core/runtime-deps:5.0-alpine
 WORKDIR /app
 COPY --from=build /app ./
 
