@@ -80,7 +80,7 @@ namespace DrugTimer.Server.Hubs
             Database.UpdateNumberLeft(entry.DrugGuid, amount);
 
             //sends a discord message, if enabled
-            DrugInfo relevantInfo = Database.GetDrugInfo().FirstGuid(entry.DrugGuid);
+            DrugInfo relevantInfo = Database.GetDrugInfo(entry.DrugGuid)[0];
             relevantInfo.ReCalculateStats();
             
             await Clients.All.SendAsync("AddDrugEntry", entry, relevantInfo.Stats);
@@ -100,7 +100,7 @@ namespace DrugTimer.Server.Hubs
             Database.RemoveDrugEntry(entry);
             Database.UpdateNumberLeft(entry.DrugGuid, amount);
             
-            DrugInfo relevantInfo = Database.GetDrugInfo().FirstGuid(entry.DrugGuid);
+            DrugInfo relevantInfo = Database.GetDrugInfo(entry.DrugGuid)[0];
             relevantInfo.ReCalculateStats();
 
             await Clients.All.SendAsync("RemoveDrugEntry", entry, relevantInfo.Stats);
@@ -116,7 +116,7 @@ namespace DrugTimer.Server.Hubs
         {
             Database.UpdateDrugEntry(entry);
             
-            DrugInfo relevantInfo = Database.GetDrugInfo().FirstGuid(entry.DrugGuid);
+            DrugInfo relevantInfo = Database.GetDrugInfo(entry.DrugGuid)[0];
             relevantInfo.ReCalculateStats();
             
             Database.UpdateNumberLeft(entry.DrugGuid, relevantInfo.NumberLeft + change);

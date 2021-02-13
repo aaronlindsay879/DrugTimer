@@ -49,7 +49,7 @@ namespace DrugTimer.Server.Persistence
         /// Gets a list of all DrugInfos stored within the database
         /// </summary>
         /// <returns>A list of DrugInfo</returns>
-        public static List<DrugInfo> GetDrugInfo()
+        public static List<DrugInfo> GetDrugInfo(string guid = null)
         {
             //create and open the connection
             using var connection = new SQLiteConnection(_connectionInfo);
@@ -58,6 +58,12 @@ namespace DrugTimer.Server.Persistence
             //create the command, set the text and create a reader from that command
             var command = connection.CreateCommand();
             command.CommandText = @"SELECT * FROM tblDrugInfo";
+
+            if (guid is not null)
+            {
+                command.CommandText += "\nWHERE Guid = $guid";
+                command.Parameters.AddWithValue("$guid", guid);
+            }
 
             var reader = command.ExecuteReader();
 
