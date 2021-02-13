@@ -15,7 +15,7 @@ namespace DrugTimer.Server.Persistence
         /// <summary>
         /// Add a given DrugEntry to the database
         /// </summary>
-        /// <param name="info">DrugEntry to add</param>
+        /// <param name="entry">DrugEntry to add</param>
         public static void AddDrugEntry(DrugEntry entry)
         {
             //creates and opens the connection
@@ -63,10 +63,7 @@ namespace DrugTimer.Server.Persistence
             command.Parameters.AddWithValue("$drugGuid", drugInfo.Guid);
 
             var reader = command.ExecuteReader();
-
-            //create a list of commands to run once main loop is done
-            List<DrugEntry> updateEntries = new List<DrugEntry>();
-
+            
             //read a list of DateTimes from the table
             List<DrugEntry> entries = new List<DrugEntry>();
             while (reader.Read())

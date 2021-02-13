@@ -37,7 +37,7 @@ namespace DrugTimer.Shared
         /// Calculates the average number of doses per day
         /// </summary>
         /// <returns>Average doses per day</returns>
-        public decimal AveragePerDay()
+        private decimal AveragePerDay()
         {
             //group entries by days
             var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Time.Ticks).TotalDays);
@@ -54,7 +54,7 @@ namespace DrugTimer.Shared
         /// Finds the average time between doses
         /// </summary>
         /// <returns>Time between doses</returns>
-        public TimeSpan AverageHoursBetweenDoses()
+        private TimeSpan AverageHoursBetweenDoses()
         {
             //group entries by days
             var groupedEntries = Entries.GroupBy(x => (int)TimeSpan.FromTicks(x.Time.Ticks).TotalDays);

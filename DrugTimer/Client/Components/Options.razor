@@ -1,8 +1,9 @@
 ﻿@using System.Globalization
+@using DrugTimer.Client.Data
 @using DrugTimer.Shared
 @using Microsoft.AspNetCore.SignalR.Client
 
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <EditForm Model="Settings" OnValidSubmit="WriteSettings" style="margin-top: 20px">
     <DataAnnotationsValidator />
@@ -57,5 +58,5 @@
     /// <summary>
     /// Writes the users settings to local storage
     /// </summary>
-    private async void WriteSettings() => await localStorage.SetItemAsync("settings", Settings);
+    private async void WriteSettings() => await LocalStorage.SetItemAsync("settings", Settings);
 }

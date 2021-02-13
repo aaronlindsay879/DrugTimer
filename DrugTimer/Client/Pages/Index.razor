@@ -1,10 +1,11 @@
 ﻿@using DrugTimer.Shared
 @using DrugTimer.Shared.Extensions 
 @using DrugTimer.Client.Components
+@using DrugTimer.Client.Data
 @using Microsoft.AspNetCore.SignalR.Client
 
 @inject NavigationManager NavigationManager
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @page "/"
 
 @if (_information == null)
@@ -15,10 +16,10 @@ else
 {
     <TabControl Pages="@Pages">
         <TabPage Text="Server Options">
-            <ServerOptions DrugInfos="@_information" Connection="@hubConnection"/>
+            <ServerOptions DrugInfos="@_information" Connection="@_hubConnection"/>
         </TabPage>
         <TabPage Text="Client Options">
-            <Options Settings="@Settings" DrugInfos="@_information" Connection="@hubConnection" />
+            <Options Settings="@Settings" DrugInfos="@_information" Connection="@_hubConnection" />
         </TabPage>
         @foreach (string user in _information.GroupBy(x => x.User).Select(x => x.Key))
         {
@@ -27,14 +28,14 @@ else
                 @foreach (DrugInfo info in _information.Where(x => x.User == user))
                 {
                     <TabPage Text="@info.Name" Guid="@info.Guid">
-                        <DrugDisplay DrugInfo="@info" Settings="@Settings" Connection="@hubConnection" />
+                        <DrugDisplay DrugInfo="@info" Settings="@Settings" Connection="@_hubConnection" />
                     </TabPage>
                 }
                 </TabControl>
             </TabPage>
         }
         <TabPage Text="+">
-            <NewDrug Connection="@hubConnection" />
+            <NewDrug Connection="@_hubConnection" />
         </TabPage>
     </TabControl>
 }
@@ -43,7 +44,7 @@ else
     [CascadingParameter] public IModalService Modal { get; set; }
 
     private List<DrugInfo> _information;
-    private HubConnection hubConnection;
+    private HubConnection _hubConnection;
 
     public Settings Settings { get; set; }
     public List<TabPage> Pages;
@@ -59,33 +60,33 @@ else
         NestedPages = new Dictionary<string, List<TabPage>>();
 
         //fetch all settings from local storage
-        var settings = await localStorage.GetItemAsync<Settings>("settings");
+        var settings = await LocalStorage.GetItemAsync<Settings>("settings");
 
         //if settings is null, use default values - otherwise use values in local storage
         Settings = settings ?? Settings.Default;
 
         //create a new websocket
-        hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/api/hub"))
+        _hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/api/hub"))
                                                   .Build();
 
         //listen for initial data being sent in
-        hubConnection.On<List<DrugInfo>>("SendInitialData", SendAll);
+        _hubConnection.On<List<DrugInfo>>("SendInitialData", SendAll);
 
         //add handlers for DrugInfo requests
-        hubConnection.On<DrugInfo>("AddDrugInfo", AddDrugInfo);
-        hubConnection.On<DrugInfo>("RemoveDrugInfo", RemoveDrugInfo);
-        hubConnection.On<DrugInfo>("UpdateDrugInfo", UpdateDrugInfo);
+        _hubConnection.On<DrugInfo>("AddDrugInfo", AddDrugInfo);
+        _hubConnection.On<DrugInfo>("RemoveDrugInfo", RemoveDrugInfo);
+        _hubConnection.On<DrugInfo>("UpdateDrugInfo", UpdateDrugInfo);
 
         //add handlers for DrugEntry requests
-        hubConnection.On<DrugEntry, DrugStats>("AddDrugEntry", AddDrugEntry);
-        hubConnection.On<DrugEntry, DrugStats>("RemoveDrugEntry", RemoveDrugEntry);
-        hubConnection.On<DrugEntry, DrugStats, decimal>("UpdateDrugEntry", UpdateDrugEntry);
+        _hubConnection.On<DrugEntry, DrugStats>("AddDrugEntry", AddDrugEntry);
+        _hubConnection.On<DrugEntry, DrugStats>("RemoveDrugEntry", RemoveDrugEntry);
+        _hubConnection.On<DrugEntry, DrugStats, decimal>("UpdateDrugEntry", UpdateDrugEntry);
 
         //start socket
-        await hubConnection.StartAsync();
+        await _hubConnection.StartAsync();
 
         //tell server to send all data
-        await hubConnection.SendAsync("SendInitialData", hubConnection.ConnectionId, 10);
+        await _hubConnection.SendAsync("SendInitialData", _hubConnection.ConnectionId, 10);
     }
 
     /// <summary>
@@ -150,7 +151,8 @@ else
     /// <summary>
     /// Handler for DrugEntry events - adds the given DrugEntry to local copy, ensuring it's added to correct DrugInfo
     /// </summary>
-    /// <param name="info">DrugEntry to add</param>
+    /// <param name="entry">DrugEntry to add</param>
+    /// <param name="stats">New stats for drug</param>
     private async void AddDrugEntry(DrugEntry entry, DrugStats stats)
     {
         //check if DrugInfo exists with that name
@@ -176,7 +178,8 @@ else
     /// <summary>
     /// Handler for RemoveDrugEntry events - removes  the given DrugEntry to local copy, ensuring it's added to correct DrugInfo
     /// </summary>
-    /// <param name="info">DrugEntry to remove</param>
+    /// <param name="entry">DrugEntry to remove</param>
+    /// <param name="stats">New stats for drug</param>
     private async void RemoveDrugEntry(DrugEntry entry, DrugStats stats)
     {
         //check if DrugInfo exists with that name
@@ -199,7 +202,9 @@ else
     /// <summary>
     /// Handler for UpdateDrugEntry events - updates it (as the name suggests)
     /// </summary>
-    /// <param name="info">DrugEntry to update</param>
+    /// <param name="entry">DrugEntry to update</param>
+    /// <param name="stats">New stats for drug</param>
+    /// <param name="numberLeft">New number of doses left</param>
     private async void UpdateDrugEntry(DrugEntry entry, DrugStats stats, decimal numberLeft)
     {
         //find info with given guid

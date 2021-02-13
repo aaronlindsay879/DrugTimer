@@ -2,7 +2,6 @@
 using DrugTimer.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -15,12 +14,10 @@ namespace DrugTimer.Server.Controllers
     [Route("/api/[controller]")]
     public class DrugInfoController : ControllerBase
     {
-        private readonly ILogger<DrugInfoController> logger;
         private readonly IHubContext<Hubs.CommHub> _hubContext;
 
-        public DrugInfoController(ILogger<DrugInfoController> logger, IHubContext<Hubs.CommHub> hubContext)
+        public DrugInfoController(IHubContext<Hubs.CommHub> hubContext)
         {
-            this.logger = logger;
             _hubContext = hubContext;
         }
 

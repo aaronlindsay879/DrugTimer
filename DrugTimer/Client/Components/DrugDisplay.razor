@@ -2,6 +2,7 @@
 @using System.Threading
 @using Microsoft.AspNetCore.SignalR.Client
 @using DrugTimer.Client.Components.DrugDisplayComponents
+@using DrugTimer.Client.Data
 
 @implements IDisposable
 
@@ -36,7 +37,7 @@
     /// </summary>
     protected override void OnInitialized()
     {
-        _timer = new Timer(e => TimerTick(true), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+        _timer = new Timer(_ => TimerTick(true), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
     }
 
     /// <summary>
@@ -102,12 +103,9 @@
         if (DrugInfo.Entries.Count == 0)
             return null;
 
-        //if there are no entries in the past, return null again
+        //if there are no entries in the past, return null again, otherwise return last
         var entries = DrugInfo.Entries.Where(x => x.Time.ToLocalTime() <= DateTime.Now);
-        if (entries.Count() == 0)
-            return null;
-
-        //otherwise just return last element
-        return entries.Last();
+        
+        return entries.Any() ? entries.Last() : null;
     }
 }

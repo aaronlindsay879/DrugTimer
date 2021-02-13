@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace DrugTimer.Shared.Extensions
 {
-    public static class IEnumerableExtension
+    public static class EnumerableExtension
     {
         /// <summary>
         /// Takes a number of elements from a list, after reversing it

@@ -17,6 +17,7 @@ namespace DrugTimer.Server.Hubs
         /// Sends all data to a client - used on initial connection
         /// </summary>
         /// <param name="connectionId">Connection to send data to</param>
+        /// <param name="count">Number of entries to fetch for each drug</param>
         /// <returns></returns>
         public async Task SendInitialData(string connectionId, int count)
         {
@@ -46,7 +47,7 @@ namespace DrugTimer.Server.Hubs
         /// <summary>
         /// Removes a given DrugInfo from daatabase, and updates all clients
         /// </summary>
-        /// <param name="info">DrugInfo to remove<param>
+        /// <param name="info">DrugInfo to remove</param>
         /// <returns></returns>
         public async Task RemoveDrugInfo(DrugInfo info)
         {
@@ -70,7 +71,7 @@ namespace DrugTimer.Server.Hubs
         /// <summary>
         /// Adds a given DrugEntry to database, and updates all clients
         /// </summary>
-        /// <param name="info">DrugEntry to add</param>
+        /// <param name="entry">DrugEntry to add</param>
         /// <param name="amount">Amount of doses left</param>
         /// <returns></returns>
         public async Task AddDrugEntry(DrugEntry entry, decimal amount)
@@ -89,9 +90,9 @@ namespace DrugTimer.Server.Hubs
         }
 
         /// <summary>
-        /// Removes a given DrugEntry from daatabase, and updates all clients
+        /// Removes a given DrugEntry from database, and updates all clients
         /// </summary>
-        /// <param name="info">DrugEntry to remove<param>
+        /// <param name="entry">DrugEntry to remove</param>
         /// <param name="amount">Amount of doses left</param>
         /// <returns></returns>
         public async Task RemoveDrugEntry(DrugEntry entry, decimal amount)
@@ -109,17 +110,18 @@ namespace DrugTimer.Server.Hubs
         /// Updates a given DrugEntry
         /// </summary>
         /// <param name="entry">Entry to update</param>
+        /// <param name="change">Change in number remaining</param>
         /// <returns></returns>
-        public async Task UpdateDrugEntry(DrugEntry entry, decimal amount)
+        public async Task UpdateDrugEntry(DrugEntry entry, decimal change)
         {
             Database.UpdateDrugEntry(entry);
             
             DrugInfo relevantInfo = Database.GetDrugInfo().FirstGuid(entry.DrugGuid);
             relevantInfo.ReCalculateStats();
             
-            Database.UpdateNumberLeft(entry.DrugGuid, relevantInfo.NumberLeft + amount);
+            Database.UpdateNumberLeft(entry.DrugGuid, relevantInfo.NumberLeft + change);
             
-            await Clients.All.SendAsync("UpdateDrugEntry", entry, relevantInfo.Stats, relevantInfo.NumberLeft + amount);
+            await Clients.All.SendAsync("UpdateDrugEntry", entry, relevantInfo.Stats, relevantInfo.NumberLeft + change);
         }
     }
 }

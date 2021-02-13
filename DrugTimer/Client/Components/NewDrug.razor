@@ -13,16 +13,16 @@
         </small>
     </div>
     <div class="form-group" style="margin-left: 0px;">
-        <label for="drugName">Username</label>
-        <InputText id="drugName" class="form-control" @bind-Value="@_newDrug.User" />
+        <label for="username">Username</label>
+        <InputText id="username" class="form-control" @bind-Value="@_newDrug.User" />
         <ValidationMessage For="@(() => _newDrug.User)" />
         <small class="form-text text-muted">
             The person taking the drug. To add a new user to the system, simply change this to a name which does not exist.
         </small>
     </div>
     <div class="form-group" style="margin-left: 0px;">
-        <label for="drugTime">Time between doses</label>
-        <InputNumber class="form-control" id="drugTime" @bind-Value="@_newDrug.TimeBetweenDoses" />
+        <label for="timeBetweenDoses">Time between doses</label>
+        <InputNumber class="form-control" id="timeBetweenDoses" @bind-Value="@_newDrug.TimeBetweenDoses" />
         <ValidationMessage For="@(() => _newDrug.TimeBetweenDoses)" />
         <small class="form-text text-muted">
             How many hours between doses. Leave empty if drug doesn't fit that schedule.
@@ -100,11 +100,11 @@
     /// </summary>
     /// <param name="e">Event Arguments</param>
     /// <param name="index">Index of drug dosage - starts from one :(</param>
-    /// <param name="IsName">Whether the value is for dosage name - if false, it is for dosage value</param>
-    private void TextChange(ChangeEventArgs e, int index, bool IsName)
+    /// <param name="isName">Whether the value is for dosage name - if false, it is for dosage value</param>
+    private void TextChange(ChangeEventArgs e, int index, bool isName)
     {
         //if IsName, update name of dosage - otherwise dosage
-        if (IsName)
+        if (isName)
             _drugDosages[index - 1].Name = (string)e.Value;
         else
             _drugDosages[index - 1].Dosage = (string)e.Value;

@@ -25,6 +25,9 @@ namespace DrugTimer.Client.Components
             {
                 //format string with given format, and check if valid - if invalid, error will be thrown
                 string date = DateTime.Now.ToString(value);
+                
+                //return value not used as this is used to check if input is valid
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 DateTime.ParseExact(date, value, CultureInfo.InvariantCulture);
                 validationErrorMessage = "";
                 output = true;

@@ -12,9 +12,9 @@ namespace DrugTimer.Shared
     /// </summary>
     public enum Units
     {
-        [Description("μg|mcg")] microgram = 1,
-        [Description("mg")] milligram = 1000,
-        [Description("g")] gram = 1000000
+        [Description("μg|mcg")] Microgram = 1,
+        [Description("mg")] Milligram = 1000,
+        [Description("g")] Gram = 1000000
     }
 
     /// <summary>

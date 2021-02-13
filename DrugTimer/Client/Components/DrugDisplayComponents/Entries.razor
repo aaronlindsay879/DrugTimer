@@ -1,6 +1,8 @@
 ﻿@using DrugTimer.Shared
 @using DrugTimer.Shared.Extensions
 @using Microsoft.AspNetCore.SignalR.Client
+@using DrugTimer.Client.Data
+@using System.Globalization
 
 <div class="card text-center" style="display: inline-grid">
     <div class="card-header">
@@ -56,13 +58,13 @@
         if (Settings.DateFormat != null)
             return date.ToString(Settings.DateFormat);
 
-        return date.ToString();
+        return date.ToString(CultureInfo.InvariantCulture);
     }
 
     /// <summary>
     /// Removes an entry from the database
     /// </summary>
-    /// <param name="entryTime">Time of the entry to remove</param>
+    /// <param name="entry">Entry to remove</param>
     private async void RemoveEntry(DrugEntry entry)
     {
         //add doses to amount left

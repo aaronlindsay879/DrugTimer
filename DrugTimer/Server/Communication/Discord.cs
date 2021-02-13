@@ -17,12 +17,15 @@ namespace DrugTimer.Server.Communication
         /// Handles sending a message to a given webhook url
         /// </summary>
         /// <param name="entry">Entry to send</param>
+        /// <param name="drugName">Name of drug</param>
         /// <param name="webHookUrl">Webhook to send to</param>
         /// <returns></returns>
         public static async Task SendMessage(DrugEntry entry, string drugName, string webHookUrl)
         {
-            var messageContent = new JObject();
-            messageContent["content"] = $"Timer started for {drugName} at {entry.Time}";
+            var messageContent = new JObject
+            {
+                ["content"] = $"Timer started for {drugName} at {entry.Time}"
+            };
 
             var content = new StringContent(messageContent.ToString(), Encoding.UTF8, "application/json");
             using HttpResponseMessage response = await HttpClient.PostAsync(webHookUrl, content);

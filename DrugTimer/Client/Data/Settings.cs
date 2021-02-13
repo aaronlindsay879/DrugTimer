@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DrugTimer.Client
+namespace DrugTimer.Client.Data
 {
     /// <summary>
     /// Class representing user settings

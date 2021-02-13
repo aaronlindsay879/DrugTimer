@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @using DrugTimer.Shared
 @using System.Globalization
+@using DrugTimer.Client.Data
 
 <div class="card text-center" style="display: inline-grid">
     <div class="card-header">
@@ -22,8 +23,8 @@
     </div>
     <ul class="list-group list-group-flush">
         <li class="list-group-item">
-            <label for="count" style="width: 130px">Prescription count</label>
-            <input type="number" id="count" @bind="@_prescriptionCount" style="width: 180px" />
+            <label for="prescriptionCount" style="width: 130px">Prescription count</label>
+            <input type="number" id="prescriptionCount" @bind="@_prescriptionCount" style="width: 180px" />
             <br />
             <button class="btn btn-primary" @onclick="@CreatePrescription">Add prescription</button>
         </li>
