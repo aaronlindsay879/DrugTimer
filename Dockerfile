@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:5.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /source
 
 COPY DrugTimer/Client/*.csproj DrugTimer/Client/
@@ -10,9 +10,9 @@ COPY DrugTimer.sln ./
 COPY DrugTimer/Client/ ./DrugTimer/Client/
 COPY DrugTimer/Server/ ./DrugTimer/Server/
 COPY DrugTimer/Shared/ ./DrugTimer/Shared/
-RUN dotnet publish DrugTimer.sln -c release -o /app -r linux-musl-x64 --self-contained true --no-restore /p:PublishTrimmed=true /p:PublishReadyToRun=true
+RUN dotnet publish DrugTimer.sln -c release -o /app -r linux-musl-x64 --self-contained true --no-restore /p:PublishTrimmed=true
 
-FROM mcr.microsoft.com/dotnet/core/runtime-deps:5.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:5.0-alpine-amd64
 WORKDIR /app
 COPY --from=build /app ./
 
