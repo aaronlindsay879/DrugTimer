@@ -51,7 +51,9 @@ namespace DrugTimer.Server.Persistence
             //create a command, set the text and set all parameters to given DrugInfo
             var command = connection.CreateCommand();
             command.CommandText = @"SELECT * FROM tblDrugEntries
-                                    WHERE DrugGuid = $drugGuid";
+                                    WHERE DrugGuid = $drugGuid
+                                    ORDER BY Time DESC";
+            
 
             command.Parameters.AddWithValue("$drugGuid", drugInfo.Guid);
 

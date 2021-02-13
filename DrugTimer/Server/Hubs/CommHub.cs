@@ -1,4 +1,5 @@
-﻿using DrugTimer.Server.Communication;
+﻿using System.Linq;
+using DrugTimer.Server.Communication;
 using DrugTimer.Server.Persistence;
 using DrugTimer.Shared;
 using DrugTimer.Shared.Extensions;
@@ -17,9 +18,15 @@ namespace DrugTimer.Server.Hubs
         /// </summary>
         /// <param name="connectionId">Connection to send data to</param>
         /// <returns></returns>
-        public async Task SendInitialData(string connectionId)
+        public async Task SendInitialData(string connectionId, int count)
         {
             var drugInfos = Database.GetDrugInfo();
+            foreach (var info in drugInfos)
+            {
+                info.ReCalculateStats();
+                info.Entries = info.Entries.Take(count).ToList();
+            }
+
             await Clients.Client(connectionId).SendAsync("SendInitialData", drugInfos);
         }
 
@@ -31,6 +38,7 @@ namespace DrugTimer.Server.Hubs
         public async Task AddDrugInfo(DrugInfo info)
         {
             Database.AddDrugInfo(info);
+            
             await Clients.All.SendAsync("AddDrugInfo", info);
         }
 
@@ -42,6 +50,7 @@ namespace DrugTimer.Server.Hubs
         public async Task RemoveDrugInfo(DrugInfo info)
         {
             Database.RemoveDrugInfo(info);
+            
             await Clients.All.SendAsync("RemoveDrugInfo", info);
         }
 
@@ -53,6 +62,7 @@ namespace DrugTimer.Server.Hubs
         public async Task UpdateDrugInfo(DrugInfo info)
         {
             Database.UpdateDrugInfo(info);
+            
             await Clients.All.SendAsync("UpdateDrugInfo", info);
         }
 
@@ -67,10 +77,12 @@ namespace DrugTimer.Server.Hubs
             Database.AddDrugEntry(entry);
             Database.UpdateNumberLeft(entry.DrugGuid, amount);
 
-            await Clients.All.SendAsync("AddDrugEntry", entry);
-
             //sends a discord message, if enabled
             DrugInfo relevantInfo = Database.GetDrugInfo().FirstGuid(entry.DrugGuid);
+            relevantInfo.ReCalculateStats();
+            
+            await Clients.All.SendAsync("AddDrugEntry", entry, relevantInfo.Stats);
+            
             if (relevantInfo.DrugSettings.DiscordWebHookEnabled)
                 await Discord.SendMessage(entry, relevantInfo.Name, relevantInfo.DrugSettings.DiscordWebHook);
         }
@@ -85,8 +97,11 @@ namespace DrugTimer.Server.Hubs
         {
             Database.RemoveDrugEntry(entry);
             Database.UpdateNumberLeft(entry.DrugGuid, amount);
+            
+            DrugInfo relevantInfo = Database.GetDrugInfo().FirstGuid(entry.DrugGuid);
+            relevantInfo.ReCalculateStats();
 
-            await Clients.All.SendAsync("RemoveDrugEntry", entry);
+            await Clients.All.SendAsync("RemoveDrugEntry", entry, relevantInfo.Stats);
         }
 
         /// <summary>
@@ -94,10 +109,16 @@ namespace DrugTimer.Server.Hubs
         /// </summary>
         /// <param name="entry">Entry to update</param>
         /// <returns></returns>
-        public async Task UpdateDrugEntry(DrugEntry entry)
+        public async Task UpdateDrugEntry(DrugEntry entry, decimal amount)
         {
             Database.UpdateDrugEntry(entry);
-            await Clients.All.SendAsync("UpdateDrugEntry", entry);
+            
+            DrugInfo relevantInfo = Database.GetDrugInfo().FirstGuid(entry.DrugGuid);
+            relevantInfo.ReCalculateStats();
+            
+            Database.UpdateNumberLeft(entry.DrugGuid, relevantInfo.NumberLeft + amount);
+            
+            await Clients.All.SendAsync("UpdateDrugEntry", entry, relevantInfo.Stats, relevantInfo.NumberLeft + amount);
         }
     }
 }

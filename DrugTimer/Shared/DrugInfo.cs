@@ -31,8 +31,7 @@ namespace DrugTimer.Shared
         public List<DrugEntry> Entries { get; set; } = new List<DrugEntry>();
         public List<DosageInfo> Dosages { get; set; } = new List<DosageInfo>();
 
-        public decimal Average;
-        public TimeSpan AverageHours;
+        public DrugStats Stats { get; set; }= new();
 
         /// <summary>
         /// Calculates the average number of doses per day
@@ -92,8 +91,8 @@ namespace DrugTimer.Shared
         /// </summary>
         public void ReCalculateStats()
         {
-            Average = AveragePerDay();
-            AverageHours = AverageHoursBetweenDoses();
+            Stats.Average = AveragePerDay();
+            Stats.AverageHours = AverageHoursBetweenDoses();
         }
     }
 }

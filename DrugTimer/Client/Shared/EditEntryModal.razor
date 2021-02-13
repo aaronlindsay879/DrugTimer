@@ -46,7 +46,8 @@
     /// </summary>
     private async void Save()
     {
-        await Connection.SendAsync("UpdateDrugEntry", _localDrugEntry);
+        await Connection.SendAsync("UpdateDrugEntry", _localDrugEntry, (decimal)(Entry.Count - _localDrugEntry.Count));
+        Console.WriteLine(Entry.Count - _localDrugEntry.Count);
 
         await BlazoredModal.Close(ModalResult.Ok(true));
     }

@@ -77,15 +77,15 @@ else
         hubConnection.On<DrugInfo>("UpdateDrugInfo", UpdateDrugInfo);
 
         //add handlers for DrugEntry requests
-        hubConnection.On<DrugEntry>("AddDrugEntry", AddDrugEntry);
-        hubConnection.On<DrugEntry>("RemoveDrugEntry", RemoveDrugEntry);
-        hubConnection.On<DrugEntry>("UpdateDrugEntry", UpdateDrugEntry);
+        hubConnection.On<DrugEntry, DrugStats>("AddDrugEntry", AddDrugEntry);
+        hubConnection.On<DrugEntry, DrugStats>("RemoveDrugEntry", RemoveDrugEntry);
+        hubConnection.On<DrugEntry, DrugStats, decimal>("UpdateDrugEntry", UpdateDrugEntry);
 
         //start socket
         await hubConnection.StartAsync();
 
         //tell server to send all data
-        await hubConnection.SendAsync("SendInitialData", hubConnection.ConnectionId);
+        await hubConnection.SendAsync("SendInitialData", hubConnection.ConnectionId, 10);
     }
 
     /// <summary>
@@ -96,11 +96,10 @@ else
     {
         //add the received information, and calculate stats for all of it
         _information = new List<DrugInfo>(infos);
+        
+        Console.WriteLine(infos[0].Stats.Average);
 
-        foreach (var info in _information)
-            info.ReCalculateStats();
-
-        //ensure nested pages has all needed keys
+    //ensure nested pages has all needed keys
         foreach (string user in _information.GroupBy(x => x.User).Select(x => x.Key))
             NestedPages.Add(user, new List<TabPage>());
 
@@ -142,7 +141,6 @@ else
     private async void UpdateDrugInfo(DrugInfo info)
     {
         int index = _information.FindIndex(x => x.Guid == info.Guid);
-        info.ReCalculateStats();
 
         _information[index] = info;
 
@@ -153,7 +151,7 @@ else
     /// Handler for DrugEntry events - adds the given DrugEntry to local copy, ensuring it's added to correct DrugInfo
     /// </summary>
     /// <param name="info">DrugEntry to add</param>
-    private async void AddDrugEntry(DrugEntry entry)
+    private async void AddDrugEntry(DrugEntry entry, DrugStats stats)
     {
         //check if DrugInfo exists with that name
         if (!_information.Any(x => x.Guid == entry.DrugGuid))
@@ -161,14 +159,16 @@ else
             Console.WriteLine("no drug with that guid, probably a big error?");
             return;
         }
+        
+        Console.WriteLine($"average: {stats.Average}; average-hours: {stats.AverageHours}");
 
         //find info with given guid
-        DrugInfo info = _information.FirstGuid(entry.DrugGuid);
+        var info = _information.FirstGuid(entry.DrugGuid);
+        _information.FirstGuid(entry.DrugGuid).Stats = stats;
 
         //add entry, sort and recalculate stats
         info.Entries.Add(entry);
         info.Entries = info.Entries.OrderBy(x => x.Time).ToList();
-        info.ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
     }
@@ -177,7 +177,7 @@ else
     /// Handler for RemoveDrugEntry events - removes  the given DrugEntry to local copy, ensuring it's added to correct DrugInfo
     /// </summary>
     /// <param name="info">DrugEntry to remove</param>
-    private async void RemoveDrugEntry(DrugEntry entry)
+    private async void RemoveDrugEntry(DrugEntry entry, DrugStats stats)
     {
         //check if DrugInfo exists with that name
         if (!_information.Any(x => x.Guid == entry.DrugGuid))
@@ -188,10 +188,10 @@ else
 
         //find info with given guid
         DrugInfo info = _information.FirstGuid(entry.DrugGuid);
+        _information.FirstGuid(entry.DrugGuid).Stats = stats;
 
         //remove the given entry and recalculate stats
         info.Entries.RemoveAll(x => x.EntryGuid == entry.EntryGuid);
-        info.ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
     }
@@ -200,17 +200,18 @@ else
     /// Handler for UpdateDrugEntry events - updates it (as the name suggests)
     /// </summary>
     /// <param name="info">DrugEntry to update</param>
-    private async void UpdateDrugEntry(DrugEntry entry)
+    private async void UpdateDrugEntry(DrugEntry entry, DrugStats stats, decimal numberLeft)
     {
         //find info with given guid
         DrugInfo info = _information.FirstGuid(entry.DrugGuid);
-
+        _information.FirstGuid(entry.DrugGuid).Stats = stats;
+        info.NumberLeft = numberLeft;
+        
         //find index of drugentry with given guid
         int index = info.Entries.FindIndex(x => x.EntryGuid == entry.EntryGuid);
 
         //update that entry, and recalcuate stats
         info.Entries[index] = entry;
-        info.ReCalculateStats();
 
         await InvokeAsync(StateHasChanged);
     }
