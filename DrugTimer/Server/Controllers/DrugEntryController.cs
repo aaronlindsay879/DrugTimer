@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 
 namespace DrugTimer.Server.Controllers
@@ -26,14 +27,24 @@ namespace DrugTimer.Server.Controllers
             _hubContext = hubContext;
         }
 
-        [HttpGet("{id}")]
-        public IEnumerable<DrugEntry> Get(string id)
+        [HttpGet("{guid}")]
+        public IEnumerable<DrugEntry> Get(string guid)
         {
             //create a druginfo with the given id
-            DrugInfo info = new DrugInfo() { Name = id };
+            DrugInfo info = new DrugInfo() { Guid = guid };
 
             //return the drug entries with that id
             return Database.GetDrugEntries(info);
+        }
+
+        [HttpGet("{name}/{count:int}")]
+        public IEnumerable<DrugEntry> Get(string name, int count)
+        {
+            //create a druginfo with the given id
+            DrugInfo info = Database.GetDrugInfo().First(x => x.Name == name);
+
+            //return the drug entries with that id
+            return Database.GetDrugEntries(info, count);
         }
 
         [HttpPost]

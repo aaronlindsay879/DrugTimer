@@ -42,7 +42,7 @@ namespace DrugTimer.Server.Persistence
         /// Gets a list of all times associated with a given DrugInfo
         /// </summary>
         /// <returns>A list of DateTimes</returns>
-        public static List<DrugEntry> GetDrugEntries(DrugInfo drugInfo)
+        public static List<DrugEntry> GetDrugEntries(DrugInfo drugInfo, int count = -1)
         {
             //creates and opens the connection
             using var connection = new SQLiteConnection(_connectionInfo);
@@ -53,7 +53,12 @@ namespace DrugTimer.Server.Persistence
             command.CommandText = @"SELECT * FROM tblDrugEntries
                                     WHERE DrugGuid = $drugGuid
                                     ORDER BY Time DESC";
-            
+
+            if (count > 0)
+            {
+                command.CommandText += "\nLIMIT $count";
+                command.Parameters.AddWithValue("$count", count);
+            }
 
             command.Parameters.AddWithValue("$drugGuid", drugInfo.Guid);
 
@@ -78,10 +83,7 @@ namespace DrugTimer.Server.Persistence
                 entries.Add(entry);
             }
 
-            //sort the list
-            entries = entries.OrderBy(x => x.Time).ToList();
-
-            return entries;
+            return entries.ToList();
         }
 
         /// <summary>

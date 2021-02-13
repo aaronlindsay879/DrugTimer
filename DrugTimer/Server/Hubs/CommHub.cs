@@ -24,7 +24,8 @@ namespace DrugTimer.Server.Hubs
             foreach (var info in drugInfos)
             {
                 info.ReCalculateStats();
-                info.Entries = info.Entries.Take(count).ToList();
+                
+                info.Entries = info.Entries.Take(count).Reverse().ToList();
             }
 
             await Clients.Client(connectionId).SendAsync("SendInitialData", drugInfos);
