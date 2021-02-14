@@ -167,6 +167,7 @@ else
         //find info with given guid
         var info = _information.FirstGuid(entry.DrugGuid);
         _information.FirstGuid(entry.DrugGuid).Stats = stats;
+        _information.FirstGuid(entry.DrugGuid).NumberLeft -= entry.Count;
 
         //add entry, sort and recalculate stats
         info.Entries.Add(entry);

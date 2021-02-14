@@ -168,7 +168,8 @@ namespace DrugTimer.Server.Persistence
         /// </summary>
         /// <param name="guid">Guid of drug to update</param>
         /// <param name="amount">Amount of doses left</param>
-        public static void UpdateNumberLeft(string guid, decimal amount)
+        /// <param name="set">Whether to set the value instead of updating</param>
+        public static void UpdateNumberLeft(string guid, decimal amount, bool set = true)
         {
             //creates and opens the connection
             using var connection = new SQLiteConnection(_connectionInfo);
@@ -176,10 +177,10 @@ namespace DrugTimer.Server.Persistence
 
             //create a command, set the text and set all parameters to given info
             var command = connection.CreateCommand();
-            command.CommandText = @"UPDATE tblDrugInfo
-                                       SET NumberLeft = $numberLeft
-                                     WHERE Guid LIKE $guid";
-
+            command.CommandText = $@"UPDATE tblDrugInfo
+                                    SET NumberLeft = {(set ? "$numberLeft" : "NumberLeft - $numberLeft")}
+                                    WHERE Guid LIKE $guid";
+                
             command.Parameters.AddWithValue("$numberLeft", amount);
             command.Parameters.AddWithValue("$guid", guid);
 

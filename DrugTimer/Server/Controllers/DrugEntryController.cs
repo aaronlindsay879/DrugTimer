@@ -51,14 +51,20 @@ namespace DrugTimer.Server.Controllers
             {
                 DrugGuid = data.GetProperty("Guid").ToString(),
                 Time = DateTime.Parse(data.GetProperty("Time").ToString()!),
-                Count = data.GetProperty("Count").GetInt32()
+                Count = data.GetProperty("Count").GetInt32(),
+                EntryGuid =  Guid.NewGuid().ToString()
             };
 
             //add the entry to the database
             Database.AddDrugEntry(entry);
+            Database.UpdateNumberLeft(entry.DrugGuid, entry.Count, false);
 
+            //sends a discord message, if enabled
+            DrugInfo relevantInfo = Database.GetDrugInfo(entry.DrugGuid)[0];
+            relevantInfo.ReCalculateStats();
+            
             //send new entry to all clients
-            await _hubContext.Clients.All.SendAsync("AddDrugEntry", entry);
+            await _hubContext.Clients.All.SendAsync("AddDrugEntry", entry, relevantInfo);
         }
     }
 }
